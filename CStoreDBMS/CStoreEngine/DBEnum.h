@@ -532,4 +532,4 @@ typedef enum __DBOperationType {
 
 } DBOperationType;
 
-#endif // ___CSTORE_DBENUM
+#endif /* ___CSTORE_DBENUM */

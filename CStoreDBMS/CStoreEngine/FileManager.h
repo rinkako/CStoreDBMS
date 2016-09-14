@@ -1,5 +1,5 @@
-#ifndef _DBFM_
-#define _DBFM_
+#ifndef ___CSTORE_FILEMANAGER
+#define ___CSTORE_FILEMANAGER
 
 #include <string.h>
 #include <stdio.h>
@@ -54,4 +54,4 @@ private:
   FileManager();
 };
 
-#endif
+#endif /* ___CSTORE_FILEMANAGER */

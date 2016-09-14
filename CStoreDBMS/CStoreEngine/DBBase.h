@@ -6,4 +6,4 @@
 #include "DBMarcos.h"
 // 引用全局辅助函数
 #include "DBCommonUtils.hpp"
-#endif // ___CSTORE_DBBASE
+#endif /* ___CSTORE_DBBASE */
