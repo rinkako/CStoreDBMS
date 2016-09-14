@@ -1,5 +1,0 @@
-#ifndef __CSTORE_DBCONSTANT
-#define __CSTORE_DBCONSTANT
-
-
-#endif // __CSTORE_DBCONSTANT

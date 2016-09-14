@@ -67,20 +67,40 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DBBase.h" />
+    <ClInclude Include="DBCCandidateFunction.h" />
+    <ClInclude Include="DBCLL1SyntaxParserMap.h" />
     <ClInclude Include="DBCommonUtils.hpp" />
-    <ClInclude Include="DBConstant.h" />
+    <ClInclude Include="DBCBase.h" />
     <ClInclude Include="DBController.h" />
+    <ClInclude Include="DBCSyntaxTreeNode.h" />
+    <ClInclude Include="DBCTokenStream.h" />
     <ClInclude Include="DBEnum.h" />
     <ClInclude Include="DBMarcos.h" />
     <ClInclude Include="DBServices.h" />
-    <ClInclude Include="DBTypes.h" />
     <ClInclude Include="FileManager.h" />
+    <ClInclude Include="IBridge.h" />
+    <ClInclude Include="IDatabase.h" />
+    <ClInclude Include="ILexicalAnalyzer.h" />
+    <ClInclude Include="IPile.h" />
+    <ClInclude Include="ISyntaxParser.h" />
+    <ClInclude Include="DBCToken.h" />
+    <ClInclude Include="DBCDeclaration.h" />
     <ClInclude Include="QueryManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DBCCandidateFunction.cpp" />
+    <ClCompile Include="DBCLL1SyntaxParserMap.cpp" />
     <ClCompile Include="DBController.cpp" />
+    <ClCompile Include="DBCSyntaxTreeNode.cpp" />
+    <ClCompile Include="DBCToken.cpp" />
+    <ClCompile Include="DBCTokenStream.cpp" />
     <ClCompile Include="DBServices.cpp" />
     <ClCompile Include="FileManager.cpp" />
+    <ClCompile Include="IBridge.cpp" />
+    <ClCompile Include="IDatabase.cpp" />
+    <ClCompile Include="ILexicalAnalyzer.cpp" />
+    <ClCompile Include="IPile.cpp" />
+    <ClCompile Include="ISyntaxParser.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="QueryManager.cpp" />
   </ItemGroup>

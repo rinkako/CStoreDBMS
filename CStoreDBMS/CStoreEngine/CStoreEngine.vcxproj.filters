@@ -21,16 +21,10 @@
     <ClInclude Include="DBCommonUtils.hpp">
       <Filter>DBBase</Filter>
     </ClInclude>
-    <ClInclude Include="DBConstant.h">
-      <Filter>DBBase</Filter>
-    </ClInclude>
     <ClInclude Include="DBEnum.h">
       <Filter>DBBase</Filter>
     </ClInclude>
     <ClInclude Include="DBMarcos.h">
-      <Filter>DBBase</Filter>
-    </ClInclude>
-    <ClInclude Include="DBTypes.h">
       <Filter>DBBase</Filter>
     </ClInclude>
     <ClInclude Include="DBServices.h">
@@ -44,6 +38,42 @@
     </ClInclude>
     <ClInclude Include="DBController.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="IBridge.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="IDatabase.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="ILexicalAnalyzer.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="IPile.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="ISyntaxParser.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="DBCToken.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="DBCTokenStream.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="DBCCandidateFunction.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="DBCSyntaxTreeNode.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="DBCLL1SyntaxParserMap.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="DBCDeclaration.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="DBCBase.h">
+      <Filter>DBCompiler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +91,36 @@
     </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="IBridge.cpp">
+      <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="IDatabase.cpp">
+      <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="ILexicalAnalyzer.cpp">
+      <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="IPile.cpp">
+      <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="ISyntaxParser.cpp">
+      <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="DBCToken.cpp">
+      <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="DBCTokenStream.cpp">
+      <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="DBCCandidateFunction.cpp">
+      <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="DBCSyntaxTreeNode.cpp">
+      <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="DBCLL1SyntaxParserMap.cpp">
+      <Filter>DBCompiler</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
