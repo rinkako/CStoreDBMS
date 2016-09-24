@@ -319,6 +319,41 @@ bool LexicalAnalyzer::GetTwoCharaCalculator(Token *result) {
 // LexicalAnalyzer获取器，得到保留字对应的Token
 bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
   int glen = this->GetSourceCode().length();
+  // 8字符的情况
+  if (PTRnextLetter + 8 <= glen) {
+    bool okFlag = false;
+    istr str = this->GetSourceCode().substr(PTRnextLetter, 8);
+    std::transform(str.begin(), str.end(), str.begin(), tolower);
+    if (str == "compress") {
+      result->aType = TokenType::token_compress;
+      if (PTRnextLetter + 8 <= glen) {
+        if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 8]) != CharaType::Letter) {
+          okFlag = true;
+        }
+      }
+      else {
+        okFlag = true;
+      }
+    }
+    else if (str == "retrieve") {
+      result->aType = TokenType::token_retrieve;
+      if (PTRnextLetter + 8 <= glen) {
+        if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 8]) != CharaType::Letter) {
+          okFlag = true;
+        }
+      }
+      else {
+        okFlag = true;
+      }
+    }
+    if (okFlag) {
+      // 修改token的标识符
+      result->detail = str;
+      // 跳游程
+      Jump(8);
+      return true;
+    }
+  }
   // 7字符的情况
   if (PTRnextLetter + 7 <= glen) {
     bool okFlag = false;
@@ -449,6 +484,17 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
         okFlag = true;
       }
     }
+    else if (str == "count") {
+      result->aType = TokenType::token_count;
+      if (PTRnextLetter + 5 <= glen) {
+        if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 5]) != CharaType::Letter) {
+          okFlag = true;
+        }
+      }
+      else {
+        okFlag = true;
+      }
+    }
     if (okFlag) {
       // 修改token的标识符
       result->detail = str;
@@ -475,6 +521,28 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
     }
     else if (str == "from") {
       result->aType = TokenType::token_from;
+      if (PTRnextLetter + 4 <= glen) {
+        if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 4]) != CharaType::Letter) {
+          okFlag = true;
+        }
+      }
+      else {
+        okFlag = true;
+      }
+    }
+    else if (str == "load") {
+      result->aType = TokenType::token_load;
+      if (PTRnextLetter + 4 <= glen) {
+        if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 4]) != CharaType::Letter) {
+          okFlag = true;
+        }
+      }
+      else {
+        okFlag = true;
+      }
+    }
+    else if (str == "join") {
+      result->aType = TokenType::token_join;
       if (PTRnextLetter + 4 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 4]) != CharaType::Letter) {
           okFlag = true;
@@ -519,11 +587,46 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
         okFlag = true;
       }
     }
+    else if (str == "set") {
+      result->aType = TokenType::token_set;
+      if (PTRnextLetter + 3 <= glen) {
+        if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 3]) != CharaType::Letter) {
+          okFlag = true;
+        }
+      }
+      else {
+        okFlag = true;
+      }
+    }
     if (okFlag) {
       // 修改token的标识符
       result->detail = str;
       // 跳游程
       Jump(3);
+      return true;
+    }
+  }
+  // 状态转移，2字符
+  if (PTRnextLetter + 2 <= glen) {
+    bool okFlag = false;
+    istr str = this->GetSourceCode().substr(PTRnextLetter, 2);
+    std::transform(str.begin(), str.end(), str.begin(), tolower);
+    if (str == "on") {
+      result->aType = TokenType::token_on;
+      if (PTRnextLetter + 2 <= glen) {
+        if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 2]) != CharaType::Letter) {
+          okFlag = true;
+        }
+      }
+      else {
+        okFlag = true;
+      }
+    }
+    if (okFlag) {
+      // 修改token的标识符
+      result->detail = str;
+      // 跳游程
+      Jump(2);
       return true;
     }
   }

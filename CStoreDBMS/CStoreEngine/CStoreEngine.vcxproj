@@ -72,6 +72,7 @@
     <ClInclude Include="DBCommonUtils.hpp" />
     <ClInclude Include="DBCBase.h" />
     <ClInclude Include="DBController.h" />
+    <ClInclude Include="DBCProxy.hpp" />
     <ClInclude Include="DBCSyntaxTreeNode.h" />
     <ClInclude Include="DBCTokenStream.h" />
     <ClInclude Include="DBEnum.h" />

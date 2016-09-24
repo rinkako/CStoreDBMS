@@ -55,7 +55,7 @@ private:
   // 当前句子语法树
   SyntaxTreeNode* currentTree;
   // 当前代理
-  IBridgeProxy currentProxy;
+  DBCProxy currentProxy;
   // 源代码
   istr sourceCode;
   // 源代码路径

@@ -1288,10 +1288,3 @@ SyntaxTreeNode* Homura(SyntaxTreeNode* _myNode, void* _myParser, CFunctionType _
     return iParser->NextNode(_myNode, iParser);
   }
 }
-
-
-/********************************************************
-Author:      编译原理计应1班12小组
-Date:        2014-11-27
-Description: SSQL语法分析器
-*********************************************************/

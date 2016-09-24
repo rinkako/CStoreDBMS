@@ -28,7 +28,7 @@ public:
   //参数列表：
   //     proxy 解释执行的命令
   //返 回 值： bool 是否成功解释
-  bool Interpreter(IBridgeProxy&);
+  bool Interpreter(DBCProxy&);
 
   //函数作用： 查询一个执行列的字典值
   //参数列表：
@@ -42,7 +42,7 @@ public:
   //    myexec 数据库指针
   //   myproxy 代理器指针
   //返 回 值： bool 表达式真值
-  bool static AST(SyntaxTreeNode*, IDatabase*, IBridgeProxy*);
+  bool static AST(SyntaxTreeNode*, IDatabase*, DBCProxy*);
 
 private:
   //函数作用： 异常处理函数
@@ -75,7 +75,7 @@ private:
   //      cond 条件子句树的指针
   //    iproxy 代理指针
   //返 回 值： bool 操作成功与否
-  bool Delete(istr, StrVec&, SyntaxTreeNode* = NULL, IBridgeProxy* = NULL);
+  bool Delete(istr, StrVec&, SyntaxTreeNode* = NULL, DBCProxy* = NULL);
 
   //函数作用： 向一个表发出查询
   //参数列表：
@@ -94,7 +94,7 @@ private:
   //      cond 条件子句树的指针
   //    iproxy 代理指针
   //返 回 值： bool 操作成功与否
-  bool Select(istr, StrVec&, bool, StrVec&, SyntaxTreeNode* = NULL, IBridgeProxy* = NULL);
+  bool Select(istr, StrVec&, bool, StrVec&, SyntaxTreeNode* = NULL, DBCProxy* = NULL);
 
   //函数作用： 查询表的序号
   //参数列表：

@@ -1,17 +1,34 @@
 #ifndef ___CSTORE_DBENUM
 #define ___CSTORE_DBENUM
 
+// 枚举：数据库运行模式
 typedef enum __RunType {
+  // 命令直接调用
+  RUN_COMMAND,
+  // 控制台
   RUN_CONSOLE,
-  RUN_INFILE,
-  RUN_DEBUG
+  // SQL文件
+  RUN_INFILE
 } RunType;
 
+// 枚举：数据库动作
 typedef enum __DashType {
   // 空
   dash_nop,
+  // 载入
+  dash_load,
   // 建表
   dash_create,
+  // 检索
+  dash_retrieve,
+  // 压缩
+  dash_compress,
+  // 拼表
+  dash_join,
+  // 查询记录数量
+  dash_count,
+  // 更新
+  dash_update,
   // 插入行
   dash_insert,
   // 删除行
@@ -20,6 +37,7 @@ typedef enum __DashType {
   dash_select
 } DashType;
 
+// 枚举：字符类型
 typedef enum __CharaType {
   // 未知
   cUnknown,
@@ -91,6 +109,7 @@ typedef enum __CharaType {
   Space,
 } CharaType;
 
+// 枚举：Token类型
 typedef enum __ITokenType {
   // 未知的单词符号
   unknown,
@@ -166,8 +185,23 @@ typedef enum __ITokenType {
   token_startEnd,
   // 标识符
   identifier,
+  // "load"
+  token_load,
+  // "retrieve"
+  token_retrieve,
+  // "compress"
+  token_compress,
+  // "join"
+  token_join,
+  // "count"
+  token_count,
+  // "on"
+  token_on,
+  // "set"
+  token_set
 } TokenType;
 
+// 枚举：语法树节点类型
 typedef enum __ISyntaxType
 {
   // <ssql_stmt> ::= <create_stmt> | <insert_stmt> | <delete_stmt> | <query_stmt>;
@@ -312,6 +346,7 @@ typedef enum __ISyntaxType
   tail_startEndLeave
 } SyntaxType;
 
+// 枚举：语法候选式类型
 typedef enum __FunctionType {
   // <ssql_stmt> -> <create_stmt>
   deri___ssql_stmt__create_stmt_1,

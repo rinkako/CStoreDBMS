@@ -1,8 +1,10 @@
 #ifndef ___CSTORE_DBCOMPILER
 #define ___CSTORE_DBCOMPILER
 
-#include "DBCBase.h"
+#include "DBBase.h"
 #include "DBCToken.h"
+#include "DBCProxy.hpp"
+#include "DBCDeclaration.h"
 #include "DBCTokenStream.h"
 #include "DBCSyntaxTreeNode.h"
 #include "DBCCandidateFunction.h"

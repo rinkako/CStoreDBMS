@@ -18,9 +18,9 @@ void IPile::SetParseTree(SyntaxTreeNode* _myNode) {
 }
 
 // IPile启动语义分析器
-IBridgeProxy IPile::Semanticer() {
+DBCProxy IPile::Semanticer() {
   // 定义结果proxy
-  IBridgeProxy myProxy;
+  DBCProxy myProxy;
   myProxy.id = this->proxyID++;
   myProxy.encounter = 0;
   myProxy.errorBit = false;
@@ -37,7 +37,7 @@ IBridgeProxy IPile::Semanticer() {
 }
 
 // IPile语法树遍历（flag：0表，1列，2主列，3列初始值）
-void IPile::Mise(IBridgeProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
+void IPile::Mise(DBCProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
   switch (mynode->nodeSyntaxType)
   {
   case SyntaxType::Unknown:
@@ -216,10 +216,3 @@ void IPile::Mise(IBridgeProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
     break;
   }
 }
-
-
-/********************************************************
-Author:      编译原理计应1班12小组
-Date:        2014-11-30
-Description: SSQL语义分析器
-*********************************************************/

@@ -24,7 +24,7 @@ public:
   //函数作用： 启动语义分析器
   //参数列表： N/A
   //返 回 值： IBridgeProxy 用于语法解释的代理容器
-  IBridgeProxy Semanticer();
+  DBCProxy Semanticer();
 
 private:
   //函数作用： 语法树遍历
@@ -33,7 +33,7 @@ private:
   //    mynode 递归节点
   //      flag 标识符触发器类型：0-表，1-列，2-主列，3-列的初值
   //返 回 值： N/A
-  void Mise(IBridgeProxy&, SyntaxTreeNode*, int);
+  void Mise(DBCProxy&, SyntaxTreeNode*, int);
 
   // 语法树
   SyntaxTreeNode* parseTree;

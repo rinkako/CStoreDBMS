@@ -36,7 +36,7 @@ bool IDatabase::Exist(istr name) {
 }
 
 // IDatabase执行一条语句
-bool IDatabase::Interpreter(IBridgeProxy &proxy) {
+bool IDatabase::Interpreter(DBCProxy &proxy) {
   // 取得操作码
   DashType opCode = proxy.opCode;
   // 启动计时器
@@ -80,7 +80,7 @@ bool IDatabase::Create(istr name, StrVec &pi, StrVec &ppi, TablePileDictionary &
 }
 
 // IDatabase删行
-bool IDatabase::Delete(istr name, StrVec &condVec, SyntaxTreeNode* cond, IBridgeProxy* iproxy) {
+bool IDatabase::Delete(istr name, StrVec &condVec, SyntaxTreeNode* cond, DBCProxy* iproxy) {
   return true;
 }
 
@@ -90,7 +90,7 @@ bool IDatabase::Insert(istr name, StrVec &pilist, IntVec &pivalue, bool &errorbi
 }
 
 // IDatabase查询
-bool IDatabase::Select(istr name, StrVec &pi, bool star, StrVec &condVec, SyntaxTreeNode* cond, IBridgeProxy* iproxy) {
+bool IDatabase::Select(istr name, StrVec &pi, bool star, StrVec &condVec, SyntaxTreeNode* cond, DBCProxy* iproxy) {
   return true;
 }
 
@@ -106,7 +106,7 @@ bool IDatabase::iException(istr _info, int _index) {
 }
 
 // IDatabase抽象语法树求值
-bool IDatabase::AST(SyntaxTreeNode* mynode, IDatabase* myexec, IBridgeProxy* myproxy) {
+bool IDatabase::AST(SyntaxTreeNode* mynode, IDatabase* myexec, DBCProxy* myproxy) {
   istr optype;
   switch (mynode->nodeSyntaxType)
   {
@@ -281,10 +281,3 @@ bool IDatabase::AST(SyntaxTreeNode* mynode, IDatabase* myexec, IBridgeProxy* myp
   }
   return true;
 }
-
-
-/********************************************************
-Author:      编译原理计应1班12小组
-Date:        2014-11-30
-Description: SSQL执行器
-*********************************************************/

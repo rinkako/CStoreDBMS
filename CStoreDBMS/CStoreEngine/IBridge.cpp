@@ -208,10 +208,3 @@ istr IBridge::readCode(istr path) {
 
 // IBridge唯一单例的定义
 IBridge* IBridge::iInstance = NULL;
-
-
-/********************************************************
-Author:      编译原理计应1班12小组
-Date:        2014-11-30
-Description: 解释器的桥接
-*********************************************************/
