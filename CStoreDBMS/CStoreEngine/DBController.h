@@ -14,12 +14,12 @@ public:
   //       argc 参数的个数
   //       argv 参数向量
   // 返 回 值： N/A
-  void DBStartDash(int argc, char* argv[]);
+  void DBInit(int argc, char* argv[]);
 
   // 函数作用： 将前端动作转化为后台动作
   // 参数列表： N/A
   // 返 回 值： 操作成功与否
-  bool DBExecute();
+  bool DBStartDash();
 
 private:
   // 函数作用： 私有的构造器
