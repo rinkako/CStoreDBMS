@@ -57,6 +57,8 @@ private:
   istr sourcePath;
   // 运行类型
   RunType iType;
+
+  DISALLOW_COPY_AND_ASSIGN(DBBridge);
 }; /* DBBridge */
 
 #endif /* ___CSTORE_DBBRIDGE */

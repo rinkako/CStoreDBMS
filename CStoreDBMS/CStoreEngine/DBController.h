@@ -67,7 +67,6 @@ private:
   // ÇÅÈÝÆ÷
   DBBridge* IBridge = NULL;
 
-  // ×èÖ¹¸´ÖÆºÍ¸³Öµ
   DISALLOW_COPY_AND_ASSIGN(DBController);
 };
 
