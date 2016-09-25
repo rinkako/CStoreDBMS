@@ -77,9 +77,8 @@
     <ClInclude Include="DBCTokenStream.h" />
     <ClInclude Include="DBEnum.h" />
     <ClInclude Include="DBMarcos.h" />
-    <ClInclude Include="DBServices.h" />
     <ClInclude Include="FileManager.h" />
-    <ClInclude Include="IBridge.h" />
+    <ClInclude Include="DBBridge.h" />
     <ClInclude Include="IDatabase.h" />
     <ClInclude Include="ILexicalAnalyzer.h" />
     <ClInclude Include="IPile.h" />
@@ -95,9 +94,8 @@
     <ClCompile Include="DBCSyntaxTreeNode.cpp" />
     <ClCompile Include="DBCToken.cpp" />
     <ClCompile Include="DBCTokenStream.cpp" />
-    <ClCompile Include="DBServices.cpp" />
     <ClCompile Include="FileManager.cpp" />
-    <ClCompile Include="IBridge.cpp" />
+    <ClCompile Include="DBBridge.cpp" />
     <ClCompile Include="IDatabase.cpp" />
     <ClCompile Include="ILexicalAnalyzer.cpp" />
     <ClCompile Include="IPile.cpp" />

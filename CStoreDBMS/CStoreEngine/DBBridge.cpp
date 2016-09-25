@@ -1,7 +1,7 @@
-#include "IBridge.h"
+#include "DBBridge.h"
 
 // IBridge构造函数
-IBridge::IBridge() {
+DBBridge::DBBridge() {
   sourceCodeTokenStream = NULL;
   currentSentence.clear();
   currentSentenceTokenStream.Reset();
@@ -13,32 +13,14 @@ IBridge::IBridge() {
   iType = RunType::RUN_CONSOLE;
 }
 
-// IBridge工厂方法
-IBridge* IBridge::Invoke() {
-  return iInstance == NULL ? iInstance = new IBridge() : iInstance;
-}
-
 // IBridge初始化方法
-void IBridge::Init(int _myArgc, char* _myArgv[]) {
-  // 没有附加参数就进入命令行模式
-  if (_myArgc == 1) {
-    PILEPRINTLN(NEWLINE
-      << "SSQL Interpreter v1.0" << NEWLINE
-      << "Copyright Group 12 of CAS 2012 SYSU" << NEWLINE
-      << "-----------------------------------------" << NEWLINE);
-    this->sourcePath = _myArgv[0];
-    this->iType = RunType::RUN_CONSOLE;
-  }
-  // 否则是读文件的情况
-  else {
-    this->sourcePath = _myArgv[1];
-    this->iType = RunType::RUN_INFILE;
-    this->sourceCode = readCode(this->sourcePath);
-  }
+void DBBridge::Init(RunType gbState, const istr& query) {
+  this->iType = gbState;
+  this->sourceCode = query;
 }
 
 // IBridge执行解释器
-void IBridge::StartDash(bool isDebug) {
+void DBBridge::StartDash(bool isDebug) {
   // 控制台运行情况
   if (this->iType == RunType::RUN_CONSOLE) {
     istr commandBuffer;
@@ -76,10 +58,6 @@ void IBridge::StartDash(bool isDebug) {
       if (commandBuilder == "exit;") {
         PILEPRINTLN("Good Bye!");
         return;
-      }
-      else if (commandBuilder == "show table;") {
-        iDB.ShowTable();
-        continue;
       }
       else if (commandBuilder == "debug;") {
         isDebug = true;
@@ -130,7 +108,7 @@ void IBridge::StartDash(bool isDebug) {
     }
   }
   // 文件读入情况
-  else if (this->iType == RunType::RUN_INFILE) {
+  else if (this->iType == RunType::RUN_INFILE || this->iType == RunType::RUN_COMMAND) {
     // 词法分析
     iLexiana.SetSourceCode(sourceCode);
     sourceCodeTokenStream = iLexiana.Analyze();
@@ -173,22 +151,24 @@ void IBridge::StartDash(bool isDebug) {
       }
       PILEPRINT(NEWLINE);
     }
-    // 执行完毕，等待回车退出
-    PILEPRINTLN("\n# All interpretation missions accomplished!");
-    PILEPRINTLN("# Press Enter to exit");
-    char charBuilder;
-    FOREVER {
-      charBuilder = getchar();
-      if (charBuilder == '\n') {
-        PILEPRINTLN("# Good Bye!");
-        break;
+    if (this->iType == RunType::RUN_INFILE) {
+      // 执行完毕，等待回车退出
+      PILEPRINTLN("\n# All interpretation missions accomplished!");
+      PILEPRINTLN("# Press Enter to exit");
+      char charBuilder;
+      FOREVER {
+        charBuilder = getchar();
+        if (charBuilder == '\n') {
+          PILEPRINTLN("# Good Bye!");
+          break;
+        }
       }
     }
   }
 }
 
 // IBridge读取文件代码
-istr IBridge::readCode(istr path) {
+istr DBBridge::readCode(istr path) {
   ifile infile;
   istr code = "";
   // 打开文件
@@ -205,6 +185,3 @@ istr IBridge::readCode(istr path) {
   infile.close();
   return code;
 }
-
-// IBridge唯一单例的定义
-IBridge* IBridge::iInstance = NULL;

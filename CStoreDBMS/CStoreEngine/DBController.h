@@ -1,6 +1,7 @@
 #ifndef __CSTORE_DBCONTROLLER
 #define __CSTORE_DBCONTROLLER
 #include "DBBase.h"
+#include "DBBridge.h"
 #include <string>
 
 class DBController {
@@ -32,7 +33,21 @@ public:
   //返 回 值： 运行路径字符串
   std::string GetRunPath();
 
+  //函数作用： 析构器
+  //参数列表： N/A
+  ~DBController();
+
 private:
+  //函数作用： 处理控制台终端输入
+  //参数列表： N/A
+  //返 回 值： N/A
+  void Terminal();
+
+  //函数作用： 处理查询语句输入
+  //参数列表： N/A
+  //返 回 值： N/A
+  void Dash(const std::string& query);
+
   //函数作用： 私有的构造器
   //参数列表： N/A
   DBController();
@@ -48,6 +63,9 @@ private:
 
   // 命令行临时查询语句
   std::string tempQuery = "";
+
+  // 桥容器
+  DBBridge* IBridge = NULL;
 
   // 阻止复制和赋值
   DISALLOW_COPY_AND_ASSIGN(DBController);

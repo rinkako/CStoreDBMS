@@ -1,24 +1,24 @@
-#ifndef ___CSTORE_IBRIDGE
-#define ___CSTORE_IBRIDGE
+#ifndef ___CSTORE_DBBRIDGE
+#define ___CSTORE_DBBRIDGE
 #include "DBCBase.h"
 #include "ILexicalAnalyzer.h"
 #include "ISyntaxParser.h"
 #include "IDatabase.h"
 #include "IPile.h"
 
-class IBridge {
+class DBBridge {
 public:
-  //函数作用： 工厂方法
+  //函数作用： 构造函数
   //参数列表： N/A
-  //返 回 值： IBridge* 桥的唯一实例
-  static IBridge* Invoke();
+  //返 回 值： N/A
+  DBBridge();
 
   //函数作用： 桥的初始化方法，指定运行方式
   //参数列表：
-  //   _myArgc 程序参数列表长度
-  //   _myArgv 程序参数列表
+  //   gbState 运行状态 
+  //     query 要执行的查询语句
   //返 回 值： N/A
-  void Init(int, char**);
+  void Init(RunType, const istr& = "");
 
   //函数作用： 启动解释器
   //参数列表：
@@ -27,11 +27,6 @@ public:
   void StartDash(bool = false);
 
 private:
-  //函数作用： 单例模式私有构造函数
-  //参数列表： N/A
-  //返 回 值： N/A
-  IBridge();
-
   //函数作用： 从文件读入源代码
   //参数列表： 
   //      path 文件路径
@@ -62,8 +57,6 @@ private:
   istr sourcePath;
   // 运行类型
   RunType iType;
-  // 唯一单例
-  static IBridge* iInstance;
-}; /* IBridge */
+}; /* DBBridge */
 
-#endif /* ___CSTORE_IBRIDGE */
+#endif /* ___CSTORE_DBBRIDGE */

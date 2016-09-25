@@ -27,9 +27,6 @@
     <ClInclude Include="DBMarcos.h">
       <Filter>DBBase</Filter>
     </ClInclude>
-    <ClInclude Include="DBServices.h">
-      <Filter>DBCore</Filter>
-    </ClInclude>
     <ClInclude Include="FileManager.h">
       <Filter>DBCore</Filter>
     </ClInclude>
@@ -38,9 +35,6 @@
     </ClInclude>
     <ClInclude Include="DBController.h">
       <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="IBridge.h">
-      <Filter>DBCompiler</Filter>
     </ClInclude>
     <ClInclude Include="IDatabase.h">
       <Filter>DBCompiler</Filter>
@@ -78,11 +72,11 @@
     <ClInclude Include="DBCProxy.hpp">
       <Filter>DBCompiler</Filter>
     </ClInclude>
+    <ClInclude Include="DBBridge.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DBServices.cpp">
-      <Filter>DBCore</Filter>
-    </ClCompile>
     <ClCompile Include="FileManager.cpp">
       <Filter>DBCore</Filter>
     </ClCompile>
@@ -94,9 +88,6 @@
     </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="IBridge.cpp">
-      <Filter>DBCompiler</Filter>
     </ClCompile>
     <ClCompile Include="IDatabase.cpp">
       <Filter>DBCompiler</Filter>
@@ -124,6 +115,9 @@
     </ClCompile>
     <ClCompile Include="DBCLL1SyntaxParserMap.cpp">
       <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="DBBridge.cpp">
+      <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

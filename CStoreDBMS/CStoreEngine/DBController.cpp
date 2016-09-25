@@ -3,7 +3,17 @@
 #include <iostream>
 
 // 私有的构造器
-DBController::DBController() { }
+DBController::DBController() {
+  this->IBridge = new DBBridge();
+}
+
+// 析构器
+DBController::~DBController() {
+  if (this->IBridge != NULL) {
+    delete this->IBridge;
+  }
+  this->IBridge = NULL;
+}
 
 // 工厂方法，获得类的唯一实例
 DBController* DBController::Invoke() {
@@ -36,15 +46,28 @@ void DBController::DBInit(int argc, char* argv[]) {
 void DBController::DBStartDash() {
   switch (this->runType) {
   case RunType::RUN_CONSOLE:
-    PILEPRINTLN(">> Welcome to Simplified CStore DBMS <<");
+    this->Terminal();
     break;
   case RunType::RUN_COMMAND:
-    
+    this->Dash(this->tempQuery);
     break;
   default:
-    PILEPRINTLN(">>> ERROR: DBMS Runstate Not Clear");
+    PILEPRINTLN(">>>>>>>> EXCEPTION: DBMS Runstate Not Clear");
     break;
   }
+}
+
+// 处理控制台终端输入
+void DBController::Terminal() {
+  PILEPRINTLN(">> Welcome to Simplifie-CStore DBMS <<");
+  this->IBridge->Init(this->runType);
+  this->IBridge->StartDash();
+}
+
+// 处理查询语句输入
+void DBController::Dash(const std::string& query) {
+  this->IBridge->Init(this->runType, this->tempQuery);
+  this->IBridge->StartDash();
 }
 
 // 获取当前数据库状态
