@@ -819,6 +819,7 @@ bool FileManager::insertIntoOrders(int orderkeyBuffer, int custkeyBuffer, double
 		return false;
 	}
 	else {
+		// 不存在主键，插入
 		runLength = getCustKeyRunLength(custkeyBuffer);
 		if (runLength == NULL) {
 			return false;
