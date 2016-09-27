@@ -45,6 +45,12 @@ public:
   int* getCompressedCustkeyBuffer(int _times, int &_maxcount);
   int* getCompressedCustkeyTempBuffer(int _times, int &_maxcount);
   void writeCompressedCustkeyToTemp(int* _orgBuffer, int _incounter);
+  bool insertIntoOrdersByColumn(int _offset, int orderkeyBuffer, double totalpriceBuffer, int shippriorityBuffer);
+  int* getOrderkeyBuffer(int _times, int &_maxcount);
+  double* getTotalpriceBuffer(int _times, int &_maxcount);
+  int* getShippriorityBuffer(int _times, int &_maxcount);
+  void writeTotalpriceOutputBufferToFile(double* _orgBuffer, int _incounter);
+  void writeShippriorityOutputBufferToFile(int* _orgBuffer, int _incounter);
 
 private:
   long int pos;
