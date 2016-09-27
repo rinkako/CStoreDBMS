@@ -845,7 +845,6 @@ bool FileManager::insertIntoOrders(int orderkeyBuffer, int custkeyBuffer, double
 		}
 		remove("task4_orders_orderkey_temp.db");
 
-
 		// ≤Â»Îtotalprice
 		pcounter = poffset;
 		bufferTotalprice = getTotalpriceBuffer(pcounter++, maxcount2);
