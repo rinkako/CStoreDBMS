@@ -9,6 +9,7 @@ using namespace std;
 
 int externSortOrdersBufferPool[64 * SIZE_PAGE];
 int externSortCustkeyBufferPool[64 * SIZE_PAGE];
+int compressedCustkeyBufferPool[64 * SIZE_PAGE];
 int pagecounter = 0;
 int importcounter = 0;
 int importcountercustomer = 0;
@@ -564,6 +565,202 @@ int FileManager::count() {
   } while (ctr != 0);
   return atr;
 }
+
+int* FileManager::getCompressedCustkeyBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("task2_custkey_compressed.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(compressedCustkeyBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return compressedCustkeyBufferPool;
+}
+
+int* FileManager::getCompressedCustkeyTempBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("task4_custkey_compressed_temp.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(compressedCustkeyBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return compressedCustkeyBufferPool;
+}
+
+void FileManager::writeCompressedCustkeyToTemp(int* _orgBuffer, int _incounter) {
+	FILE* fout = fopen("task4_custkey_compressed_temp.db", "ab");
+	fwrite(_orgBuffer, sizeof(int), _incounter, fout);
+	fclose(fout);
+}
+
+int FileManager::getCustKeyRunLength(int _key) {
+	bool _successFlag = false;
+	bool _failFlag = false;
+	int* bufferPtr = NULL;
+	int* tempPtr = NULL;
+	int pcounter = 0;
+	int tempPcounter = 0;
+	int iindex = 0;
+	int maxcount = 65536;
+	int tempMaxcount = 65536;
+	int runLength = 0;
+	// 分页读入
+	do {
+		bufferPtr = getCompressedCustkeyBuffer(pcounter++, maxcount);
+		if (maxcount == 0) {
+			_failFlag = true;
+			break;
+		}
+		// 累加行程长度
+		if (bufferPtr[maxcount - 2] < _key) {
+			for (int i = 1; i < maxcount; i += 2) {
+				runLength += bufferPtr[i];
+			}
+			continue;
+		}
+		if (bufferPtr[0] > _key) {
+			_failFlag = true;
+			break;
+		}
+
+		// 二分查找
+		int mid = 0, low = 0, high = maxcount - 2;
+		while (low <= high) {
+			mid = (low + high) / 2;
+			if (mid % 2 == 1) {
+				mid -= 1;
+			}
+			if (bufferPtr[mid] == _key) {
+				iindex = mid;
+				_successFlag = true;
+				bufferPtr[mid + 1] ++;
+				break;
+			}
+			else if (low == high) {
+				_successFlag = true;
+				iindex = low;
+
+				// 当前页插入点后面的item移到临时buffer
+				//tempPtr = &bufferPtr[iindex];
+				tempPtr = bufferPtr + iindex;
+				writeCompressedCustkeyToTemp(tempPtr, maxcount - iindex);
+
+				// 剩余所有页移到临时buffer
+				bufferPtr = getCompressedCustkeyBuffer(pcounter++, maxcount);
+				while (maxcount != 0) {
+					writeCompressedCustkeyToTemp(bufferPtr, maxcount);
+					bufferPtr = getCompressedCustkeyBuffer(pcounter++, maxcount);
+				}
+
+				// 插入新item到compressedcustkeyFile
+				int * newItem = new int[2];
+				newItem[0] = _key;
+				newItem[1] = 1;
+				writeCompressedCustkeyToFile(newItem, 2);
+
+				// 把临时buffer的compressedcustkey复写回compressedcustkeyFile
+				tempPtr = getCompressedCustkeyTempBuffer(tempPcounter++, tempMaxcount);
+				while (tempMaxcount != 0) {
+					writeCompressedCustkeyToFile(tempPtr, tempMaxcount);
+					tempPtr = getCompressedCustkeyTempBuffer(tempPcounter++, tempMaxcount);
+				}
+
+				// 删掉临时buffer文件
+				remove("task4_custkey_compressed_temp.db");
+
+				for (int i = 1; i < iindex; i += 2) {
+					runLength += bufferPtr[i];
+				}
+				break;
+			}
+			else if (bufferPtr[mid] > _key) {
+				high = mid - 2;
+			}
+			else if (bufferPtr[mid] < _key) {
+				low = mid + 2;
+			}
+		}
+
+	} while (_successFlag != true);
+	// 处理结果，返回给Service
+	if (_failFlag == true) {
+		return false;
+	}
+	else {
+		//_pc = pcounter - 1;
+		//_si = sindex;
+		return true;
+	}
+}
+
+bool FileManager::insertIntoOrders(int orderkeyBuffer, int custkeyBuffer, double totalpriceBuffer, int shippriorityBuffer) {
+	bool _keyExistFlag = false;
+
+	//判断表中主键的存在性
+	_keyExistFlag = select_orders_orderkey(orderkeyBuffer);
+	if (_keyExistFlag == true) {
+		cout << "FILE CANNOT INSERT: primary key conflicts" << endl;
+		return false;
+	}
+	else {
+		
+	}
+}
+
+bool FileManager::select_orders_orderkey(int _key) {
+	bool _successFlag = false;
+	bool _failFlag = false;
+	int* bufferPtr = NULL;
+	int pcounter = 0;
+	int sindex = 0;
+	int maxcount = 65536;
+	// 分页读入
+	do {
+		bufferPtr = getOrdersBuffer(pcounter++, maxcount);
+		if (maxcount == 0) {
+			_failFlag = true;
+			break;
+		}
+		if (bufferPtr[maxcount - 1] < _key) {
+			continue;
+		}
+		if (bufferPtr[0] > _key) {
+			_failFlag = true;
+			break;
+		}
+
+		// 二分查找
+		int mid = 0, low = 0, high = maxcount - 1;
+		while (low <= high) {
+			mid = (low + high) / 2;
+			if (bufferPtr[mid] == _key) {
+				sindex = mid;
+				_successFlag = true;
+				break;
+			}
+			else if (bufferPtr[mid] > _key) {
+				high = mid - 1;
+			}
+			else if (bufferPtr[mid] < _key) {
+				low = mid + 1;
+			}
+		}
+
+	} while (_successFlag != true);
+	// 处理结果，返回给Service
+	if (_failFlag == true) {
+		return false;
+	}
+	else {
+		//_pc = pcounter - 1;
+		//_si = sindex;
+		return true;
+	}
+}
+
 
 void FileManager::writeJoinedItemToFile(int* _orderBuffer, int* _custBuffer, int _incounter) {
   //FILE* joinOutOrderkey = fopen("task3_joined_orderkey.db", "ab");
