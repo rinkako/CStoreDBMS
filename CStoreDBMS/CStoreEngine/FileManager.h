@@ -43,8 +43,6 @@ public:
   bool select_orders_orderkey(int _key);
   int getCustKeyRunLength(int _key);
   int* getCompressedCustkeyBuffer(int _times, int &_maxcount);
-  int* getCompressedCustkeyTempBuffer(int _times, int &_maxcount);
-  void writeCompressedCustkeyToTemp(int* _orgBuffer, int _incounter);
   bool insertIntoOrdersByColumn(int _offset, int orderkeyBuffer, double totalpriceBuffer, int shippriorityBuffer);
   int* getOrderkeyBuffer(int _times, int &_maxcount);
   double* getTotalpriceBuffer(int _times, int &_maxcount);

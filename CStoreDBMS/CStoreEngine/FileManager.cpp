@@ -618,13 +618,13 @@ int* FileManager::getCompressedCustkeyBuffer(int _times, int &_maxcount) {
 	return compressedCustkeyBufferPool;
 }
 
-void FileManager::writeCompressedCustkeyToTemp(int* _orgBuffer, int _incounter) {
+void writeCompressedCustkeyToTemp(int* _orgBuffer, int _incounter) {
 	FILE* fout = fopen("task4_custkey_compressed_temp.db", "ab");
 	fwrite(_orgBuffer, sizeof(int), _incounter, fout);
 	fclose(fout);
 }
 
-int* FileManager::getCompressedCustkeyTempBuffer(int _times, int &_maxcount) {
+int* getCompressedCustkeyTempBuffer(int _times, int &_maxcount) {
 	FILE* fin = fopen("task4_custkey_compressed_temp.db", "rb");
 	if (fin == NULL) return NULL;
 	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
