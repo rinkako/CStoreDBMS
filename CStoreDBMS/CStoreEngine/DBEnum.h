@@ -343,7 +343,17 @@ typedef enum __ISyntaxType
   // "select"
   tail_selectLeave,
   // #
-  tail_startEndLeave
+  tail_startEndLeave,
+  // cstore load
+  cstore_load,
+  // cstore retrieve
+  cstore_retrieve,
+  // cstore compress
+  cstore_compress,
+  // cstore join
+  cstore_join,
+  // cstore count
+  cstore_count
 } SyntaxType;
 
 // 枚举：语法候选式类型
@@ -558,6 +568,8 @@ typedef enum __FunctionType {
   umi_select,
   // LeavePoint #
   umi_startEnd,
+  // Cstore Node
+  umi_cstore,
   // ERROR
   umi_errorEnd
 } CFunctionType;

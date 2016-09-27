@@ -82,6 +82,112 @@ void LL1SyntaxParser::Dash() {
   this->iPTRnextSectence++;
 }
 
+// LL1SyntaxParser处理CSTORE特殊保留字
+bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode* curRoot) {
+  curRoot->nodeType = CFunctionType::umi_cstore;
+  switch (xtoken->aType) {
+  case TokenType::token_load:
+    curRoot->nodeSyntaxType = SyntaxType::cstore_load;
+    // require identifier
+    if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
+      Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
+      if (tableNameToken->aType == TokenType::identifier) {
+        curRoot->nodeValue = tableNameToken->detail;
+      }
+      this->iPTRnextToken++;
+      return true;
+    }
+    else {
+      PILEPRINTLN("Load command should follow with a file *.tbl");
+      curRoot = NULL;
+      return true;
+    }
+    break;
+  case TokenType::token_retrieve:
+    curRoot->nodeSyntaxType = SyntaxType::cstore_retrieve;
+    // require identifier
+    if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
+      Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
+      if (tableNameToken->aType == TokenType::identifier) {
+        curRoot->nodeValue = tableNameToken->detail;
+      }
+      this->iPTRnextToken++;
+      if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
+        Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
+        if (tableNameToken->aType == TokenType::number) {
+          curRoot->nodeValue += "@" + tableNameToken->detail;
+        }
+        this->iPTRnextToken++;
+        return true;
+      }
+      else {
+        PILEPRINTLN("Retrieve command should end with a primary key value");
+        curRoot = NULL;
+        return true;
+      }
+    }
+    else {
+      PILEPRINTLN("Retrieve command should follow with a table name");
+      curRoot = NULL;
+      return true;
+    }
+    break;
+  case TokenType::token_compress:
+    curRoot->nodeSyntaxType = SyntaxType::cstore_compress;
+    this->iPTRnextToken++;
+    return true;
+  case TokenType::token_join:
+    curRoot->nodeSyntaxType = SyntaxType::cstore_join;
+    // require identifier
+    if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
+      Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
+      if (tableNameToken->aType == TokenType::identifier) {
+        curRoot->nodeValue = tableNameToken->detail;
+      }
+      this->iPTRnextToken++;
+      if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
+        Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
+        if (tableNameToken->aType == TokenType::identifier) {
+          curRoot->nodeValue += "@" + tableNameToken->detail;
+        }
+        this->iPTRnextToken++;
+        return true;
+      }
+      else {
+        PILEPRINTLN("Join command should end with a table name");
+        curRoot = NULL;
+        return true;
+      }
+    }
+    else {
+      PILEPRINTLN("Join command should follow with a table name");
+      curRoot = NULL;
+      return true;
+    }
+    break;
+  case TokenType::token_count:
+    curRoot->nodeSyntaxType = SyntaxType::cstore_count;
+    // require identifier
+    if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
+      Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
+      if (tableNameToken->aType == TokenType::identifier) {
+        curRoot->nodeValue = tableNameToken->detail;
+      }
+      this->iPTRnextToken++;
+      return true;
+    }
+    else {
+      PILEPRINTLN("Count command should follow with a table name");
+      curRoot = NULL;
+      return true;
+    }
+    break;
+  default:
+    return false;
+  }
+  return true;
+}
+
 // LL1SyntaxParser启动器
 SyntaxTreeNode* LL1SyntaxParser::Parse() {
   // 初期化
@@ -89,6 +195,16 @@ SyntaxTreeNode* LL1SyntaxParser::Parse() {
   // 原始节点
   SyntaxTreeNode* parsePointer = new SyntaxTreeNode();
   register SyntaxTreeNode* currentPtr = parsePointer;
+  // 处理CStore特殊保留字
+  bool spottedCQL = this->CSTOREQL(this->GetTokenStream()->_tokenContainer[iPTRnextToken], parsePointer);
+  // 命中CStore关键字
+  if (spottedCQL == true) {
+    // 语法错误时
+    if (parsePointer == NULL) {
+      return NULL;
+    }
+    return parsePointer;
+  }
   // 利用栈去递归下降
   while (iPTRnextToken < this->GetTokenStream()->Length()) {
     // 查预测表，获得产生式处理函数
