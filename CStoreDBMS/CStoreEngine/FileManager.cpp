@@ -9,6 +9,11 @@ using namespace std;
 
 int externSortOrdersBufferPool[64 * SIZE_PAGE];
 int externSortCustkeyBufferPool[64 * SIZE_PAGE];
+int compressedCustkeyBufferPool[64 * SIZE_PAGE];
+
+int ordersOrderkeyBufferPool[64 * SIZE_PAGE];
+double ordersTotalpriceBufferPool[64 * SIZE_PAGE];
+int ordersShippriorityBufferPool[64 * SIZE_PAGE];
 int pagecounter = 0;
 int importcounter = 0;
 int importcountercustomer = 0;
@@ -199,6 +204,42 @@ int* FileManager::getOrdersBuffer(int _times, int &_maxcount) {
   _maxcount = fread(externSortOrdersBufferPool, sizeof(int), 65536, fin);
   fclose(fin);
   return externSortOrdersBufferPool;
+}
+
+int* FileManager::getOrderkeyBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("task2_orderkey_sorted.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(ordersOrderkeyBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return ordersOrderkeyBufferPool;
+}
+
+double *FileManager::getTotalpriceBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("task2_totalprice_sorted.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(ordersTotalpriceBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return ordersTotalpriceBufferPool;
+}
+
+int* FileManager::getShippriorityBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("task2_shippriority_sorted.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(ordersShippriorityBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return ordersShippriorityBufferPool;
 }
 
 void FileManager::getEXOrdersBuffer(int _times, int &_maxcount) {
@@ -565,6 +606,339 @@ int FileManager::count() {
   return atr;
 }
 
+int* FileManager::getCompressedCustkeyBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("task2_custkey_compressed.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(compressedCustkeyBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return compressedCustkeyBufferPool;
+}
+
+void writeCompressedCustkeyToTemp(int* _orgBuffer, int _incounter) {
+	FILE* fout = fopen("task4_custkey_compressed_temp.db", "ab");
+	fwrite(_orgBuffer, sizeof(int), _incounter, fout);
+	fclose(fout);
+}
+
+int* getCompressedCustkeyTempBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("task4_custkey_compressed_temp.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(compressedCustkeyBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return compressedCustkeyBufferPool;
+}
+
+void writeOrderkeyToTemp(int* _orgBuffer, int _incounter) {
+	FILE* fout = fopen("task4_orders_orderkey_temp.db", "ab");
+	fwrite(_orgBuffer, sizeof(int), _incounter, fout);
+	fclose(fout);
+}
+
+int* getOrderkeyTempBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("task4_orders_orderkey_temp.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(ordersOrderkeyBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return ordersOrderkeyBufferPool;
+}
+
+void writeTotalpriceToTemp(double* _orgBuffer, int _incounter) {
+	FILE* fout = fopen("task4_orders_totalprice_temp.db", "ab");
+	fwrite(_orgBuffer, sizeof(double), _incounter, fout);
+	fclose(fout);
+}
+
+double* getTotalpriceTempBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("task4_orders_totalprice_temp.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(ordersTotalpriceBufferPool, sizeof(double), 65536, fin);
+	fclose(fin);
+	return ordersTotalpriceBufferPool;
+}
+
+void writeShippriorityToTemp(int* _orgBuffer, int _incounter) {
+	FILE* fout = fopen("task4_orders_shippriority_temp.db", "ab");
+	fwrite(_orgBuffer, sizeof(int), _incounter, fout);
+	fclose(fout);
+}
+
+int* getShippriorityTempBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("task4_orders_shippriority_temp.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(ordersShippriorityBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return ordersShippriorityBufferPool;
+}
+
+int FileManager::getCustKeyRunLength(int _key) {
+	bool _successFlag = false;
+	bool _failFlag = false;
+	int* bufferPtr = NULL;
+	int* tempPtr = NULL;
+	int pcounter = 0;
+	int tempPcounter = 0;
+	int iindex = 0;
+	int maxcount = 65536;
+	int tempMaxcount = 65536;
+	int runLength = 0;
+	// 分页读入
+	do {
+		bufferPtr = getCompressedCustkeyBuffer(pcounter++, maxcount);
+		if (maxcount == 0) {
+			_failFlag = true;
+			break;
+		}
+		// 累加行程长度
+		if (bufferPtr[maxcount - 2] < _key) {
+			for (int i = 1; i < maxcount; i += 2) {
+				runLength += bufferPtr[i];
+			}
+			continue;
+		}
+		if (bufferPtr[0] > _key) {
+			_failFlag = true;
+			break;
+		}
+
+		// 二分查找
+		int mid = 0, low = 0, high = maxcount - 2;
+		while (low <= high) {
+			mid = (low + high) / 2;
+			if (mid % 2 == 1) {
+				mid -= 1;
+			}
+			if (bufferPtr[mid] == _key) {
+				iindex = mid;
+				_successFlag = true;
+				bufferPtr[mid + 1] ++;
+				break;
+			}
+			else if (low == high) {
+				_successFlag = true;
+				iindex = low;
+
+				// 当前页插入点后面的item移到临时buffer
+				//tempPtr = &bufferPtr[iindex];
+				tempPtr = bufferPtr + iindex;
+				writeCompressedCustkeyToTemp(tempPtr, maxcount - iindex);
+
+				// 剩余所有页移到临时buffer
+				bufferPtr = getCompressedCustkeyBuffer(pcounter++, maxcount);
+				while (bufferPtr != NULL) {
+					writeCompressedCustkeyToTemp(bufferPtr, maxcount);
+					bufferPtr = getCompressedCustkeyBuffer(pcounter++, maxcount);
+				}
+
+				// 插入新item到compressedcustkeyFile
+				int * newItem = new int[2];
+				newItem[0] = _key;
+				newItem[1] = 1;
+				writeCompressedCustkeyToFile(newItem, 2);
+
+				// 把临时buffer的compressedcustkey复写回compressedcustkeyFile
+				tempPtr = getCompressedCustkeyTempBuffer(tempPcounter++, tempMaxcount);
+				while (tempPtr != NULL) {
+					writeCompressedCustkeyToFile(tempPtr, tempMaxcount);
+					tempPtr = getCompressedCustkeyTempBuffer(tempPcounter++, tempMaxcount);
+				}
+
+				// 删掉临时buffer文件
+				remove("task4_custkey_compressed_temp.db");
+
+				for (int i = 1; i < iindex; i += 2) {
+					runLength += bufferPtr[i];
+				}
+				break;
+			}
+			else if (bufferPtr[mid] > _key) {
+				high = mid - 2;
+			}
+			else if (bufferPtr[mid] < _key) {
+				low = mid + 2;
+			}
+		}
+
+	} while (_successFlag != true);
+
+	if (_successFlag == true) {
+		return runLength;
+	}
+	else {
+		return NULL;
+	}
+}
+
+bool FileManager::insertIntoOrders(int orderkeyBuffer, int custkeyBuffer, double totalpriceBuffer, int shippriorityBuffer) {
+	bool _keyExistFlag = false;
+	int runLength = 0;
+	int poffset = 0;
+	int offset = 0;
+	int pcounter = 0;
+
+	int* bufferOrderkey = NULL;
+	int* bufferOrderkeyTemp = NULL;
+	double* bufferTotalprice = NULL;
+	double* bufferTotalpriceTemp = NULL;
+	int* bufferShippriority = NULL;
+	int* bufferShippriorityTemp = NULL;
+
+	int maxcount1 = 0, maxcount2 = 0, maxcount3 = 0;
+
+	FILE *fin1, *fin2, *fin3;
+
+	FILE *fout1, *fout2, *fout3;
+
+	fout1 = fopen("task2_orderkey_sorted.db", "ab");
+	fout2 = fopen("task2_totalprice_sorted.db", "ab");
+	fout3 = fopen("task2_shippriority_sorted.db", "ab");
+
+	//判断表中主键的存在性
+	_keyExistFlag = select_orders_orderkey(orderkeyBuffer);
+	if (_keyExistFlag == true) {
+		cout << "FILE CANNOT INSERT: primary key conflicts" << endl;
+		return false;
+	}
+	else {
+		// 不存在主键，插入
+		runLength = getCustKeyRunLength(custkeyBuffer);
+		if (runLength == NULL) {
+			return false;
+		}
+		poffset = runLength / (64 * SIZE_PAGE);
+		offset = runLength - (poffset * 64 * SIZE_PAGE);
+		
+		// 插入orderkey
+		pcounter = poffset;
+		bufferOrderkey = getOrderkeyBuffer(pcounter++, maxcount1);
+		bufferOrderkeyTemp = bufferOrderkey + offset + 1;
+		writeOrderkeyToTemp(bufferOrderkeyTemp, maxcount1 - offset);
+		bufferOrderkey = getOrderkeyBuffer(pcounter++, maxcount1);
+		while (bufferOrderkey != NULL) {
+			writeOrderkeyToTemp(bufferOrderkey, maxcount1);
+			bufferOrderkey = getOrderkeyBuffer(pcounter++, maxcount1);
+		}
+		fwrite(&orderkeyBuffer, sizeof(int), 1, fout1);
+		pcounter = 0;
+		bufferOrderkeyTemp = getOrderkeyTempBuffer(pcounter++, maxcount1);
+		while (bufferOrderkeyTemp != NULL) {
+			writeOrdersOutputBufferToFile(bufferOrderkeyTemp, maxcount1);
+			bufferOrderkeyTemp = getOrderkeyTempBuffer(pcounter++, maxcount1);
+		}
+		remove("task4_orders_orderkey_temp.db");
+
+		// 插入totalprice
+		pcounter = poffset;
+		bufferTotalprice = getTotalpriceBuffer(pcounter++, maxcount2);
+		bufferTotalpriceTemp = bufferTotalprice + offset + 1;
+		writeTotalpriceToTemp(bufferTotalpriceTemp, maxcount2 - offset);
+		bufferTotalprice = getTotalpriceBuffer(pcounter++, maxcount2);
+		while (bufferTotalprice != NULL) {
+			writeTotalpriceToTemp(bufferTotalprice, maxcount2);
+			bufferTotalprice = getTotalpriceBuffer(pcounter++, maxcount2);
+		}
+		fwrite(&totalpriceBuffer, sizeof(double), 1, fout2);
+		pcounter = 0;
+		bufferTotalpriceTemp = getTotalpriceTempBuffer(pcounter++, maxcount2);
+		while (bufferOrderkeyTemp != NULL) {
+			writeTotalpriceOutputBufferToFile(bufferTotalpriceTemp, maxcount2);
+			bufferTotalpriceTemp = getTotalpriceTempBuffer(pcounter++, maxcount2);
+		}
+		remove("task4_orders_totalprice_temp.db");
+
+		// 插入shippriority
+		pcounter = poffset;
+		bufferShippriority = getShippriorityBuffer(pcounter++, maxcount3);
+		bufferShippriorityTemp = bufferShippriority + offset + 1;
+		writeShippriorityToTemp(bufferShippriorityTemp, maxcount3 - offset);
+		bufferShippriority = getShippriorityBuffer(pcounter++, maxcount3);
+		while (bufferShippriority != NULL) {
+			writeShippriorityToTemp(bufferShippriority, maxcount3);
+			bufferShippriority = getShippriorityBuffer(pcounter++, maxcount3);
+		}
+		fwrite(&shippriorityBuffer, sizeof(int), 1, fout3);
+		pcounter = 0;
+		bufferShippriorityTemp = getShippriorityTempBuffer(pcounter++, maxcount3);
+		while (bufferShippriorityTemp != NULL){
+			writeShippriorityOutputBufferToFile(bufferShippriorityTemp, maxcount3);
+			bufferShippriorityTemp = getShippriorityTempBuffer(pcounter++, maxcount3);
+		}
+		remove("task4_orders_shippriority_temp.db");
+	}
+	return true;
+}
+
+bool FileManager::select_orders_orderkey(int _key) {
+	bool _successFlag = false;
+	bool _failFlag = false;
+	int* bufferPtr = NULL;
+	int pcounter = 0;
+	int sindex = 0;
+	int maxcount = 65536;
+	// 分页读入
+	do {
+		bufferPtr = getOrdersBuffer(pcounter++, maxcount);
+		if (maxcount == 0) {
+			_failFlag = true;
+			break;
+		}
+		if (bufferPtr[maxcount - 1] < _key) {
+			continue;
+		}
+		if (bufferPtr[0] > _key) {
+			_failFlag = true;
+			break;
+		}
+
+		// 二分查找
+		int mid = 0, low = 0, high = maxcount - 1;
+		while (low <= high) {
+			mid = (low + high) / 2;
+			if (bufferPtr[mid] == _key) {
+				sindex = mid;
+				_successFlag = true;
+				break;
+			}
+			else if (bufferPtr[mid] > _key) {
+				high = mid - 1;
+			}
+			else if (bufferPtr[mid] < _key) {
+				low = mid + 1;
+			}
+		}
+
+	} while (_successFlag != true);
+	// 处理结果，返回给Service
+	if (_failFlag == true) {
+		return false;
+	}
+	else {
+		//_pc = pcounter - 1;
+		//_si = sindex;
+		return true;
+	}
+}
+
+
 void FileManager::writeJoinedItemToFile(int* _orderBuffer, int* _custBuffer, int _incounter) {
   //FILE* joinOutOrderkey = fopen("task3_joined_orderkey.db", "ab");
   //FILE* joinOutCustkey = fopen("task3_joined_custkey.db", "ab");
@@ -594,6 +968,18 @@ void FileManager::writeCustkeyOutputBufferToFile(int* _orgBuffer, int _incounter
   FILE* fout = fopen("task2_custkey_sorted.db", "ab");
   fwrite(_orgBuffer, sizeof(int), _incounter, fout);
   fclose(fout);
+}
+
+void FileManager::writeTotalpriceOutputBufferToFile(double* _orgBuffer, int _incounter) {
+	FILE* fout = fopen("task2_totalprice_sorted.db", "ab");
+	fwrite(_orgBuffer, sizeof(double), _incounter, fout);
+	fclose(fout);
+}
+
+void FileManager::writeShippriorityOutputBufferToFile(int* _orgBuffer, int _incounter) {
+	FILE* fout = fopen("task2_shippriority_sorted.db", "ab");
+	fwrite(_orgBuffer, sizeof(int), _incounter, fout);
+	fclose(fout);
 }
 
 void FileManager::innerSort(int* _orgBuffer, int* _syncBuffer, int _maxcount) {

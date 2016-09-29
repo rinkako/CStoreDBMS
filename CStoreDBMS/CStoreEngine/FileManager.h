@@ -38,6 +38,16 @@ public:
   void swap(int& a, int& b);
   int partition(int* _org, int *_sync, int _low, int _high);
   int count();
+  
+  bool insertIntoOrders(int orderkeyBuffer, int custkeyBuffer, double totalpriceBuffer, int shippriorityBuffer);
+  bool select_orders_orderkey(int _key);
+  int getCustKeyRunLength(int _key);
+  int* getCompressedCustkeyBuffer(int _times, int &_maxcount);
+  int* getOrderkeyBuffer(int _times, int &_maxcount);
+  double* getTotalpriceBuffer(int _times, int &_maxcount);
+  int* getShippriorityBuffer(int _times, int &_maxcount);
+  void writeTotalpriceOutputBufferToFile(double* _orgBuffer, int _incounter);
+  void writeShippriorityOutputBufferToFile(int* _orgBuffer, int _incounter);
 
 private:
   long int pos;
