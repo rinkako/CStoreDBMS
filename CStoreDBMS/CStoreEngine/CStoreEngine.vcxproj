@@ -76,6 +76,7 @@
     <ClInclude Include="DBCSyntaxTreeNode.h" />
     <ClInclude Include="DBCTokenStream.h" />
     <ClInclude Include="DBEnum.h" />
+    <ClInclude Include="DBLock.hpp" />
     <ClInclude Include="DBMarcos.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="DBBridge.h" />
@@ -86,6 +87,8 @@
     <ClInclude Include="DBCToken.h" />
     <ClInclude Include="DBCDeclaration.h" />
     <ClInclude Include="QueryManager.h" />
+    <ClInclude Include="DBTable.hpp" />
+    <ClInclude Include="TableManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DBCCandidateFunction.cpp" />
@@ -102,6 +105,7 @@
     <ClCompile Include="ISyntaxParser.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="QueryManager.cpp" />
+    <ClCompile Include="TableManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -579,4 +579,14 @@ typedef enum __DBOperationType {
 
 } DBOperationType;
 
+// 枚举：数据表锁状态
+typedef enum __DBTableLockType {
+  // 未加锁
+  tblock_none,
+  // 共享锁
+  tblock_share,
+  // 互斥锁
+  tblock_mutex
+} TableLockType;
+
 #endif /* ___CSTORE_DBENUM */

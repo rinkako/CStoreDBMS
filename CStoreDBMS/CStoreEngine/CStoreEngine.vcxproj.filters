@@ -75,6 +75,15 @@
     <ClInclude Include="DBBridge.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="TableManager.h">
+      <Filter>DBCore</Filter>
+    </ClInclude>
+    <ClInclude Include="DBTable.hpp">
+      <Filter>DBCore</Filter>
+    </ClInclude>
+    <ClInclude Include="DBLock.hpp">
+      <Filter>DBCore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileManager.cpp">
@@ -118,6 +127,9 @@
     </ClCompile>
     <ClCompile Include="DBBridge.cpp">
       <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="TableManager.cpp">
+      <Filter>DBCore</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
