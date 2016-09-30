@@ -1,7 +1,8 @@
 #include "DBCLL1SyntaxParserMap.h"
 
 // LL1SyntaxParserMap带尺寸的构造器
-LL1SyntaxParserMap::LL1SyntaxParserMap(int row, int col) {
+LL1SyntaxParserMap::LL1SyntaxParserMap(int row, int col)
+  : DBObject("LL1SyntaxParserMap", this) {
   this->iParserMap = new CandidateFunction**[row];
   for (iPtr i = 0; i < row; i++) {
     iParserMap[i] = new CandidateFunction*[col];

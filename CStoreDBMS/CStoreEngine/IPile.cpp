@@ -1,7 +1,8 @@
 #include "IPile.h"
 
 // IPile¹¹Ôìº¯Êı
-IPile::IPile() {
+IPile::IPile()
+  :DBObject("IPile", this) {
   this->Reset();
 }
 

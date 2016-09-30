@@ -2,7 +2,7 @@
 #define ___CSTORE_ILEXICALANALYZER
 #include "DBCBase.h"
 
-class LexicalAnalyzer {
+class LexicalAnalyzer : public DBObject {
 public:
   //函数作用： 构造函数
   //参数列表： N/A 

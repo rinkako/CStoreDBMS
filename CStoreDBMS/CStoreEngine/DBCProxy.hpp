@@ -2,8 +2,9 @@
 #define ___CSTORE_DBCPROXY
 #include "DBCBase.h"
 
-class DBCProxy {
+class DBCProxy : public DBObject {
 public:
+  CONSTRUCTOR_SIMPLE_DBOBJECT(DBCProxy, "DBCProxy");
   // ¾ä×ÓºÅ
   int id;
   // ÁÐÍ¨Åä·û

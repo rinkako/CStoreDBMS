@@ -1,18 +1,20 @@
 #include "DBCCandidateFunction.h"
 
 // CandidateFunction的构造器
-CandidateFunction::CandidateFunction() {
+CandidateFunction::CandidateFunction() : DBObject("CandidateFunction", this) {
   candidateProcesser = NULL;
 }
 
 // CandidateFunction的拷贝构造器
-CandidateFunction::CandidateFunction(const CandidateFunction& _other) {
+CandidateFunction::CandidateFunction(const CandidateFunction& _other)
+  : DBObject("CandidateFunction", this) {
   this->candidateProcesser = _other.candidateProcesser;
   this->candidateType = _other.candidateType;
 }
 
 // CandidateFunction带产生式的构造器
-CandidateFunction::CandidateFunction(iHandle _proc, CFunctionType _pt) {
+CandidateFunction::CandidateFunction(iHandle _proc, CFunctionType _pt)
+  : DBObject("CandidateFunction", this) {
   this->SetProc(_proc, _pt);
 }
 

@@ -1,12 +1,14 @@
 #include "ILexicalAnalyzer.h"
 
 // LexicalAnalyzer构造器
-LexicalAnalyzer::LexicalAnalyzer() {
+LexicalAnalyzer::LexicalAnalyzer()
+  :DBObject("LexicalAnalyzer", this) {
   this->Reset();
 }
 
 // LexicalAnalyzer带源码的构造器
-LexicalAnalyzer::LexicalAnalyzer(const istr& _src) {
+LexicalAnalyzer::LexicalAnalyzer(const istr& _src)
+: DBObject("LexicalAnalyzer", this) {
   this->SetSourceCode(_src);
 }
 

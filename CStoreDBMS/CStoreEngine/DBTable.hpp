@@ -4,8 +4,25 @@
 #include <string>
 #include <vector>
 
-class DBTable {
+class DBTable : public DBObject {
 public:
+  // 构造器
+  CONSTRUCTOR_SIMPLE_DBOBJECT(DBTable, "DBTable");
+
+  // 重载字符串化方法
+  virtual std::string ToString() {
+    std::string sb = this->GetTypename() + " [Name:" + this->TableName + ", Cols:{";
+    if (this->PiList.size() > 0) {
+      sb += PiList[0];
+      for (int it = 1; it < this->PiList.size(); it++) {
+        sb += "|" + PiList[it];
+      }
+    }
+    sb += "}, Compressed:" + this->IsSorted ? "Y" : "N";
+    sb += "]";
+    return sb;
+  };
+
   // 表名
   std::string TableName;
 

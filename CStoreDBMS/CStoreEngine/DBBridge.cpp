@@ -1,7 +1,8 @@
 #include "DBBridge.h"
 
 // IBridge¹¹Ôìº¯Êý
-DBBridge::DBBridge() {
+DBBridge::DBBridge()
+  :DBObject("DBBridge", this) {
   sourceCodeTokenStream = NULL;
   currentSentence.clear();
   currentSentenceTokenStream.Reset();

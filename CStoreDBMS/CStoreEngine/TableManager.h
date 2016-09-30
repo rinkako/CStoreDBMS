@@ -1,11 +1,10 @@
 #ifndef ___CSTORE_TABLEMANAGER
 #define ___CSTORE_TABLEMANAGER
 #include "DBBase.h"
+#include "DBLock.hpp"
 #include "DBTable.hpp"
-#include <string>
-#include <vector>
 
-class TableManager {
+class TableManager : public DBObject {
 public:
   //函数作用： 添加表
   //参数列表：
@@ -50,7 +49,7 @@ private:
   std::vector<DBTable> tableContainer;
 
   // 锁容器对象
-  std::vector<TableLockType> lockContainer;
+  std::vector<DBLock> lockContainer;
 
   // 唯一实例
   static TableManager* instance;

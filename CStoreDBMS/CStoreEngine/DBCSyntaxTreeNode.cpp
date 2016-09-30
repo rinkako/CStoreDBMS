@@ -1,14 +1,16 @@
 #include "DBCSyntaxTreeNode.h"
 
 // SyntaxTreeNode构造器
-SyntaxTreeNode::SyntaxTreeNode() {
+SyntaxTreeNode::SyntaxTreeNode()
+  : DBObject("SyntaxTreeNode", this) {
   children.clear();
   parent = NULL;
   candidateFunction = NULL;
 }
 
 // SyntaxTreeNode拷贝构造器
-SyntaxTreeNode::SyntaxTreeNode(const SyntaxTreeNode& _other) {
+SyntaxTreeNode::SyntaxTreeNode(const SyntaxTreeNode& _other)
+  : DBObject("SyntaxTreeNode", this) {
   this->candidateFunction = _other.candidateFunction;
   this->parent = _other.parent;
   this->errorCode = _other.errorCode;

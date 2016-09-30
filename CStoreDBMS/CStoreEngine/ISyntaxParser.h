@@ -44,7 +44,7 @@ private:
   StrVec* isentence;
 }; /* ISyntaxParser */
 
-class LL1SyntaxParser : public ISyntaxParser {
+class LL1SyntaxParser : public ISyntaxParser, DBObject {
 public:
   //函数作用： 构造函数
   //参数列表： N/A

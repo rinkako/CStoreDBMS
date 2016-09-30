@@ -1,12 +1,14 @@
 #include "DBCTokenStream.h"
 
 // TokenStream构造器
-TokenStream::TokenStream() {
+TokenStream::TokenStream()
+  :DBObject("TokenStream", this) {
   this->Reset();
 }
 
 // TokenStream拷贝构造器
-TokenStream::TokenStream(const TokenStream &_other) {
+TokenStream::TokenStream(const TokenStream &_other)
+  : DBObject("TokenStream", this) {
   this->_iPointer = _other._iPointer;
   for (int i = 0; i < _other.Length(); i++) {
     this->Add(_other._tokenContainer[i]);

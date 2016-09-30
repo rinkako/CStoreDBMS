@@ -3,7 +3,7 @@
 #include "DBCBase.h"
 #include "IDatabase.h"
 
-class IPile {
+class IPile : public DBObject {
 public:
   //函数作用： 构造函数
   //参数列表： N/A

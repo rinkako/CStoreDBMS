@@ -4,7 +4,7 @@
 #include "DBBridge.h"
 #include <string>
 
-class DBController {
+class DBController : public DBObject {
 public:
   //函数作用： 工厂方法，获得类的唯一实例
   //参数列表： N/A

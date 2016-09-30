@@ -2,7 +2,7 @@
 #define ___CSTORE_DBCLL1SYNTAXPARSERMAP
 #include "DBCDeclaration.h"
 #include "DBCCandidateFunction.h"
-class LL1SyntaxParserMap {
+class LL1SyntaxParserMap : public DBObject {
 public:
   //函数作用： 带尺寸的构造器
   //参数列表：

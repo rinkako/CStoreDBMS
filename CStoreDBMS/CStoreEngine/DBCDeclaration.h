@@ -2,16 +2,6 @@
 #define ___CSTORE_DBCDECLARATION
 
 #include "DBBase.h"
-#include <algorithm>
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <cstring>
-#include <string>
-#include <vector>
-#include <stack>
-#include <ctime>
-#include <map>
 
 class Token;
 class DBCProxy;

@@ -3,7 +3,8 @@
 #include <iostream>
 
 // 私有的构造器
-DBController::DBController() {
+DBController::DBController()
+  :DBObject("DBController", this) {
   this->IBridge = new DBBridge();
 }
 

@@ -25,14 +25,16 @@ void ISyntaxParser::SetSentencePtr(StrVec* _myProxy) {
 }
 
 // LL1SyntaxParser默认构造器
-LL1SyntaxParser::LL1SyntaxParser() {
+LL1SyntaxParser::LL1SyntaxParser()
+  :DBObject("LL1SyntaxParser", this) {
   this->iPTRnextToken = this->iPTRnextSectence = 0;
   this->iMap = new LL1SyntaxParserMap(LL1PARSERMAPROW, LL1PARSERMAPCOL);
   this->InitMap();
 }
 
 // LL1SyntaxParser带token流构造函数
-LL1SyntaxParser::LL1SyntaxParser(TokenStream *_myProxy, StrVec* _mySVect) {
+LL1SyntaxParser::LL1SyntaxParser(TokenStream *_myProxy, StrVec* _mySVect)
+  :DBObject("LL1SyntaxParser", this) {
   this->SetTokenStream(_myProxy, _mySVect);
   this->iPTRnextToken = this->iPTRnextSectence = 0;
   this->iMap = new LL1SyntaxParserMap(LL1PARSERMAPROW, LL1PARSERMAPCOL);

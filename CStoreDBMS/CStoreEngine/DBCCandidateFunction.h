@@ -2,7 +2,7 @@
 #define ___CSTORE_DBCCANDIDATEFUNCTION
 #include "DBCDeclaration.h"
 
-class CandidateFunction {
+class CandidateFunction : public DBObject {
 public:
   //函数作用： 构造函数
   //参数列表： N/A

@@ -1,7 +1,7 @@
 #include "DBCToken.h"
 
 // Token构造器
-Token::Token() {
+Token::Token() : DBObject("Token", this) {
   aLine = 0;
   aTag = 0;
   indexOfCode = 0;
@@ -13,7 +13,7 @@ Token::Token() {
 }
 
 // Token拷贝构造器
-Token::Token(const Token &_other) {
+Token::Token(const Token &_other) : DBObject("Token", this) {
   this->indexOfCode = _other.indexOfCode;
   this->errorCode = _other.errorCode;
   this->errorInfo = _other.errorInfo;

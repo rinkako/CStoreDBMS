@@ -78,6 +78,7 @@
     <ClInclude Include="DBEnum.h" />
     <ClInclude Include="DBLock.hpp" />
     <ClInclude Include="DBMarcos.h" />
+    <ClInclude Include="DBObject.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="DBBridge.h" />
     <ClInclude Include="IDatabase.h" />
@@ -97,6 +98,7 @@
     <ClCompile Include="DBCSyntaxTreeNode.cpp" />
     <ClCompile Include="DBCToken.cpp" />
     <ClCompile Include="DBCTokenStream.cpp" />
+    <ClCompile Include="DBObject.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="DBBridge.cpp" />
     <ClCompile Include="IDatabase.cpp" />

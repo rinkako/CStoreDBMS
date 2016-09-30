@@ -84,6 +84,9 @@
     <ClInclude Include="DBLock.hpp">
       <Filter>DBCore</Filter>
     </ClInclude>
+    <ClInclude Include="DBObject.h">
+      <Filter>DBBase</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileManager.cpp">
@@ -130,6 +133,9 @@
     </ClCompile>
     <ClCompile Include="TableManager.cpp">
       <Filter>DBCore</Filter>
+    </ClCompile>
+    <ClCompile Include="DBObject.cpp">
+      <Filter>DBBase</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

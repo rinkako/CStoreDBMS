@@ -2,7 +2,7 @@
 #define ___CSTORE_DBCSYNTAXTREENODE
 #include "DBCBase.h"
 
-class SyntaxTreeNode {
+class SyntaxTreeNode : public DBObject {
 public:
   //函数作用： 构造函数
   //参数列表： N/A
