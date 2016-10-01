@@ -1,7 +1,6 @@
 #ifndef ___CSTORE_DBCOMPILER
 #define ___CSTORE_DBCOMPILER
 
-#include "DBBase.h"
 #include "DBCToken.h"
 #include "DBCProxy.hpp"
 #include "DBCDeclaration.h"

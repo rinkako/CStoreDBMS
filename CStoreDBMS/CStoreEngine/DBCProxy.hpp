@@ -4,6 +4,7 @@
 
 class DBCProxy : public DBObject {
 public:
+  // 构造器
   CONSTRUCTOR_SIMPLE_DBOBJECT(DBCProxy, "DBCProxy");
   // 句子号
   int id;
@@ -13,10 +14,16 @@ public:
   int encounter;
   // 错误位
   bool errorBit;
+  // 附加值
+  double aTag;
   // 操作码
   DashType opCode;
   // 操作表
   istr opTable;
+  // 操作表二
+  istr opTablePaired;
+  // 要载入的文件名
+  istr loadFile;
   // 条件子句的指针
   SyntaxTreeNode* condPtr;
   // 操作列向量

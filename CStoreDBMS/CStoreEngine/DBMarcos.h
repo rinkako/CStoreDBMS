@@ -22,9 +22,9 @@
   int __CSPUREFILEPOS__ = __CSPUREFILE__.rfind('\\'); \
   time_t __CSTRACETIMESTAMP__ = time(NULL); \
   tm* __CSTRACETIMESTAMPPTR__ = localtime(&__CSTRACETIMESTAMP__); \
-  printf("%02d:%02d:%02d %s:%d %s] ", __CSTRACETIMESTAMPPTR__->tm_hour, __CSTRACETIMESTAMPPTR__->tm_min, __CSTRACETIMESTAMPPTR__->tm_sec, \
+  printf("[%02d:%02d:%02d %s:%d %s] Trace Info", __CSTRACETIMESTAMPPTR__->tm_hour, __CSTRACETIMESTAMPPTR__->tm_min, __CSTRACETIMESTAMPPTR__->tm_sec, \
   __CSPUREFILE__.substr(__CSPUREFILEPOS__ + 1, __CSPUREFILE__.length() - __CSPUREFILEPOS__ - 1).c_str(), \
-  __LINE__, __FUNCTION__); std::cout << strpar << std::endl; }
+  __LINE__, __FUNCTION__); std::cout << std::endl << strpar << std::endl; }
 
 // ÓÀ¾ÃÑ­»·½Ó¿Ú
 #define FOREVER while (true)

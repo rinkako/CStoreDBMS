@@ -102,7 +102,7 @@ private:
   //    xtoken 下一token
   //   curRoot 当前根节点
   //返 回 值： 是否是CSTORE特有命令
-  bool CSTOREQL(Token*, SyntaxTreeNode*);
+  bool CSTOREQL(Token*, SyntaxTreeNode*&);
 
   //函数作用： 初始化预测分析表
   //参数列表： N/A

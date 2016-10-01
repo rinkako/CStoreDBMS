@@ -85,7 +85,7 @@ void LL1SyntaxParser::Dash() {
 }
 
 // LL1SyntaxParser处理CSTORE特殊保留字
-bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode* curRoot) {
+bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
   curRoot->nodeType = CFunctionType::umi_cstore;
   switch (xtoken->aType) {
   case TokenType::token_load:
@@ -93,10 +93,16 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode* curRoot) {
     // require identifier
     if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
       Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-      if (tableNameToken->aType == TokenType::identifier) {
+      if (tableNameToken->aType == TokenType::token_iden) {
         curRoot->nodeValue = tableNameToken->detail;
       }
+      else {
+        PILEPRINTLN("Load command should follow with a file *.tbl");
+        curRoot = NULL;
+        return true;
+      }
       this->iPTRnextToken++;
+      curRoot->nodeName = "cstore_load";
       return true;
     }
     else {
@@ -110,59 +116,98 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode* curRoot) {
     // require identifier
     if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
       Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-      if (tableNameToken->aType == TokenType::identifier) {
+      if (tableNameToken->aType == TokenType::token_iden) {
         curRoot->nodeValue = tableNameToken->detail;
       }
-      this->iPTRnextToken++;
+      else {
+        TRACE("Retrieve command should follow with a table name");
+        curRoot = NULL;
+        return true;
+      }
       if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
         Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
         if (tableNameToken->aType == TokenType::number) {
           curRoot->nodeValue += "@" + tableNameToken->detail;
         }
+        else {
+          TRACE("Retrieve command should end with a primary key value");
+          curRoot = NULL;
+          return true;
+        }
         this->iPTRnextToken++;
+        curRoot->nodeName = "cstore_retrieve";
         return true;
       }
       else {
-        PILEPRINTLN("Retrieve command should end with a primary key value");
+        TRACE("Retrieve command should end with a primary key value");
         curRoot = NULL;
         return true;
       }
     }
     else {
-      PILEPRINTLN("Retrieve command should follow with a table name");
+      TRACE("Retrieve command should follow with a table name");
       curRoot = NULL;
       return true;
     }
     break;
   case TokenType::token_compress:
     curRoot->nodeSyntaxType = SyntaxType::cstore_compress;
-    this->iPTRnextToken++;
+    // require identifier
+    if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
+      Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
+      if (tableNameToken->aType == TokenType::token_iden) {
+        curRoot->nodeValue = tableNameToken->detail;
+      }
+      else {
+        TRACE("Compress command should follow with tablename");
+        curRoot = NULL;
+        return true;
+      }
+      this->iPTRnextToken++;
+      curRoot->nodeName = "cstore_compress";
+      return true;
+    }
+    else {
+      TRACE("Compress command should follow with tablename");
+      curRoot = NULL;
+      return true;
+    }
     return true;
   case TokenType::token_join:
     curRoot->nodeSyntaxType = SyntaxType::cstore_join;
     // require identifier
     if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
       Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-      if (tableNameToken->aType == TokenType::identifier) {
+      if (tableNameToken->aType == TokenType::token_iden) {
         curRoot->nodeValue = tableNameToken->detail;
       }
-      this->iPTRnextToken++;
+      else {
+        TRACE("Join command should follow with a table name");
+        curRoot = NULL;
+        return true;
+      }
       if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
         Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-        if (tableNameToken->aType == TokenType::identifier) {
+        if (tableNameToken->aType == TokenType::token_iden) {
           curRoot->nodeValue += "@" + tableNameToken->detail;
         }
+        else {
+          TRACE("Join command should end with a table name");
+          curRoot = NULL;
+          return true;
+        }
         this->iPTRnextToken++;
+        curRoot->nodeName = "cstore_join";
         return true;
       }
       else {
-        PILEPRINTLN("Join command should end with a table name");
+        TRACE("Join command should end with a table name");
         curRoot = NULL;
         return true;
       }
     }
     else {
-      PILEPRINTLN("Join command should follow with a table name");
+      TRACE("Join command should follow with a table name");
       curRoot = NULL;
       return true;
     }
@@ -172,14 +217,20 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode* curRoot) {
     // require identifier
     if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
       Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-      if (tableNameToken->aType == TokenType::identifier) {
+      if (tableNameToken->aType == TokenType::token_iden) {
         curRoot->nodeValue = tableNameToken->detail;
       }
+      else {
+        TRACE("Count command should follow with a table name");
+        curRoot = NULL;
+        return true;
+      }
       this->iPTRnextToken++;
+      curRoot->nodeName = "cstore_count";
       return true;
     }
     else {
-      PILEPRINTLN("Count command should follow with a table name");
+      TRACE("Count command should follow with a table name");
       curRoot = NULL;
       return true;
     }
