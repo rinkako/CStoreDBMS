@@ -1,11 +1,11 @@
 #ifndef ___CSTORE_DBBASE
 #define ___CSTORE_DBBASE
-// 引用对象根类型
-#include "DBObject.h"
 // 引用枚举
 #include "DBEnum.h"
 // 引用宏定义
 #include "DBMarcos.h"
+// 引用对象根类型
+#include "DBObject.h"
 // 引用全局辅助函数
 #include "DBCommonUtils.hpp"
 // 基础引用

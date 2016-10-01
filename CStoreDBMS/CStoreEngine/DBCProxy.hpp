@@ -2,6 +2,8 @@
 #define ___CSTORE_DBCPROXY
 #include "DBCBase.h"
 
+CSTORE_NS_BEGIN
+
 class DBCProxy : public DBObject {
 public:
   // 构造器
@@ -37,5 +39,7 @@ public:
   // 主键列向量
   StrVec PrimaryPi;
 }; /* DBCProxy */
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_DBCPROXY */

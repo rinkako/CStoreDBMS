@@ -4,6 +4,8 @@
 #include "DBLock.hpp"
 #include "DBTable.hpp"
 
+CSTORE_NS_BEGIN
+
 class TableManager : public DBObject {
 public:
   //函数作用： 添加表
@@ -11,13 +13,30 @@ public:
   //   tabName 表名
   //  loadFile 要载入的表文件
   //返 回 值： 操作成功与否
-  bool AddTable(std::string, std::string);
+  bool AddTable(const std::string&, const std::string&);
 
   //函数作用： 删除表
   //参数列表：
   //   tabName 表名
   //返 回 值： 操作成功与否
-  bool DropTable(std::string);
+  bool DropTable(const std::string&);
+
+  //函数作用： 获取表对象
+  //参数列表：
+  //   tabName 表名
+  //返 回 值： 表对象的指针
+  DBTable* GetTable(const std::string&);
+
+  //函数作用： 获取表的锁对象
+  //参数列表：
+  //   tabName 表名
+  //返 回 值： 表锁的指针
+  DBLock* GetTableLock(const std::string&);
+
+  //函数作用： 获取所有表的描述信息
+  //参数列表： N/A
+  //返 回 值： 表的描述字符串
+  std::string ShowTable();
 
   //函数作用： 统计数据库中表的数量
   //参数列表： N/A
@@ -31,8 +50,8 @@ public:
 
   //函数作用： 将当前数据库表状态保存到磁盘
   //参数列表： N/A
-  //返 回 值： 操作成功与否
-  bool SaveContext();
+  //返 回 值： N/A
+  void SaveContext();
 
   //函数作用： 将当前数据库表状态从磁盘读入
   //参数列表： N/A
@@ -46,13 +65,15 @@ private:
   TableManager();
 
   // 表对象容器
-  std::vector<DBTable> tableContainer;
+  std::vector<DBTable*> tableContainer;
 
   // 锁容器对象
-  std::vector<DBLock> lockContainer;
+  std::vector<DBLock*> lockContainer;
 
   // 唯一实例
   static TableManager* instance;
 }; /* TableManager */
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_TABLEMANAGER */

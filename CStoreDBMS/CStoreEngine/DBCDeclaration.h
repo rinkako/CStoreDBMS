@@ -2,7 +2,7 @@
 #define ___CSTORE_DBCDECLARATION
 
 #include "DBBase.h"
-
+CSTORE_NS_BEGIN
 class Token;
 class DBCProxy;
 class TokenStream;
@@ -70,5 +70,5 @@ const istr SyntaxOutputTable[] = {
   "tail_lessThan_Leave", "tail_greaterThan_Equality_Leave", "tail_lessThan_Equality_Leave",
   "tail_selectLeave", "tail_startEndLeave"
 };
-
+CSTORE_NS_END
 #endif /* ___CSTORE_DBCDECLARATION */

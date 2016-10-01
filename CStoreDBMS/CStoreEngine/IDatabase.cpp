@@ -1,5 +1,7 @@
 #include "IDatabase.h"
 
+CSTORE_NS_BEGIN
+
 // IDatabase¹¹Ôìº¯Êý
 IDatabase::IDatabase() {
   this->Reset();
@@ -281,3 +283,5 @@ bool IDatabase::AST(SyntaxTreeNode* mynode, IDatabase* myexec, DBCProxy* myproxy
   }
   return true;
 }
+
+CSTORE_NS_END

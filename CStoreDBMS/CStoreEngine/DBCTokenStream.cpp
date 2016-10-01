@@ -1,5 +1,7 @@
 #include "DBCTokenStream.h"
 
+CSTORE_NS_BEGIN
+
 // TokenStream¹¹ÔìÆ÷
 TokenStream::TokenStream()
   :DBObject("TokenStream", this) {
@@ -96,3 +98,5 @@ TokenList TokenStream::NextSentence() {
   _iPointer = _sPointer;
   return sentenceBuilder;
 }
+
+CSTORE_NS_END

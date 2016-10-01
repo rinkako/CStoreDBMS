@@ -2,6 +2,8 @@
 #define ___CSTORE_IDATABASE
 #include "DBCBase.h"
 
+CSTORE_NS_BEGIN
+
 class IDatabase {
 public:
   //函数作用： 构造函数
@@ -105,5 +107,7 @@ private:
   // 条件子句字典
   TablePileDictionary _param;
 }; /* IDatabase */
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_IDATABASE */

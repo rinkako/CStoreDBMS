@@ -1,5 +1,7 @@
 #include "LexicalAnalyzer.h"
 
+CSTORE_NS_BEGIN
+
 // LexicalAnalyzer构造器
 LexicalAnalyzer::LexicalAnalyzer()
   :DBObject("LexicalAnalyzer", this) {
@@ -701,9 +703,4 @@ void LexicalAnalyzer::Jump(int _go) {
   }
 }
 
-
-/********************************************************
-Author:      编译原理计应1班12小组
-Date:        2014-11-22
-Description: SSQL词法分析器
-*********************************************************/
+CSTORE_NS_END

@@ -4,6 +4,7 @@
 #include <string>
 #include <typeinfo>
 
+CSTORE_NS_BEGIN
 class DBObject {
 public:
   //函数作用： 将实例转化为其字符串表示
@@ -72,5 +73,6 @@ private:
   // 对象在内存的指针
   void* allocPointer;
 }; /* DBObject */
+CSTORE_NS_END
 
 #endif /* ___CSTORE_DBOBJECT */

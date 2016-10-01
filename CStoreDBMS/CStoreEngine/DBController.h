@@ -3,6 +3,8 @@
 #include "DBBase.h"
 #include "DBBridge.h"
 
+CSTORE_NS_BEGIN
+
 class DBController : public DBObject {
 public:
   //函数作用： 工厂方法，获得类的唯一实例
@@ -69,5 +71,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(DBController);
 };
 
+CSTORE_NS_END
 
 #endif // __CSTORE_DBCONTROLLER

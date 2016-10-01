@@ -1,6 +1,9 @@
 #ifndef ___CSTORE_DBCTOKEN
 #define ___CSTORE_DBCTOKEN
 #include "DBCDeclaration.h"
+
+CSTORE_NS_BEGIN
+
 class Token : public DBObject {
 public:
   //函数作用： 构造函数
@@ -33,5 +36,7 @@ public:
   // 原信息
   istr detail;
 }; /* Token */
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_DBCTOKEN */

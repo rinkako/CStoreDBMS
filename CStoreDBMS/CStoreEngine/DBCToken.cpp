@@ -1,5 +1,7 @@
 #include "DBCToken.h"
 
+CSTORE_NS_BEGIN
+
 // Token¹¹ÔìÆ÷
 Token::Token() : DBObject("Token", this) {
   aLine = 0;
@@ -24,3 +26,5 @@ Token::Token(const Token &_other) : DBObject("Token", this) {
   this->aType = _other.aType;
   this->aTag = _other.aTag;
 }
+
+CSTORE_NS_END

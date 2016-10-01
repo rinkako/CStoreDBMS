@@ -1,5 +1,5 @@
-#ifndef ___CSTORE_DBCOMPILER
-#define ___CSTORE_DBCOMPILER
+#ifndef ___CSTORE_DBCBASE
+#define ___CSTORE_DBCBASE
 
 #include "DBCToken.h"
 #include "DBCProxy.hpp"
@@ -9,4 +9,4 @@
 #include "DBCCandidateFunction.h"
 #include "DBCLL1SyntaxParserMap.h"
 
-#endif /* ___CSTORE_DBCOMPILER */
+#endif /* ___CSTORE_DBCBASE */

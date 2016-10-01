@@ -6,6 +6,8 @@
 #include "IDatabase.h"
 #include "Pile.h"
 
+CSTORE_NS_BEGIN
+
 class DBBridge : public DBObject {
 public:
   //函数作用： 构造函数
@@ -60,5 +62,7 @@ private:
 
   DISALLOW_COPY_AND_ASSIGN(DBBridge);
 }; /* DBBridge */
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_DBBRIDGE */

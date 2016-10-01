@@ -2,6 +2,8 @@
 #define ___CSTORE_DBLOCK
 #include "DBBase.h"
 
+CSTORE_NS_BEGIN
+
 class DBLock : public DBObject {
 public:
   // 构造器
@@ -32,5 +34,7 @@ public:
   // 锁施加对象的指针
   DBObject* LockBinding = NULL;
 }; /* DBLock */
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_DBLOCK */

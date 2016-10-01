@@ -26,6 +26,12 @@
   __CSPUREFILE__.substr(__CSPUREFILEPOS__ + 1, __CSPUREFILE__.length() - __CSPUREFILEPOS__ - 1).c_str(), \
   __LINE__, __FUNCTION__); std::cout << std::endl << strpar << std::endl; }
 
+// CStore命名空间开始
+#define CSTORE_NS_BEGIN namespace CStore {
+
+// CStore命名空间结束
+#define CSTORE_NS_END }
+
 // 永久循环接口
 #define FOREVER while (true)
 

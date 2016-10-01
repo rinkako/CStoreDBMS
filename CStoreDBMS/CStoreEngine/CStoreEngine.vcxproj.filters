@@ -4,14 +4,14 @@
     <Filter Include="DBBase">
       <UniqueIdentifier>{b27f6502-af4b-45b3-bac7-a0f4dc77c8e4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="DBCore">
-      <UniqueIdentifier>{d05607d2-0ee0-4ea9-9de5-c019566f8160}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine">
-      <UniqueIdentifier>{0cc6a250-22a5-4a00-a5c6-c78659063760}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DBCompiler">
       <UniqueIdentifier>{75c2cc60-c725-466c-9133-ede156ca23f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DBEngine">
+      <UniqueIdentifier>{d05607d2-0ee0-4ea9-9de5-c019566f8160}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DBInterface">
+      <UniqueIdentifier>{0cc6a250-22a5-4a00-a5c6-c78659063760}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -28,13 +28,13 @@
       <Filter>DBBase</Filter>
     </ClInclude>
     <ClInclude Include="FileManager.h">
-      <Filter>DBCore</Filter>
+      <Filter>DBEngine</Filter>
     </ClInclude>
     <ClInclude Include="QueryManager.h">
-      <Filter>DBCore</Filter>
+      <Filter>DBEngine</Filter>
     </ClInclude>
     <ClInclude Include="DBController.h">
-      <Filter>Engine</Filter>
+      <Filter>DBInterface</Filter>
     </ClInclude>
     <ClInclude Include="IDatabase.h">
       <Filter>DBCompiler</Filter>
@@ -67,16 +67,16 @@
       <Filter>DBCompiler</Filter>
     </ClInclude>
     <ClInclude Include="DBBridge.h">
-      <Filter>Engine</Filter>
+      <Filter>DBInterface</Filter>
     </ClInclude>
     <ClInclude Include="TableManager.h">
-      <Filter>DBCore</Filter>
+      <Filter>DBEngine</Filter>
     </ClInclude>
     <ClInclude Include="DBTable.hpp">
-      <Filter>DBCore</Filter>
+      <Filter>DBEngine</Filter>
     </ClInclude>
     <ClInclude Include="DBLock.hpp">
-      <Filter>DBCore</Filter>
+      <Filter>DBEngine</Filter>
     </ClInclude>
     <ClInclude Include="DBObject.h">
       <Filter>DBBase</Filter>
@@ -90,16 +90,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileManager.cpp">
-      <Filter>DBCore</Filter>
+      <Filter>DBEngine</Filter>
     </ClCompile>
     <ClCompile Include="QueryManager.cpp">
-      <Filter>DBCore</Filter>
+      <Filter>DBEngine</Filter>
     </ClCompile>
     <ClCompile Include="DBController.cpp">
-      <Filter>Engine</Filter>
+      <Filter>DBInterface</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
-      <Filter>Engine</Filter>
+      <Filter>DBInterface</Filter>
     </ClCompile>
     <ClCompile Include="IDatabase.cpp">
       <Filter>DBCompiler</Filter>
@@ -123,10 +123,10 @@
       <Filter>DBCompiler</Filter>
     </ClCompile>
     <ClCompile Include="DBBridge.cpp">
-      <Filter>Engine</Filter>
+      <Filter>DBInterface</Filter>
     </ClCompile>
     <ClCompile Include="TableManager.cpp">
-      <Filter>DBCore</Filter>
+      <Filter>DBEngine</Filter>
     </ClCompile>
     <ClCompile Include="DBObject.cpp">
       <Filter>DBBase</Filter>

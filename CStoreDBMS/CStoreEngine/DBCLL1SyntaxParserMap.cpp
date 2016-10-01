@@ -1,5 +1,5 @@
 #include "DBCLL1SyntaxParserMap.h"
-
+CSTORE_NS_BEGIN
 // LL1SyntaxParserMap带尺寸的构造器
 LL1SyntaxParserMap::LL1SyntaxParserMap(int row, int col)
   : DBObject("LL1SyntaxParserMap", this) {
@@ -53,3 +53,4 @@ CandidateFunction* LL1SyntaxParserMap::GetCFunction(SyntaxType left, TokenType l
   CandidateFunction* candidator = this->GetCFunction(this->iLeftNodes[left], this->iNextLeaves[leave]);
   return candidator == NULL ? new CandidateFunction(NULL, CFunctionType::umi_errorEnd) : candidator;
 }
+CSTORE_NS_END

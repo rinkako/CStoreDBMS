@@ -1,6 +1,8 @@
 #include "DBController.h"
 #include "DBCBase.h"
 
+CSTORE_NS_BEGIN
+
 // 私有的构造器
 DBController::DBController()
   :DBObject("DBController", this) {
@@ -82,3 +84,5 @@ std::string DBController::GetRunPath() {
 
 // 唯一实例
 DBController* DBController::Instance = NULL;
+
+CSTORE_NS_END

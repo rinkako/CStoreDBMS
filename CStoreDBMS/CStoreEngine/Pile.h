@@ -3,6 +3,8 @@
 #include "DBCBase.h"
 #include "IDatabase.h"
 
+CSTORE_NS_BEGIN
+
 class IPile : public DBObject {
 public:
   //函数作用： 构造函数
@@ -42,5 +44,7 @@ private:
   // 最后操作列
   istr lastPi;
 }; /* IPile */
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_PILE */

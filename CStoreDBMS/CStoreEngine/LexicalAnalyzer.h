@@ -2,6 +2,8 @@
 #define ___CSTORE_ILEXICALANALYZER
 #include "DBCBase.h"
 
+CSTORE_NS_BEGIN
+
 class LexicalAnalyzer : public DBObject {
 public:
   //函数作用： 构造函数
@@ -116,5 +118,7 @@ private:
   // 句子容器
   StrVec sentenceContainer;
 }; /* LexicalAnalyzer */
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_ILEXICALANALYZER */

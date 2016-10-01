@@ -1,5 +1,7 @@
 #include "Pile.h"
 
+CSTORE_NS_BEGIN
+
 // IPile¹¹Ôìº¯Êý
 IPile::IPile()
   :DBObject("IPile", this) {
@@ -239,3 +241,5 @@ void IPile::Mise(DBCProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
     break;
   }
 }
+
+CSTORE_NS_END

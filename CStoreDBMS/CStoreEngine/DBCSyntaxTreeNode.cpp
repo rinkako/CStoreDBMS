@@ -1,5 +1,7 @@
 #include "DBCSyntaxTreeNode.h"
 
+CSTORE_NS_BEGIN
+
 // SyntaxTreeNode¹¹ÔìÆ÷
 SyntaxTreeNode::SyntaxTreeNode()
   : DBObject("SyntaxTreeNode", this) {
@@ -106,3 +108,5 @@ istr SyntaxTreeNode::DrawTree(SyntaxTreeNode* myNode) {
   }
   return builder;
 }
+
+CSTORE_NS_END

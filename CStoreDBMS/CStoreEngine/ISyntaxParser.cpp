@@ -1,5 +1,7 @@
 #include "ISyntaxParser.h"
 
+CSTORE_NS_BEGIN
+
 // 前置声明
 SyntaxTreeNode* Homura(SyntaxTreeNode*, void*, CFunctionType, SyntaxType, istr);
 
@@ -336,7 +338,7 @@ SyntaxTreeNode* LL1SyntaxParser::NextNode(SyntaxTreeNode* _res, LL1SyntaxParser*
 
 // LL1SyntaxParser错误处理
 void LL1SyntaxParser::iException() {
-  PILEPRINT("# Syntax Error: At ("
+  TRACE("# Syntax Error: At ("
     << this->GetTokenStream()->_tokenContainer[iPTRnextToken]->aLine << ", "
     << this->GetTokenStream()->_tokenContainer[iPTRnextToken]->aColumn << ")"
     << ", which Token detail: " << this->GetTokenStream()->_tokenContainer[iPTRnextToken]->detail << NEWLINE
@@ -1391,7 +1393,7 @@ void LL1SyntaxParser::InitCellular() {
     new CandidateFunction(iProco, CFunctionType::umi_startEnd));
 }
 
-//函数作用： 核心函数Homura——通用产生式处理器
+//函数作用： 通用产生式处理器
 //参数列表：
 //   _myNode 产生式节点
 // _myParser 匹配器指针
@@ -1457,3 +1459,5 @@ SyntaxTreeNode* Homura(SyntaxTreeNode* _myNode, void* _myParser, CFunctionType _
     return iParser->NextNode(_myNode, iParser);
   }
 }
+
+CSTORE_NS_END

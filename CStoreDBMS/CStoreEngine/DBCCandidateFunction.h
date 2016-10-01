@@ -2,6 +2,8 @@
 #define ___CSTORE_DBCCANDIDATEFUNCTION
 #include "DBCDeclaration.h"
 
+CSTORE_NS_BEGIN
+
 class CandidateFunction : public DBObject {
 public:
   //函数作用： 构造函数
@@ -54,5 +56,7 @@ private:
   // 产生式类型
   CFunctionType candidateType;
 };
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_DBCCANDIDATEFUNCTION */

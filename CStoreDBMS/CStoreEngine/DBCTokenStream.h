@@ -3,6 +3,8 @@
 #include "DBCDeclaration.h"
 #include "DBCToken.h"
 
+CSTORE_NS_BEGIN
+
 class TokenStream : public DBObject {
 public:
   //函数作用： 构造函数
@@ -63,5 +65,7 @@ private:
   // 句指针
   iPtr _sPointer;
 }; /* TokenStream */
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_DBCTOKENSTREAM */

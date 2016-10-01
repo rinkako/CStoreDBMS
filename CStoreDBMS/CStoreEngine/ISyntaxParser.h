@@ -2,6 +2,8 @@
 #define ___CSTORE_ISYNTAXPARSER
 #include "DBCBase.h"
 
+CSTORE_NS_BEGIN
+
 class ISyntaxParser {
 public:
   //函数作用： 启动语法分析器，必须由子类具体实现
@@ -137,5 +139,6 @@ private:
   LL1SyntaxParserMap* iMap = NULL;
 }; /* LL1SyntaxParser */
 
+CSTORE_NS_END
 
 #endif /* ___CSTORE_ISYNTAXPARSER */

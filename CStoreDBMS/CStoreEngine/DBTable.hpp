@@ -1,15 +1,24 @@
 #ifndef ___CSTORE_DBTABLE
 #define ___CSTORE_DBTABLE
 #include "DBBase.h"
-#include <string>
-#include <vector>
+
+CSTORE_NS_BEGIN
 
 class DBTable : public DBObject {
 public:
-  // 构造器
-  CONSTRUCTOR_SIMPLE_DBOBJECT(DBTable, "DBTable");
+  //函数作用： 构造器
+  //参数列表：
+  //   tabName 表名
+  //  fileName 表源文件
+  //返 回 值： N/A
+  DBTable(const std::string tabName, const std::string fileName)
+    :DBObject("DBTable", this) {
+    this->IsSorted = false;
+    this->TableName = tabName;
+    this->OriginalFileName = fileName;
+  }
 
-  // 重载字符串化方法
+  // 重写字符串化方法
   virtual std::string ToString() {
     std::string sb = this->GetTypename() + " [Name:" + this->TableName + ", Cols:{";
     if (this->PiList.size() > 0) {
@@ -41,5 +50,7 @@ public:
   // 排序压缩完后的列名所对应的文件名
   std::vector<std::string> CompressedPiFileNameList;
 }; /* DBTable */
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_DBTABLE */

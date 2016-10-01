@@ -1,5 +1,5 @@
 #include "DBCCandidateFunction.h"
-
+CSTORE_NS_BEGIN
 // CandidateFunctionµÄ¹¹ÔìÆ÷
 CandidateFunction::CandidateFunction() : DBObject("CandidateFunction", this) {
   candidateProcesser = NULL;
@@ -39,3 +39,5 @@ SyntaxTreeNode* CandidateFunction::Call(SyntaxTreeNode* _root, void* _parser, Sy
   //return NULL;
   return this->candidateProcesser(_root, _parser, this->candidateType, _syntax, _detail);
 }
+
+CSTORE_NS_END

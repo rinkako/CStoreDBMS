@@ -2,6 +2,8 @@
 #define ___CSTORE_DBCSYNTAXTREENODE
 #include "DBCBase.h"
 
+CSTORE_NS_BEGIN
+
 class SyntaxTreeNode : public DBObject {
 public:
   //函数作用： 构造函数
@@ -58,5 +60,7 @@ private:
   //返 回 值： istr 树的字符串表示
   istr DrawTree(SyntaxTreeNode*);
 }; /* SyntaxTreeNode */
+
+CSTORE_NS_END
 
 #endif /* ___CSTORE_DBCSYNTAXTREENODE */

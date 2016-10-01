@@ -1,5 +1,7 @@
 #include "DBObject.h"
 
+CSTORE_NS_BEGIN
+
 // 将实例转化为其字符串表示
 std::string DBObject::ToString() {
   return this->typeName;
@@ -43,3 +45,5 @@ DBObject::DBObject(std::string TyName, void* ObjPtr)
 DBObject::~DBObject() {
   this->allocPointer = NULL;
 }
+
+CSTORE_NS_END

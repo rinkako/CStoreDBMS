@@ -1,4 +1,5 @@
 #include "DBController.h"
+using namespace CStore;
 
 int main(int argc, char* argv[]) {
   DBController* core = DBController::Invoke();

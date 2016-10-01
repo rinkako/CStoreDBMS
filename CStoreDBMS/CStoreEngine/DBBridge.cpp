@@ -1,5 +1,7 @@
 #include "DBBridge.h"
 
+CSTORE_NS_BEGIN
+
 // IBridge¹¹Ôìº¯Êý
 DBBridge::DBBridge()
   :DBObject("DBBridge", this) {
@@ -186,3 +188,5 @@ istr DBBridge::readCode(istr path) {
   infile.close();
   return code;
 }
+
+CSTORE_NS_END
