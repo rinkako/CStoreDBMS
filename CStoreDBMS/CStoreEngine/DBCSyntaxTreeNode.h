@@ -18,7 +18,7 @@ public:
   //函数作用： 树的文本化函数
   //参数列表： N/A
   //返 回 值： istr 树的字符串表示
-  istr ToString();
+  virtual std::string ToString();
 
   // 绑定处理函数
   CandidateFunction* candidateFunction;

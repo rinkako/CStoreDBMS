@@ -1,4 +1,4 @@
-#include "IPile.h"
+#include "Pile.h"
 
 // IPile¹¹Ôìº¯Êı
 IPile::IPile()
@@ -42,6 +42,17 @@ void IPile::Mise(DBCProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
   switch (mynode->nodeSyntaxType)
   {
   case SyntaxType::Unknown:
+    break;
+  case SyntaxType::cstore_load:
+    myproxy.
+    break;
+  case SyntaxType::cstore_retrieve:
+    break;
+  case SyntaxType::cstore_compress:
+    break;
+  case SyntaxType::cstore_join:
+    break;
+  case SyntaxType::cstore_count:
     break;
   case SyntaxType::case_ssql_stmt:
     Mise(myproxy, mynode->children[0], flag);

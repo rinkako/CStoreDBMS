@@ -39,12 +39,6 @@
     <ClInclude Include="IDatabase.h">
       <Filter>DBCompiler</Filter>
     </ClInclude>
-    <ClInclude Include="ILexicalAnalyzer.h">
-      <Filter>DBCompiler</Filter>
-    </ClInclude>
-    <ClInclude Include="IPile.h">
-      <Filter>DBCompiler</Filter>
-    </ClInclude>
     <ClInclude Include="ISyntaxParser.h">
       <Filter>DBCompiler</Filter>
     </ClInclude>
@@ -87,6 +81,12 @@
     <ClInclude Include="DBObject.h">
       <Filter>DBBase</Filter>
     </ClInclude>
+    <ClInclude Include="LexicalAnalyzer.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="Pile.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileManager.cpp">
@@ -102,12 +102,6 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="IDatabase.cpp">
-      <Filter>DBCompiler</Filter>
-    </ClCompile>
-    <ClCompile Include="ILexicalAnalyzer.cpp">
-      <Filter>DBCompiler</Filter>
-    </ClCompile>
-    <ClCompile Include="IPile.cpp">
       <Filter>DBCompiler</Filter>
     </ClCompile>
     <ClCompile Include="ISyntaxParser.cpp">
@@ -136,6 +130,12 @@
     </ClCompile>
     <ClCompile Include="DBObject.cpp">
       <Filter>DBBase</Filter>
+    </ClCompile>
+    <ClCompile Include="LexicalAnalyzer.cpp">
+      <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="Pile.cpp">
+      <Filter>DBCompiler</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,10 +1,10 @@
 #ifndef ___CSTORE_DBBRIDGE
 #define ___CSTORE_DBBRIDGE
 #include "DBCBase.h"
-#include "ILexicalAnalyzer.h"
+#include "LexicalAnalyzer.h"
 #include "ISyntaxParser.h"
 #include "IDatabase.h"
-#include "IPile.h"
+#include "Pile.h"
 
 class DBBridge : public DBObject {
 public:

@@ -85,12 +85,12 @@ void DBBridge::StartDash(bool isDebug) {
       // 语法分析
       iParser.SetTokenStream(&currentSentenceTokenStream, iLexiana.GetStrVec());
       iParser.iPTRnextSectence = 0;
-      currentTree = iParser.Parse();
       if (isDebug) {
         PILEPRINTLN(">>> Parser Output:");
-        if (currentTree != NULL) {
-          PILEPRINTLN(currentTree->ToString());
-        }
+      }
+      currentTree = iParser.Parse();
+      if (isDebug && currentTree != NULL) {
+        PILEPRINTLN(currentTree->ToString());
       }
       // 语义分析
       if (currentTree != NULL) {

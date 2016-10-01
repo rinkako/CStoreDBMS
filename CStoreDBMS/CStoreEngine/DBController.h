@@ -2,7 +2,6 @@
 #define __CSTORE_DBCONTROLLER
 #include "DBBase.h"
 #include "DBBridge.h"
-#include <string>
 
 class DBController : public DBObject {
 public:
@@ -16,7 +15,7 @@ public:
   //      argc 参数的个数
   //      argv 参数向量
   //返 回 值： N/A
-  void DBInit(int argc, char* argv[]);
+  void DBInit(int, char**);
 
   //函数作用： 将前端动作转化为后台动作
   //参数列表： N/A
@@ -46,7 +45,7 @@ private:
   //函数作用： 处理查询语句输入
   //参数列表： N/A
   //返 回 值： N/A
-  void Dash(const std::string& query);
+  void Dash(const std::string&);
 
   //函数作用： 私有的构造器
   //参数列表： N/A

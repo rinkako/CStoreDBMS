@@ -82,8 +82,8 @@
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="DBBridge.h" />
     <ClInclude Include="IDatabase.h" />
-    <ClInclude Include="ILexicalAnalyzer.h" />
-    <ClInclude Include="IPile.h" />
+    <ClInclude Include="LexicalAnalyzer.h" />
+    <ClInclude Include="Pile.h" />
     <ClInclude Include="ISyntaxParser.h" />
     <ClInclude Include="DBCToken.h" />
     <ClInclude Include="DBCDeclaration.h" />
@@ -102,8 +102,8 @@
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="DBBridge.cpp" />
     <ClCompile Include="IDatabase.cpp" />
-    <ClCompile Include="ILexicalAnalyzer.cpp" />
-    <ClCompile Include="IPile.cpp" />
+    <ClCompile Include="LexicalAnalyzer.cpp" />
+    <ClCompile Include="Pile.cpp" />
     <ClCompile Include="ISyntaxParser.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="QueryManager.cpp" />

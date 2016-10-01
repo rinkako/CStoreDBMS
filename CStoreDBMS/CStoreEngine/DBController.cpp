@@ -1,6 +1,5 @@
 #include "DBController.h"
 #include "DBCBase.h"
-#include <iostream>
 
 // 私有的构造器
 DBController::DBController()
