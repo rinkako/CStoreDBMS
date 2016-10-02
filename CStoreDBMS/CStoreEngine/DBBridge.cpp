@@ -150,7 +150,7 @@ void DBBridge::StartDash(bool isDebug) {
         iDB.Interpreter(currentProxy);
       }
       if (isDebug) {
-        PILEPRINTLN("====================== Interpreted.");
+        PILEPRINTLN("                 Query OK.");
       }
       PILEPRINT(NEWLINE);
     }

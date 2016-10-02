@@ -87,6 +87,12 @@
     <ClInclude Include="Pile.h">
       <Filter>DBCompiler</Filter>
     </ClInclude>
+    <ClInclude Include="DBTransaction.hpp">
+      <Filter>DBEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="DBConnector.h">
+      <Filter>DBInterface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileManager.cpp">
@@ -136,6 +142,12 @@
     </ClCompile>
     <ClCompile Include="Pile.cpp">
       <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="DBConnector.cpp">
+      <Filter>DBInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="DBTransaction.cpp">
+      <Filter>DBEngine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -71,6 +71,7 @@
     <ClInclude Include="DBCLL1SyntaxParserMap.h" />
     <ClInclude Include="DBCommonUtils.hpp" />
     <ClInclude Include="DBCBase.h" />
+    <ClInclude Include="DBConnector.h" />
     <ClInclude Include="DBController.h" />
     <ClInclude Include="DBCProxy.hpp" />
     <ClInclude Include="DBCSyntaxTreeNode.h" />
@@ -79,6 +80,7 @@
     <ClInclude Include="DBLock.hpp" />
     <ClInclude Include="DBMarcos.h" />
     <ClInclude Include="DBObject.h" />
+    <ClInclude Include="DBTransaction.hpp" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="DBBridge.h" />
     <ClInclude Include="IDatabase.h" />
@@ -94,11 +96,13 @@
   <ItemGroup>
     <ClCompile Include="DBCCandidateFunction.cpp" />
     <ClCompile Include="DBCLL1SyntaxParserMap.cpp" />
+    <ClCompile Include="DBConnector.cpp" />
     <ClCompile Include="DBController.cpp" />
     <ClCompile Include="DBCSyntaxTreeNode.cpp" />
     <ClCompile Include="DBCToken.cpp" />
     <ClCompile Include="DBCTokenStream.cpp" />
     <ClCompile Include="DBObject.cpp" />
+    <ClCompile Include="DBTransaction.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="DBBridge.cpp" />
     <ClCompile Include="IDatabase.cpp" />

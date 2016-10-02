@@ -18,7 +18,9 @@ public:
     this->OriginalFileName = fileName;
   }
 
-  // 重写字符串化方法
+  //函数作用： 重写字符串化方法
+  //参数列表： N/A
+  //返 回 值： 表的说明
   virtual std::string ToString() {
     std::string sb = this->GetTypename() + " [Name:" + this->TableName + ", Cols:{";
     if (this->PiList.size() > 0) {
@@ -49,6 +51,10 @@ public:
 
   // 排序压缩完后的列名所对应的文件名
   std::vector<std::string> CompressedPiFileNameList;
+
+private:
+  // 阻止拷贝构造
+  DISALLOW_COPY_AND_ASSIGN(DBTable);
 }; /* DBTable */
 
 CSTORE_NS_END

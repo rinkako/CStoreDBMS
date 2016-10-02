@@ -14,8 +14,10 @@
 #include <fstream>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <string>
 #include <vector>
+#include <queue>
 #include <stack>
 #include <ctime>
 #include <map>
