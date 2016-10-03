@@ -8,7 +8,7 @@ std::string DBObject::ToString() {
 }
 
 // 对比两个对象是否相等，如果子类不重载这个函数它相当于ReferenceEquals
-bool DBObject::Equals(const DBObject& RefObj) {
+bool DBObject::Equals(DBObject& RefObj) {
   return this->ReferenceEquals(RefObj);
 }
 

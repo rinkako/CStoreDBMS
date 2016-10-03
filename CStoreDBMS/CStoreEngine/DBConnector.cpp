@@ -108,11 +108,11 @@ int DBConnector::CountProcessing() {
 std::string DBConnector::ShowFinishedTransaction() {
   std::string sb = "";
   for (int i = 0; i < this->finishedTransactionVector.size(); i++) {
-
+    if (this->finishedTransactionVector[i] != NULL) {
+      sb += this->finishedTransactionVector[i]->ToString() + NEWLINE;
+    }
   }
-
-
-  return "";
+  return sb;
 }
 
 // 事务处理器

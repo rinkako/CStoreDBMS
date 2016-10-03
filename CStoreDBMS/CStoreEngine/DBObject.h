@@ -16,7 +16,7 @@ public:
   //参数列表：
   //    RefObj 要比较的对象引用
   //返 回 值： 是否相等
-  virtual bool Equals(const DBObject&);
+  virtual bool Equals(DBObject&);
 
   //函数作用： 对比两个对象是否指向同一内存地址
   //参数列表：

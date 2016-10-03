@@ -14,7 +14,6 @@ bool TableManager::AddTable(const std::string& tabName, const std::string& loadF
   this->tableContainer.push_back(ntb);
   // ·ÖÅäÒ»¸öËø
   DBLock* ntl = new DBLock();
-  ntl->Type = TableLockType::tblock_none;
   ntl->LockBinding = ntb;
   this->lockContainer.push_back(ntl);
 }

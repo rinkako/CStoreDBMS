@@ -22,16 +22,15 @@ public:
   //参数列表： N/A
   //返 回 值： 表的说明
   virtual std::string ToString() {
-    std::string sb = this->GetTypename() + " [Name:" + this->TableName + ", Cols:{";
+    CSCommonUtil::StringBuilder sb(this->GetTypename() + " [Name:" + this->TableName + ", Cols:{");
     if (this->PiList.size() > 0) {
-      sb += PiList[0];
+      sb.Append(PiList[0]);
       for (int it = 1; it < this->PiList.size(); it++) {
-        sb += "|" + PiList[it];
+        sb.Append("|" + PiList[it]);
       }
     }
-    sb += "}, Compressed:" + this->IsSorted ? "Y" : "N";
-    sb += "]";
-    return sb;
+    sb.Append("}, Compressed:" + this->IsSorted ? "Y" : "N").Append("]");
+    return sb.ToString();
   };
 
   // 表名

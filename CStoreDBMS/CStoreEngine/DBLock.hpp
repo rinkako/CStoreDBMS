@@ -2,6 +2,7 @@
 #define ___CSTORE_DBLOCK
 #include "DBBase.h"
 #include "DBTransaction.hpp"
+#include <mutex>
 
 CSTORE_NS_BEGIN
 
@@ -14,25 +15,67 @@ public:
   //参数列表： N/A
   //返 回 值： 锁的说明
   virtual std::string ToString() {
-    std::string sb = this->GetTypename() + " [Type:";
+    CSCommonUtil::StringBuilder sb(this->GetTypename() + " [Type:");
     switch (this->Type)
     {
     case TableLockType::tblock_share:
-      sb += "Share";
+      sb.Append("Share");
       break;
     case TableLockType::tblock_mutex:
-      sb += "Mutex";
+      sb.Append("Mutex");
       break;
     case TableLockType::tblock_none:
-      sb += "None";
+      sb.Append("None");
       break;
     }
-    sb += ", Binding:" + (this->LockBinding == NULL ? "NULL" : this->LockBinding->ToString());
-    return sb;
+    sb.Append(", Binding:" + (this->LockBinding == NULL ? "NULL" : this->LockBinding->ToString()) + "]");
+    return sb.ToString();
   }
 
-  // 锁的状态
-  TableLockType Type;
+  //函数作用： 互斥锁定
+  //参数列表： N/A
+  //返 回 值： N/A
+  inline void LockWrite() {
+    this->synLockObj.lock();
+    this->Type = TableLockType::tblock_mutex;
+  }
+
+  //函数作用： 共享锁定
+  //参数列表： N/A
+  //返 回 值： N/A
+  inline void LockRead() {
+    this->Type = TableLockType::tblock_share;
+  }
+
+  //函数作用： 互斥解锁
+  //参数列表： N/A
+  //返 回 值： N/A
+  inline void UnlockWrite() {
+    this->synLockObj.unlock();
+    this->Type = TableLockType::tblock_none;
+  }
+
+  //函数作用： 共享解锁
+  //参数列表： N/A
+  //返 回 值： N/A
+  inline void UnlockRead() {
+    this->Type = TableLockType::tblock_none;
+  }
+
+  //函数作用： 获取锁的状态
+  //参数列表： N/A
+  //返 回 值： 锁状态枚举
+  inline TableLockType GetState() {
+    return this->Type;
+  }
+
+  //函数作用： 复位锁
+  //参数列表： N/A
+  //返 回 值： N/A
+  inline void Reset() {
+    this->LockBinding = NULL;
+    this->LockTransaction = NULL;
+  }
 
   // 锁施加对象的指针
   DBObject* LockBinding = NULL;
@@ -41,6 +84,12 @@ public:
   DBTransaction* LockTransaction = NULL;
 
 private:
+  // 锁的状态
+  TableLockType Type = TableLockType::tblock_none;
+
+  // 锁
+  std::mutex synLockObj;
+
   // 阻止拷贝构造
   DISALLOW_COPY_AND_ASSIGN(DBLock);
 }; /* DBLock */

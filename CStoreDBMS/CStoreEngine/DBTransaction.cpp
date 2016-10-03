@@ -26,15 +26,13 @@ inline std::string DBTransaction::GetDuration() {
 
 // 重写字符串化方法
 std::string DBTransaction::ToString() {
-  std::string sb = "";
-  char buf[10];
-  _itoa(this->id, buf, 10);
-  sb += "ID:\t" + std::string(buf) + NEWLINE;
-  sb += "Begin:\t" + this->timestamp + NEWLINE;
-  sb += "Over:\t" + this->finishstamp + NEWLINE;
-  sb += "Cost:\t" + this->GetDuration() + NEWLINE;
-  sb += "Code:\t" + (this->code.length() > 15 ? this->code.substr(0, 14) + "..." : this->code) + NEWLINE;
-  return sb;
+  CSCommonUtil::StringBuilder sb;
+  sb.Append("ID:\t").Append(this->id).Append(NEWLINE);
+  sb.Append("Begin:\t").Append(this->timestamp).Append(NEWLINE);
+  sb.Append("Over:\t").Append(this->finishstamp).Append(NEWLINE);
+  sb.Append("Cost:\t").Append(this->GetDuration()).Append(NEWLINE);
+  sb.Append("Code:\t").Append((this->code.length() > 15 ? this->code.substr(0, 14) + "..." : this->code)).Append(NEWLINE);
+  return sb.ToString();
 }
 
 // 静态计数器
