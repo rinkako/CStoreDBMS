@@ -24,12 +24,12 @@ public:
   virtual std::string ToString() {
     CSCommonUtil::StringBuilder sb(this->GetTypename() + " [Name:" + this->TableName + ", Cols:{");
     if (this->PiList.size() > 0) {
-      sb.Append(PiList[0]);
+      sb.Append(this->PiList[0] + " " + this->PiTypeList[0]);
       for (int it = 1; it < this->PiList.size(); it++) {
-        sb.Append("|" + PiList[it]);
+        sb.Append("|" + this->PiList[it] + " " + this->PiTypeList[it]);
       }
     }
-    sb.Append("}, Compressed:" + this->IsSorted ? "Y" : "N").Append("]");
+    sb.Append("}, Compressed:").Append(this->IsSorted ? "Y" : "N").Append("]");
     return sb.ToString();
   };
 
@@ -41,6 +41,9 @@ public:
 
   // 列向量
   std::vector<std::string> PiList;
+
+  // 列类型向量
+  std::vector<std::string> PiTypeList;
 
   // 列名所对应的文件名
   std::vector<std::string> PiFileNameList;

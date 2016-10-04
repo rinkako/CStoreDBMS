@@ -48,7 +48,7 @@ bool CSDatabase::Interpreter(DBCProxy &proxy) {
   switch (opCode)
   {
   case DashType::dash_create:
-    res = this->Create(proxy.opTable, proxy.Pi);
+    res = this->Create(proxy.opTable, proxy.Pi, proxy.PiType);
     break;
   case DashType::dash_delete:
     res = this->Delete(proxy.opTable, proxy.CondPi, proxy.condPtr, &proxy);
@@ -71,13 +71,14 @@ bool CSDatabase::Interpreter(DBCProxy &proxy) {
 }
 
 // CSDatabase½¨±í
-bool CSDatabase::Create(istr name, StrVec &pi) {
+bool CSDatabase::Create(istr name, StrVec &pi, StrVec &pitype) {
   this->dbMutex.lock();
   if (this->tableMana->AddTable(name, name) == false) {
     return false;
   }
   DBTable* tobj = this->tableMana->GetTable(name);
   tobj->PiList = std::vector<std::string>(pi);
+  tobj->PiTypeList = std::vector<std::string>(pitype);
   this->dbMutex.unlock();
   return true;
 }

@@ -93,11 +93,11 @@ void IPile::Mise(DBCProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
   case SyntaxType::case_decltype:
     // INT
     if (mynode->candidateFunction->GetType() == CFunctionType::deri___decltype__intleave) {
-      myproxy.PiType.push_back("int");
+      myproxy.PiType.push_back("INT");
     }
     // DOUBLE
     else {
-      myproxy.PiType.push_back("double");
+      myproxy.PiType.push_back("DOUBLE");
     }
     break;
   case SyntaxType::case_decl_listpi:

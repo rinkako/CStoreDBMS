@@ -66,12 +66,9 @@ private:
   //参数列表：
   //      name 表名
   //        pi 列向量
-  //       ppi 主键向量
-  //       def 初始值向量
-  //    dpflag 重复主键定义次数
-  //  errorbit 除零错误位
+  //    pitype 列类型向量
   //返 回 值： 操作成功与否
-  bool Create(istr, StrVec&);
+  bool Create(istr, StrVec&, StrVec&);
 
   //函数作用： 删除一个表中的指定行
   //参数列表：

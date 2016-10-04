@@ -135,11 +135,11 @@ bool DBController::ReservedRouter(const std::string& query) {
     return true;
   }
   else if (query == "show transactions;") {
-
+    PILEPRINTLN(this->connector->ShowTransaction());
     return true;
   }
   else if (query == "show tables;") {
-    
+    PILEPRINTLN(TableManager::GetInstance()->ShowTable());
     return true;
   }
   return false;

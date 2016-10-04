@@ -43,6 +43,11 @@ public:
   //返 回 值： 含有已完成事务详细说明的字符串
   std::string ShowFinishedTransaction();
 
+  //函数作用： 获取全部的事务说明
+  //参数列表： N/A
+  //返 回 值： 含有全部事务详细说明的字符串
+  std::string ShowTransaction();
+
   //函数作用： 设置线程数
   //参数列表：
   //      tnum 线程数
