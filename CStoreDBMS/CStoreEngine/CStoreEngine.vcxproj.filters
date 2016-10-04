@@ -36,9 +36,6 @@
     <ClInclude Include="DBController.h">
       <Filter>DBInterface</Filter>
     </ClInclude>
-    <ClInclude Include="IDatabase.h">
-      <Filter>DBCompiler</Filter>
-    </ClInclude>
     <ClInclude Include="ISyntaxParser.h">
       <Filter>DBCompiler</Filter>
     </ClInclude>
@@ -90,8 +87,14 @@
     <ClInclude Include="DBTransaction.hpp">
       <Filter>DBEngine</Filter>
     </ClInclude>
-    <ClInclude Include="DBConnector.h">
+    <ClInclude Include="DBConnectionPool.h">
       <Filter>DBInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="CSDatabase.h">
+      <Filter>DBCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="DBAllocator.h">
+      <Filter>DBEngine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -106,9 +109,6 @@
     </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>DBInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="IDatabase.cpp">
-      <Filter>DBCompiler</Filter>
     </ClCompile>
     <ClCompile Include="ISyntaxParser.cpp">
       <Filter>DBCompiler</Filter>
@@ -143,10 +143,16 @@
     <ClCompile Include="Pile.cpp">
       <Filter>DBCompiler</Filter>
     </ClCompile>
-    <ClCompile Include="DBConnector.cpp">
+    <ClCompile Include="DBTransaction.cpp">
+      <Filter>DBEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="DBConnectionPool.cpp">
       <Filter>DBInterface</Filter>
     </ClCompile>
-    <ClCompile Include="DBTransaction.cpp">
+    <ClCompile Include="CSDatabase.cpp">
+      <Filter>DBCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="DBAllocator.cpp">
       <Filter>DBEngine</Filter>
     </ClCompile>
   </ItemGroup>

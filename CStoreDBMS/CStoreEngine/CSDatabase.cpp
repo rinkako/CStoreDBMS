@@ -1,44 +1,44 @@
-#include "IDatabase.h"
+#include "CSDatabase.h"
 
 CSTORE_NS_BEGIN
 
-// IDatabase构造函数
-IDatabase::IDatabase() {
+// CSDatabase构造函数
+CSDatabase::CSDatabase() {
+  this->tableMana = TableManager::GetInstance();
+  this->fileMana = FileManager::GetInstance();
   this->Reset();
 }
 
-// IDatabase列出所有表
-void IDatabase::ShowTable() {
-
+// CSDatabase列出所有表
+void CSDatabase::ShowTable() {
+  istr tableDescription = this->tableMana->ShowTable();
+  TRACE("Table in database");
+  PILEPRINTLN(tableDescription);
 }
 
-// IDatabase清空
-void IDatabase::Reset() {
+// CSDatabase清空
+void CSDatabase::Reset() {
+  this->tableMana->Clear();
   this->_param.clear();
 }
 
-// IDatabase表数量
-int IDatabase::Size() {
-  return 0;
+// CSDatabase表数量
+int CSDatabase::Size() {
+  return this->tableMana->CountTable();
 }
 
-// IDatabase查询表序号
-int IDatabase::TableNo(istr name) {
-  return -1;
-}
-
-// IDatabase参数字典
-int IDatabase::Reference(istr paraname) {
+// CSDatabase参数字典
+int CSDatabase::Reference(istr paraname) {
   return this->_param[paraname];
 }
 
-// IDatabase表是否存在
-bool IDatabase::Exist(istr name) {
-  return this->TableNo(name) != -1;
+// CSDatabase表是否存在
+bool CSDatabase::Exist(istr name) {
+  return this->tableMana->ExistTable(name);
 }
 
-// IDatabase执行一条语句
-bool IDatabase::Interpreter(DBCProxy &proxy) {
+// CSDatabase执行一条语句
+bool CSDatabase::Interpreter(DBCProxy &proxy) {
   // 取得操作码
   DashType opCode = proxy.opCode;
   // 启动计时器
@@ -49,7 +49,7 @@ bool IDatabase::Interpreter(DBCProxy &proxy) {
   switch (opCode)
   {
   case DashType::dash_create:
-    res = this->Create(proxy.opTable, proxy.Pi, proxy.PrimaryPi, proxy.DefaPi, proxy.encounter, proxy.errorBit);
+    res = this->Create(proxy.opTable, proxy.Pi);
     break;
   case DashType::dash_delete:
     res = this->Delete(proxy.opTable, proxy.CondPi, proxy.condPtr, &proxy);
@@ -76,29 +76,78 @@ bool IDatabase::Interpreter(DBCProxy &proxy) {
   return res;
 }
 
-// IDatabase建表
-bool IDatabase::Create(istr name, StrVec &pi, StrVec &ppi, TablePileDictionary &def, int &dpflag, bool &errorbit) {
+// CSDatabase建表
+bool CSDatabase::Create(istr name, StrVec &pi) {
+  this->dbMutex.lock();
+  if (this->tableMana->AddTable(name, name) == false) {
+    return false;
+  }
+  DBTable* tobj = this->tableMana->GetTable(name);
+  tobj->PiList = std::vector<std::string>(pi);
+  this->dbMutex.unlock();
   return true;
 }
 
-// IDatabase删行
-bool IDatabase::Delete(istr name, StrVec &condVec, SyntaxTreeNode* cond, DBCProxy* iproxy) {
+// CSDatabase删行
+bool CSDatabase::Delete(istr name, StrVec &condVec, SyntaxTreeNode* cond, DBCProxy* iproxy) {
   return true;
 }
 
-// IDatabase插入
-bool IDatabase::Insert(istr name, StrVec &pilist, IntVec &pivalue, bool &errorbit) {
+// CSDatabase插入
+bool CSDatabase::Insert(istr name, StrVec &pilist, IntVec &pivalue, bool &errorbit) {
   return true;
 }
 
-// IDatabase查询
-bool IDatabase::Select(istr name, StrVec &pi, bool star, StrVec &condVec, SyntaxTreeNode* cond, DBCProxy* iproxy) {
+// CSDatabase查询
+bool CSDatabase::Select(istr name, StrVec &pi, bool star, StrVec &condVec, SyntaxTreeNode* cond, DBCProxy* iproxy) {
   return true;
 }
 
-// IDatabase异常处理
-bool IDatabase::iException(istr _info, int _index) {
-  PILEPRINTLN("# Interpreter Exception Spotted.");
+// 将输入载入表中
+bool CSDatabase::Load(istr tname, istr filename) {
+  this->dbMutex.lock();
+  DBTable* tobj = this->tableMana->GetTable(tname);
+  if (tobj == NULL) {
+    this->iException("table not exist: " + tname);
+    return false;
+  }
+  this->dbMutex.unlock();
+  // 加互斥锁
+  this->tableMana->GetTableLock(tname)->LockWrite();
+  // 调用文件管理器端口
+
+  // 解互斥锁
+  this->tableMana->GetTableLock(tname)->UnlockWrite();
+}
+
+// 通过主键获取记录
+bool CSDatabase::Retrieve(istr tname, int tkey) {
+  return false;
+
+}
+
+// 压缩表
+bool CSDatabase::Compress(istr tname) {
+  return false;
+
+}
+
+// 自然连接表
+bool CSDatabase::Join(istr t1name, istr t2name) {
+  return false;
+
+}
+
+// 计算记录条目
+bool CSDatabase::Count(istr tname) {
+  return false;
+
+}
+
+
+// CSDatabase异常处理
+bool CSDatabase::iException(istr _info, int _index) {
+  TRACE("# Interpreter Exception Spotted.");
   if (_index != -1) {
     PILEPRINTLN("# When executing SSQL at command: "
       << _index);
@@ -107,8 +156,8 @@ bool IDatabase::iException(istr _info, int _index) {
   return false;
 }
 
-// IDatabase抽象语法树求值
-bool IDatabase::AST(SyntaxTreeNode* mynode, IDatabase* myexec, DBCProxy* myproxy) {
+// CSDatabase抽象语法树求值
+bool CSDatabase::AST(SyntaxTreeNode* mynode, CSDatabase* myexec, DBCProxy* myproxy) {
   istr optype;
   switch (mynode->nodeSyntaxType)
   {

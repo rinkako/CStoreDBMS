@@ -101,7 +101,7 @@ void IPile::Mise(DBCProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
     }
     break;
   case SyntaxType::case_sexpr:
-    IDatabase::AST(mynode, NULL, &myproxy);
+    CSDatabase::AST(mynode, NULL, &myproxy);
     if (flag == 3) {
       myproxy.DefaPi.insert(PilePair(lastPi, (int)mynode->aTag));
     }

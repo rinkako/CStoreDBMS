@@ -2,6 +2,8 @@
 #define __CSTORE_DBCONTROLLER
 #include "DBBase.h"
 #include "DBBridge.h"
+#include "DBAllocator.h"
+#include "DBConnectionPool.h"
 
 CSTORE_NS_BEGIN
 
@@ -11,18 +13,13 @@ public:
   //参数列表： N/A
   //返 回 值： 类在内存中唯一实例的引用
   static DBController* Invoke();
- 
-  //函数作用： 初始化当前的数据库引擎
-  //参数列表： 
+
+  //函数作用： 初始化当前的数据库引擎并开始交互
+  //参数列表：
   //      argc 参数的个数
   //      argv 参数向量
   //返 回 值： N/A
-  void DBInit(int, char**);
-
-  //函数作用： 将前端动作转化为后台动作
-  //参数列表： N/A
-  //返 回 值： N/A
-  void DBStartDash();
+  void StartDash(int, char**);
 
   //函数作用： 获取当前数据库状态
   //参数列表： N/A
@@ -49,25 +46,29 @@ private:
   //返 回 值： N/A
   void Dash(const std::string&);
 
+  //函数作用： 处理特殊命令
+  //参数列表：
+  //     query 查询语句
+  //返 回 值： N/A
+  bool ReservedRouter(const std::string&);
+
   //函数作用： 私有的构造器
   //参数列表： N/A
   DBController();
 
-  // 唯一实例
-  static DBController* Instance;
-
-  // 当前状态
-  RunType runType = RunType::RUN_CONSOLE;
-
-  // 运行的路径
-  std::string runPath = "";
-
   // 命令行临时查询语句
   std::string tempQuery = "";
-
-  // 桥容器
-  DBBridge* IBridge = NULL;
-
+  // 是否开启Debug模式
+  bool DebugMode = false;
+  // 当前状态
+  RunType runType = RunType::RUN_CONSOLE;
+  // 运行的路径
+  std::string runPath = "";
+  // 连接器
+  DBConnectionPool* connector = NULL;
+  // 唯一实例
+  static DBController* Instance;
+  // 阻止拷贝构造
   DISALLOW_COPY_AND_ASSIGN(DBController);
 };
 

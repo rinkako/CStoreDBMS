@@ -3,6 +3,7 @@
 #include <string.h>
 #include <string>
 
+CSTORE_NS_BEGIN
 #define COMPRESS_SIZE 65536
 
 using namespace std;
@@ -1037,17 +1038,18 @@ void FileManager::swap(int& a, int& b) {
 }
 
 // ===================  SYSTEM FUNS  =================== //
-FileManager* FileManager::getInstance() {
-  if (__instance == NULL) {
-    __instance = new FileManager();
-  }
-  return __instance;
+FileManager* FileManager::GetInstance() {
+  return FileManager::__instance == NULL ? 
+    FileManager::__instance = new FileManager() : FileManager::__instance;
 }
 
 FileManager::FileManager() {
+  this->allocator = DBAllocator::GetInstance();
   __sflag = FNOP;
   pos = 0;
   tpos = 0;
 }
 
 FileManager* FileManager::__instance = NULL;
+
+CSTORE_NS_END

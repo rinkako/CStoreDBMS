@@ -74,6 +74,9 @@
 // 基础线程数量
 #define CONNECTORLIMIT 4
 
+// 列名前缀
+#define PREFIXCOLFILE "cstore_"
+
 // 为公共显示接口提供互斥量
 static std::mutex __CSTORE_COMMON_MUTEX__;
 

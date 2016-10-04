@@ -66,12 +66,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DBAllocator.h" />
     <ClInclude Include="DBBase.h" />
     <ClInclude Include="DBCCandidateFunction.h" />
     <ClInclude Include="DBCLL1SyntaxParserMap.h" />
     <ClInclude Include="DBCommonUtils.hpp" />
     <ClInclude Include="DBCBase.h" />
-    <ClInclude Include="DBConnector.h" />
+    <ClInclude Include="DBConnectionPool.h" />
     <ClInclude Include="DBController.h" />
     <ClInclude Include="DBCProxy.hpp" />
     <ClInclude Include="DBCSyntaxTreeNode.h" />
@@ -83,7 +84,7 @@
     <ClInclude Include="DBTransaction.hpp" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="DBBridge.h" />
-    <ClInclude Include="IDatabase.h" />
+    <ClInclude Include="CSDatabase.h" />
     <ClInclude Include="LexicalAnalyzer.h" />
     <ClInclude Include="Pile.h" />
     <ClInclude Include="ISyntaxParser.h" />
@@ -94,9 +95,10 @@
     <ClInclude Include="TableManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DBAllocator.cpp" />
     <ClCompile Include="DBCCandidateFunction.cpp" />
     <ClCompile Include="DBCLL1SyntaxParserMap.cpp" />
-    <ClCompile Include="DBConnector.cpp" />
+    <ClCompile Include="DBConnectionPool.cpp" />
     <ClCompile Include="DBController.cpp" />
     <ClCompile Include="DBCSyntaxTreeNode.cpp" />
     <ClCompile Include="DBCToken.cpp" />
@@ -105,7 +107,7 @@
     <ClCompile Include="DBTransaction.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="DBBridge.cpp" />
-    <ClCompile Include="IDatabase.cpp" />
+    <ClCompile Include="CSDatabase.cpp" />
     <ClCompile Include="LexicalAnalyzer.cpp" />
     <ClCompile Include="Pile.cpp" />
     <ClCompile Include="ISyntaxParser.cpp" />

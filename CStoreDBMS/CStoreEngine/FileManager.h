@@ -1,11 +1,16 @@
 #ifndef ___CSTORE_FILEMANAGER
 #define ___CSTORE_FILEMANAGER
+#include "DBBase.h"
+#include "DBTable.hpp"
+#include "DBAllocator.h"
+CSTORE_NS_BEGIN
 
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 #define SIZE_LINE 512
 #define SIZE_PAGE 1024
@@ -18,7 +23,7 @@ typedef enum __FILE_STATE {
 
 class FileManager {
 public:
-  static FileManager* getInstance();
+  static FileManager* GetInstance();
   bool getMiniOrders(int &times, int* custkeyBuffer, int* orderkeyBuffer, double* totalpriceBuffer, int* shippriorityBuffer);
   bool getMiniCustomers(int &times, int* custkeyBuffer);
   int* getOrdersBuffer(int _times, int &_maxcount);
@@ -59,9 +64,12 @@ private:
   double Buffer_totalprice[1024];
   int Buffer_shippriority[1024];
 
+  DBAllocator* allocator;
+
   FILE_STATE __sflag;
   static FileManager* __instance;
   FileManager();
 };
 
+CSTORE_NS_END
 #endif /* ___CSTORE_FILEMANAGER */

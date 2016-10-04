@@ -3,7 +3,7 @@
 #include "DBCBase.h"
 #include "LexicalAnalyzer.h"
 #include "ISyntaxParser.h"
-#include "IDatabase.h"
+#include "CSDatabase.h"
 #include "Pile.h"
 
 CSTORE_NS_BEGIN
@@ -15,18 +15,12 @@ public:
   //返 回 值： N/A
   DBBridge();
 
-  //函数作用： 桥的初始化方法，指定运行方式
-  //参数列表：
-  //   gbState 运行状态 
-  //     query 要执行的查询语句
-  //返 回 值： N/A
-  void Init(RunType, const istr& = "");
-
   //函数作用： 启动解释器
   //参数列表：
+  //     query 查询代码
   //   isDebug 是否为调试模式
   //返 回 值： N/A
-  void StartDash(bool = false);
+  void StartTransaction(istr, bool = false);
 
 private:
   //函数作用： 从文件读入源代码
@@ -42,7 +36,7 @@ private:
   // 语义分析器
   IPile Pile;
   // 语句解释器
-  IDatabase iDB;
+  CSDatabase iDB;
   // 源代码单词流
   TokenStream* sourceCodeTokenStream;
   // 当前句子
@@ -57,9 +51,7 @@ private:
   istr sourceCode;
   // 源代码路径
   istr sourcePath;
-  // 运行类型
-  RunType iType;
-
+  // 阻止拷贝构造
   DISALLOW_COPY_AND_ASSIGN(DBBridge);
 }; /* DBBridge */
 

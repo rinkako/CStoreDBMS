@@ -8,6 +8,11 @@ CSTORE_NS_BEGIN
 
 class TableManager : public DBObject {
 public:
+  //函数作用： 工厂方法，获得类的唯一实例
+  //参数列表： N/A
+  //返 回 值： 表管理器的唯一实例
+  static TableManager* GetInstance();
+
   //函数作用： 添加表
   //参数列表：
   //   tabName 表名
@@ -20,6 +25,12 @@ public:
   //   tabName 表名
   //返 回 值： 操作成功与否
   bool DropTable(const std::string&);
+
+  //函数作用： 判断表的存在
+  //参数列表：
+  //   tabName 表名
+  //返 回 值： 表是否存在
+  bool ExistTable(const std::string&);
 
   //函数作用： 获取表对象
   //参数列表：
@@ -70,8 +81,11 @@ private:
   // 锁容器对象
   std::vector<DBLock*> lockContainer;
 
+  // 表在容器中的下标索引
+  std::map<std::string, int> tableIndexDict;
+
   // 唯一实例
-  static TableManager* instance;
+  static TableManager* Instance;
 }; /* TableManager */
 
 CSTORE_NS_END

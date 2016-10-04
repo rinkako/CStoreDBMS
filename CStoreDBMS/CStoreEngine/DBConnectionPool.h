@@ -1,18 +1,16 @@
-#ifndef ___CSTORE_DBCONNECTOR
-#define ___CSTORE_DBCONNECTOR
+#ifndef ___CSTORE_DBCONNECTIONPOOL
+#define ___CSTORE_DBCONNECTIONPOOL
 #include "DBBase.h"
 #include "DBTransaction.hpp"
-#include <thread>
-#include <mutex>
 
 CSTORE_NS_BEGIN
 
-class DBConnector : public DBObject {
+class DBConnectionPool : public DBObject {
 public:
   //函数作用： 工厂方法，获得类的唯一实例
   //参数列表： N/A
   //返 回 值： 连接器的唯一实例
-  static DBConnector* GetInstance();
+  static DBConnectionPool* GetInstance();
 
   //函数作用： 将事务提交给数据库引擎
   //参数列表：
@@ -51,16 +49,22 @@ public:
   //返 回 值： N/A
   void SetThreadNum(int);
 
+  //函数作用： 设置DEBUG输出状态
+  //参数列表：
+  //     state 是否debug
+  //返 回 值： N/A
+  void SetDebug(bool);
+
   //函数作用： 析构器
   //参数列表： N/A
   //返 回 值： N/A
-  ~DBConnector();
+  ~DBConnectionPool();
 
 private:
   //函数作用： 私有的构造器
   //参数列表： N/A
   //返 回 值： N/A
-  DBConnector();
+  DBConnectionPool();
 
   //函数作用： 事务处理器
   //参数列表： N/A
@@ -69,34 +73,29 @@ private:
 
   // 结束标志
   bool quitFlag;
-
   // 事务队列
   std::queue<DBTransaction*> transactionQueue;
-
+  // 处理中事务容器
+  std::vector<DBTransaction*> processingTransactionVector;
   // 已完成事务容器
   std::vector<DBTransaction*> finishedTransactionVector;
-
   // 线程池
   std::vector<std::thread> threadPool;
-
   // 计数器锁
   std::mutex encounterMutex;
-
   // 队列锁
   std::mutex queueMutex;
-
   // 线程数
   int HandleNum;
-
   // 进行中线程计数器
   int ProcCounter;
-
+  // 是否输出DEBUG信息
+  bool isDebug;
   // 唯一实例
-  static DBConnector* instance;
-
+  static DBConnectionPool* instance;
   // 阻止拷贝构造
-  DISALLOW_COPY_AND_ASSIGN(DBConnector);
-}; /* DBConnector */
+  DISALLOW_COPY_AND_ASSIGN(DBConnectionPool);
+}; /* DBConnectionPool */
 
 CSTORE_NS_END
-#endif /* ___CSTORE_DBCONNECTOR */
+#endif /* ___CSTORE_DBCONNECTIONPOOL */

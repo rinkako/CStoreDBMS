@@ -1,27 +1,26 @@
-#include "DBConnector.h"
+#include "DBConnectionPool.h"
 #include "DBBridge.h"
-#include <thread>
-#include <future>
 
 CSTORE_NS_BEGIN
 
 // 工厂方法，获得类的唯一实例
-DBConnector* DBConnector::GetInstance() {
-  return DBConnector::instance == NULL ? 
-    DBConnector::instance = new DBConnector() : DBConnector::instance;
+DBConnectionPool* DBConnectionPool::GetInstance() {
+  return DBConnectionPool::instance == NULL ? 
+    DBConnectionPool::instance = new DBConnectionPool() : DBConnectionPool::instance;
 }
 
 // 私有的构造器
-DBConnector::DBConnector()
-  :DBObject("DBConnector", this) {
+DBConnectionPool::DBConnectionPool()
+  :DBObject("DBConnectionPool", this) {
   this->ProcCounter = 0;
   this->HandleNum = CONNECTORLIMIT;
   this->quitFlag = false;
+  this->isDebug = false;
 }
 
 // 析构器
-DBConnector::~DBConnector() {
-  TRACE("DBConnector is going to collapse, all transactions will be TERMINATED!");
+DBConnectionPool::~DBConnectionPool() {
+  TRACE("DBConnectionPool is going to collapse, all transactions will be TERMINATED!");
   // 阻塞队列防止新事务进入
   this->queueMutex.lock();
   // 立即结束全部事务
@@ -37,11 +36,11 @@ DBConnector::~DBConnector() {
   }
   this->finishedTransactionVector.clear();
   this->queueMutex.unlock();
-  TRACE("DBConnector is already collapsed");
+  TRACE("DBConnectionPool is already collapsed");
 }
 
 // 将事务提交给数据库引擎
-void DBConnector::Commit(const std::string query) {
+void DBConnectionPool::Commit(const std::string query) {
   queueMutex.lock();
   DBTransaction* trans = new DBTransaction(query);
   this->transactionQueue.push(trans);
@@ -49,7 +48,7 @@ void DBConnector::Commit(const std::string query) {
 }
 
 // 强行中断所有事务并清空队列
-void DBConnector::KillAll() {
+void DBConnectionPool::KillAll() {
   TRACE("Killing all processing transaction");
   // 阻塞队列防止新事务进入
   this->queueMutex.lock();
@@ -64,12 +63,12 @@ void DBConnector::KillAll() {
   // 重新开放连接
   this->quitFlag = false;
   for (int i = 0; i < this->HandleNum; i++) {
-    this->threadPool.push_back(std::thread(DBConnector::TransactionHandler));
+    this->threadPool.push_back(std::thread(DBConnectionPool::TransactionHandler));
   }
 }
 
 // 清空事务队列
-void DBConnector::ClearQueue() {
+void DBConnectionPool::ClearQueue() {
   queueMutex.lock();
   int dropTransaction = 0;
   while (!this->transactionQueue.empty()) {
@@ -87,7 +86,7 @@ void DBConnector::ClearQueue() {
 }
 
 // 事务队列中排队的数量
-int DBConnector::CountQueue() {
+int DBConnectionPool::CountQueue() {
   int retNum = 0;
   queueMutex.lock();
   retNum = this->transactionQueue.size();
@@ -96,7 +95,7 @@ int DBConnector::CountQueue() {
 }
 
 // 正在进行的事务数量
-int DBConnector::CountProcessing() {
+int DBConnectionPool::CountProcessing() {
   int retNum = 0;
   queueMutex.lock();
   retNum = this->ProcCounter;
@@ -105,7 +104,7 @@ int DBConnector::CountProcessing() {
 }
 
 // 获取已完成的事务说明
-std::string DBConnector::ShowFinishedTransaction() {
+std::string DBConnectionPool::ShowFinishedTransaction() {
   std::string sb = "";
   for (int i = 0; i < this->finishedTransactionVector.size(); i++) {
     if (this->finishedTransactionVector[i] != NULL) {
@@ -116,8 +115,8 @@ std::string DBConnector::ShowFinishedTransaction() {
 }
 
 // 事务处理器
-void DBConnector::TransactionHandler() {
-  DBConnector* core = DBConnector::GetInstance();
+void DBConnectionPool::TransactionHandler() {
+  DBConnectionPool* core = DBConnectionPool::GetInstance();
   while (true) {
     // 如果主线程要求退出
     if (core->quitFlag) {
@@ -131,15 +130,22 @@ void DBConnector::TransactionHandler() {
       proTrans = core->transactionQueue.front();
       core->transactionQueue.pop();
     }
+    core->processingTransactionVector.push_back(proTrans);
     core->ProcCounter++;
     core->queueMutex.unlock();
     // 处理这个事务
     if (proTrans != NULL) {
       DBBridge* IBridge = new DBBridge();
-      IBridge->Init(RunType::RUN_COMMAND, proTrans->GetCode());
-      IBridge->StartDash();
+      IBridge->StartTransaction(proTrans->GetCode(), core->isDebug);
       proTrans->Finish();
       core->queueMutex.lock();
+      for (std::vector<DBTransaction*>::iterator iter = core->processingTransactionVector.begin();
+        iter != core->processingTransactionVector.end(); iter++) {
+        if ((*iter)->ReferenceEquals(proTrans)) {
+          core->processingTransactionVector.erase(iter);
+          break;
+        }
+      }
       core->finishedTransactionVector.push_back(proTrans);
       core->ProcCounter--;
       core->queueMutex.unlock();
@@ -147,12 +153,12 @@ void DBConnector::TransactionHandler() {
   }
 }
 
-
 // 设置线程数
-void DBConnector::SetThreadNum(int tnum) {
+void DBConnectionPool::SetThreadNum(int tnum) {
   // 还有处理中的事务时禁止改变
   queueMutex.lock();
-  if (this->transactionQueue.size() != 0) {
+  if (this->transactionQueue.size() != 0 ||
+    this->processingTransactionVector.size() != 0) {
     encounterMutex.lock();
     if (this->ProcCounter != 0) {
       TRACE("Transaction is processing or transaction queue not empty, cannot resize thread number");
@@ -170,7 +176,7 @@ void DBConnector::SetThreadNum(int tnum) {
   // 添加的情况
   if (this->threadPool.size() > tnum) {
     for (int i = 0; i < tnum - threadPool.size(); i++) {
-      this->threadPool.push_back(std::thread(DBConnector::TransactionHandler));
+      this->threadPool.push_back(std::thread(DBConnectionPool::TransactionHandler));
     }
   }
   // 删除的情况
@@ -180,7 +186,12 @@ void DBConnector::SetThreadNum(int tnum) {
   queueMutex.unlock();
 }
 
+// 设置DEBUG状态
+void DBConnectionPool::SetDebug(bool state) {
+  this->isDebug = state;
+}
+
 // 唯一实例
-DBConnector* DBConnector::instance = NULL;
+DBConnectionPool* DBConnectionPool::instance = NULL;
 
 CSTORE_NS_END

@@ -1,7 +1,7 @@
 #ifndef ___CSTORE_PILE
 #define ___CSTORE_PILE
 #include "DBCBase.h"
-#include "IDatabase.h"
+#include "CSDatabase.h"
 
 CSTORE_NS_BEGIN
 

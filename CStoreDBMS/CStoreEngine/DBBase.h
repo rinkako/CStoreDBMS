@@ -17,8 +17,10 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <thread>
 #include <queue>
 #include <stack>
 #include <ctime>
+#include <mutex>
 #include <map>
 #endif /* ___CSTORE_DBBASE */
