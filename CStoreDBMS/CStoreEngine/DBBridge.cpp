@@ -8,7 +8,6 @@ DBBridge::DBBridge()
   sourceCodeTokenStream = NULL;
   currentSentence.clear();
   currentSentenceTokenStream.Reset();
-  iDB.Reset();
   Pile.Reset();
   currentTree = NULL;
   istr sourceCode = "";

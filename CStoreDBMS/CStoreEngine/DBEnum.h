@@ -131,6 +131,8 @@ typedef enum __ITokenType {
   epsilon,
   // "int"
   token_int,
+  // "double"
+  token_double,
   // "primary"
   token_primary,
   // "key"
@@ -212,8 +214,10 @@ typedef enum __ISyntaxType
   case_decl_list,
   // <decl_listpi> ::= "," <decl> <decl_listpi> | null;
   case_decl_listpi,
-  // <decl> ::= identifier "int" <default_spec> | "primary" "key" "(" <column_list> ")";
+  // <decl> ::= identifier decltype <default_spec> | "primary" "key" "(" <column_list> ")";
   case_decl,
+  // <decltype> ::= "int" | "double";
+  case_decltype,
   // <default_spec> ::= "default" "=" <sexpr> | null;
   case_default_spec,
   // <sexpr> ::= <smulti> <sexpr_pi>;
@@ -292,6 +296,8 @@ typedef enum __ISyntaxType
   epsilonLeave,
   // "int"
   tail_intLeave,
+  // "double"
+  tail_doubleLeave,
   // "primary"
   tail_primaryLeave,
   // "key"
@@ -375,7 +381,11 @@ typedef enum __FunctionType {
   // <decl_listpi> -> epsilon
   deri___decl_listpi__epsilon_7,
   // <decl> -> id "int" <default_spec>
-  deri___decl__default_spec_8,
+  deri___decl__decltype__default_spec_8,
+  // <decltype> -> "int"
+  deri___decltype__intleave,
+  // <decltype> -> "double"
+  deri___decltype__doubleleave,
   // <decl> -> "primary" "key" "(" <column_list> ")"
   deri___decl__column_list_9,
   // <default_spec> -> "default" "=" sexpr
@@ -516,6 +526,8 @@ typedef enum __FunctionType {
   umi_epsilon,
   // LeavePoint "int"
   umi_int,
+  // LeavePoint "double"
+  umi_double,
   // LeavePoint "primary"
   umi_primary,
   // LeavePoint "key"

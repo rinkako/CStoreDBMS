@@ -18,8 +18,8 @@ DBTransaction::DBTransaction(std::string queryCode)
 }
 
 // 获取事务持续时长
-inline std::string DBTransaction::GetDuration() {
-  char dBuffer[10];
+std::string DBTransaction::GetDuration() {
+  char dBuffer[16];
   std::sprintf(dBuffer, "%.8lf", (double)(std::clock() - this->beginStampObj) / (double)CLOCKS_PER_SEC);
   return std::string(dBuffer);
 }

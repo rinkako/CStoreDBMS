@@ -6,7 +6,6 @@ CSTORE_NS_BEGIN
 CSDatabase::CSDatabase() {
   this->tableMana = TableManager::GetInstance();
   this->fileMana = FileManager::GetInstance();
-  this->Reset();
 }
 
 // CSDatabase列出所有表
@@ -68,11 +67,6 @@ bool CSDatabase::Interpreter(DBCProxy &proxy) {
   if (res == false) {
     PILEPRINT("# This command is ignored due to exception.");
   }
-  // 否则输出耗时
-  else {
-    PILEPRINT(" (" << (clock() - startTime) / 1000.0f << " sec)");
-  }
-  PILEPRINT(NEWLINE);
   return res;
 }
 

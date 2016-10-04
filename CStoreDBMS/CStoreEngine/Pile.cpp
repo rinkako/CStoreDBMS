@@ -80,13 +80,24 @@ void IPile::Mise(DBCProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
     Mise(myproxy, mynode->children[1], flag); // decl_listpi
     break;
   case SyntaxType::case_decl:
-    if (mynode->candidateFunction->GetType() == CFunctionType::deri___decl__default_spec_8) {
+    if (mynode->candidateFunction->GetType() == CFunctionType::deri___decl__decltype__default_spec_8) {
       Mise(myproxy, mynode->children[0], flag); // id
+      Mise(myproxy, mynode->children[1], flag); // decltype
       Mise(myproxy, mynode->children[2], 3); // default_spec
     }
     else {
       myproxy.encounter++;
       Mise(myproxy, mynode->children[3], 2); // column_list
+    }
+    break;
+  case SyntaxType::case_decltype:
+    // INT
+    if (mynode->candidateFunction->GetType() == CFunctionType::deri___decltype__intleave) {
+      myproxy.PiType.push_back("int");
+    }
+    // DOUBLE
+    else {
+      myproxy.PiType.push_back("double");
     }
     break;
   case SyntaxType::case_decl_listpi:

@@ -36,7 +36,7 @@ const istr TokenOutputTable[] = {
   "unknown", "token_create", "token_table", "token_iden",
   "token_LeftParentheses", "token_RightParentheses",
   "token_Semicolon", "token_Comma", "epsilon",
-  "token_int", "token_primary", "token_key",
+  "token_int", "token_double", "token_primary", "token_key",
   "token_default", "token_Equality", "token_Plus",
   "token_Minus", "token_Multiply", "token_Divide",
   "number", "token_insert", "token_into",
@@ -52,7 +52,7 @@ const istr TokenOutputTable[] = {
 // 用于输出Debug语法树的字符串向量
 const istr SyntaxOutputTable[] = {
   "case_ssql_stmt", "case_create_stmt", "case_decl_list", "case_decl_listpi",
-  "case_decl", "case_default_spec", "case_sexpr", "case_sexpr_pi", "case_splus",
+  "case_decl", "case_decltype", "case_default_spec", "case_sexpr", "case_sexpr_pi", "case_splus",
   "case_smulti", "case_smultiOpt", "case_sunit", "case_insert_stmt",
   "case_value_list", "case_value_listpi", "case_delete_stmt", "case_where_clause",
   "case_disjunct", "case_disjunct_pi", "case_conjunct", "case_conjunct_pi",
@@ -61,7 +61,7 @@ const istr SyntaxOutputTable[] = {
   "case_query_stmt", "case_select_list", "case_column_list", "case_column_pi",
   "Unknown", "tail_createLeave", "tail_tableLeave", "tail_idenLeave",
   "tail_leftParentheses_Leave", "tail_rightParentheses_Leave", "tail_semicolon_Leave",
-  "tail_comma_Leave", "epsilonLeave", "tail_intLeave", "tail_primaryLeave", "tail_keyLeave",
+  "tail_comma_Leave", "epsilonLeave", "tail_intLeave", "tail_doubleLeave", "tail_primaryLeave", "tail_keyLeave",
   "tail_defaultLeave", "tail_equality_Leave", "tail_plus_Leave", "tail_minus_Leave",
   "tail_multiply_Leave", "tail_divide_Leave", "numberLeave", "tail_insertLeave",
   "tail_intoLeave", "tail_valuesLeave", "tail_deleteLeave", "tail_fromLeave",

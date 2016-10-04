@@ -397,9 +397,14 @@ void LL1SyntaxParser::InitLinkerVector() {
   // <decl_listpi> -> epsilon
   this->iDict[CFunctionType::deri___decl_listpi__epsilon_7].push_back(SyntaxType::epsilonLeave);
   // <decl> -> id "int" <default_spec>
-  this->iDict[CFunctionType::deri___decl__default_spec_8].push_back(SyntaxType::tail_idenLeave);
-  this->iDict[CFunctionType::deri___decl__default_spec_8].push_back(SyntaxType::tail_intLeave);
-  this->iDict[CFunctionType::deri___decl__default_spec_8].push_back(SyntaxType::case_default_spec);
+  // <decl> -> id decltype <default_spec>
+  this->iDict[CFunctionType::deri___decl__decltype__default_spec_8].push_back(SyntaxType::tail_idenLeave);
+  this->iDict[CFunctionType::deri___decl__decltype__default_spec_8].push_back(SyntaxType::case_decltype);
+  this->iDict[CFunctionType::deri___decl__decltype__default_spec_8].push_back(SyntaxType::case_default_spec);
+  // <decltype> -> "int";
+  this->iDict[CFunctionType::deri___decltype__intleave].push_back(SyntaxType::tail_intLeave);
+  // <decltype> -> "double";
+  this->iDict[CFunctionType::deri___decltype__doubleleave].push_back(SyntaxType::tail_doubleLeave);
   // <decl> -> "primary" "key" "(" <column_list> ")"
   this->iDict[CFunctionType::deri___decl__column_list_9].push_back(SyntaxType::tail_primaryLeave);
   this->iDict[CFunctionType::deri___decl__column_list_9].push_back(SyntaxType::tail_keyLeave);
@@ -626,6 +631,7 @@ void LL1SyntaxParser::InitMapProperties() {
   iMap->SetRow(31, SyntaxType::case_select_list);
   iMap->SetRow(32, SyntaxType::case_column_list);
   iMap->SetRow(33, SyntaxType::case_column_pi);
+  iMap->SetRow(70, SyntaxType::case_decltype);
   // 设置行属性：终结符
   iMap->SetRow(34, SyntaxType::tail_createLeave);
   iMap->SetRow(35, SyntaxType::tail_tableLeave);
@@ -662,6 +668,7 @@ void LL1SyntaxParser::InitMapProperties() {
   iMap->SetRow(66, SyntaxType::tail_lessThan_Equality_Leave);
   iMap->SetRow(67, SyntaxType::tail_selectLeave);
   iMap->SetRow(68, SyntaxType::tail_startEndLeave);
+  iMap->SetRow(69, SyntaxType::tail_doubleLeave);
   // 设置列属性：向前看的一个token
   iMap->SetCol(0, TokenType::token_create);
   iMap->SetCol(1, TokenType::token_table);
@@ -698,6 +705,7 @@ void LL1SyntaxParser::InitMapProperties() {
   iMap->SetCol(32, TokenType::token_LessThan_Equality_);
   iMap->SetCol(33, TokenType::token_select);
   iMap->SetCol(34, TokenType::token_startEnd);
+  iMap->SetCol(35, TokenType::token_double);
 }
 
 // LL1SyntaxParser初始化文法
@@ -747,9 +755,17 @@ void LL1SyntaxParser::InitCellular() {
   this->iMap->SetCellular(SyntaxType::case_decl_listpi, TokenType::token_Comma_,
     new CandidateFunction(iProco, CFunctionType::deri___decl_listpi__decl__decl_listpi_67));
   // 流命中： <decl> ::= iden的Token
-  // 语句命中： <decl> ::= iden "int" <default_spec>
+  // 语句命中： <decl> ::= iden <decltype> <default_spec>
   this->iMap->SetCellular(SyntaxType::case_decl, TokenType::token_iden,
-    new CandidateFunction(iProco, CFunctionType::deri___decl__default_spec_8));
+    new CandidateFunction(iProco, CFunctionType::deri___decl__decltype__default_spec_8));
+  // 流命中： <decltype> ::= int的Token
+  // 语句命中： <decltype> ::= int
+  this->iMap->SetCellular(SyntaxType::case_decltype, TokenType::token_int,
+    new CandidateFunction(iProco, CFunctionType::deri___decltype__intleave));
+  // 流命中： <decltype> ::= double的Token
+  // 语句命中： <decltype> ::= double
+  this->iMap->SetCellular(SyntaxType::case_decltype, TokenType::token_double,
+    new CandidateFunction(iProco, CFunctionType::deri___decltype__doubleleave));
   // 流命中： <decl> ::= "primary"的Token
   // 语句命中： <decl> ::= "primary" "key" "(" <column_list> ")"
   this->iMap->SetCellular(SyntaxType::case_decl, TokenType::token_primary,
@@ -1313,6 +1329,9 @@ void LL1SyntaxParser::InitCellular() {
   // 叶命中： "int" 的Token
   this->iMap->SetCellular(SyntaxType::tail_intLeave, TokenType::token_int,
     new CandidateFunction(iProco, CFunctionType::umi_int));
+  // 叶命中： "double" 的Token
+  this->iMap->SetCellular(SyntaxType::tail_doubleLeave, TokenType::token_double,
+    new CandidateFunction(iProco, CFunctionType::umi_double));
   // 叶命中： "primary" 的Token
   this->iMap->SetCellular(SyntaxType::tail_primaryLeave, TokenType::token_primary,
     new CandidateFunction(iProco, CFunctionType::umi_primary));

@@ -13,7 +13,7 @@ DBConnectionPool* DBConnectionPool::GetInstance() {
 DBConnectionPool::DBConnectionPool()
   :DBObject("DBConnectionPool", this) {
   this->ProcCounter = 0;
-  this->HandleNum = CONNECTORLIMIT;
+  this->SetThreadNum(CONNECTORLIMIT);
   this->quitFlag = false;
   this->isDebug = false;
 }
@@ -130,6 +130,10 @@ void DBConnectionPool::TransactionHandler() {
       proTrans = core->transactionQueue.front();
       core->transactionQueue.pop();
     }
+    else {
+      core->queueMutex.unlock();
+      continue;
+    }
     core->processingTransactionVector.push_back(proTrans);
     core->ProcCounter++;
     core->queueMutex.unlock();
@@ -149,6 +153,7 @@ void DBConnectionPool::TransactionHandler() {
       core->finishedTransactionVector.push_back(proTrans);
       core->ProcCounter--;
       core->queueMutex.unlock();
+      PILEPRINTLN("      Query OK, cost: " + proTrans->GetDuration() + " sec(s)");
     }
   }
 }
@@ -174,7 +179,7 @@ void DBConnectionPool::SetThreadNum(int tnum) {
   // 修改记录
   this->HandleNum = tnum;
   // 添加的情况
-  if (this->threadPool.size() > tnum) {
+  if (this->threadPool.size() < tnum) {
     for (int i = 0; i < tnum - threadPool.size(); i++) {
       this->threadPool.push_back(std::thread(DBConnectionPool::TransactionHandler));
     }

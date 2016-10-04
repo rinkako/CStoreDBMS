@@ -30,6 +30,8 @@ public:
   SyntaxTreeNode* condPtr;
   // 操作列向量
   StrVec Pi;
+  // 列类型
+  StrVec PiType;
   // 列赋值向量
   IntVec ProxyPi;
   // 初始值向量

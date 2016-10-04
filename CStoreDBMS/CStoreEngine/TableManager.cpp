@@ -66,7 +66,6 @@ DBTable* TableManager::GetTable(const std::string& tabName) {
   if (this->tableIndexDict.find(tabName) != this->tableIndexDict.end()) {
     return this->tableContainer[this->tableIndexDict[tabName]];
   }
-  TRACE("Expect to get: " + tabName + ", but table not exist.");
   return NULL;
 }
 

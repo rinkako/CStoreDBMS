@@ -420,6 +420,17 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
         okFlag = true;
       }
     }
+    else if (str == "double") {
+      result->aType = TokenType::token_double;
+      if (PTRnextLetter + 6 <= glen) {
+        if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 6]) != CharaType::Letter) {
+          okFlag = true;
+        }
+      }
+      else {
+        okFlag = true;
+      }
+    }
     else if (str == "values") {
       result->aType = TokenType::token_values;
       if (PTRnextLetter + 6 <= glen) {

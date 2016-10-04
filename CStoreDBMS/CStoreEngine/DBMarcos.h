@@ -66,10 +66,10 @@
 #define ROWSTARTNUM 1
 
 // 编译器Parser的文法表行总数
-#define LL1PARSERMAPROW 69
+#define LL1PARSERMAPROW 71
 
 // 编译器Parser的文法表列总数
-#define LL1PARSERMAPCOL 35
+#define LL1PARSERMAPCOL 36
 
 // 基础线程数量
 #define CONNECTORLIMIT 4

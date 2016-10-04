@@ -45,7 +45,7 @@ public:
   //函数作用： 获取事务持续时长
   //参数列表： N/A
   //返 回 值： 持续时间字符串，以秒为单位
-  inline std::string GetDuration();
+  std::string GetDuration();
 
   //函数作用： 重写字符串化方法
   //参数列表： N/A
