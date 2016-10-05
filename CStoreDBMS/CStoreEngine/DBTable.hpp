@@ -29,7 +29,7 @@ public:
         sb.Append("|" + this->PiList[it] + " " + this->PiTypeList[it]);
       }
     }
-    sb.Append("}, Compressed:").Append(this->IsSorted ? "Y" : "N").Append("]");
+    sb.Append("}]");
     return sb.ToString();
   };
 

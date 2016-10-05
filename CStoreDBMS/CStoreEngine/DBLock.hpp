@@ -35,7 +35,8 @@ public:
   //参数列表： N/A
   //返 回 值： N/A
   inline void LockWrite() {
-    this->synLockObj.lock();
+    this->synLockObjWrite.lock();
+    this->synLockObjRead.lock();
     this->Type = TableLockType::tblock_mutex;
   }
 
@@ -43,14 +44,19 @@ public:
   //参数列表： N/A
   //返 回 值： N/A
   inline void LockRead() {
+    this->lockMutex.lock();
+    this->synLockObjRead.try_lock();
+    this->readHandleNum++;
     this->Type = TableLockType::tblock_share;
+    this->lockMutex.unlock();
   }
 
   //函数作用： 互斥解锁
   //参数列表： N/A
   //返 回 值： N/A
   inline void UnlockWrite() {
-    this->synLockObj.unlock();
+    this->synLockObjWrite.unlock();
+    this->synLockObjRead.unlock();
     this->Type = TableLockType::tblock_none;
   }
 
@@ -58,7 +64,13 @@ public:
   //参数列表： N/A
   //返 回 值： N/A
   inline void UnlockRead() {
-    this->Type = TableLockType::tblock_none;
+    this->lockMutex.lock();
+    this->readHandleNum--;
+    if (readHandleNum == 0) {
+      this->synLockObjRead.unlock();
+      this->Type = TableLockType::tblock_none;
+    }
+    this->lockMutex.unlock();
   }
 
   //函数作用： 获取锁的状态
@@ -78,16 +90,20 @@ public:
 
   // 锁施加对象的指针
   DBObject* LockBinding = NULL;
-
   // 锁分配给的事务
   DBTransaction* LockTransaction = NULL;
 
 private:
   // 锁的状态
   TableLockType Type = TableLockType::tblock_none;
-
-  // 锁
-  std::mutex synLockObj;
+  // 写锁
+  std::mutex synLockObjWrite;
+  // 读锁
+  std::mutex synLockObjRead;
+  // 自锁
+  std::mutex lockMutex;
+  // 读句柄数量
+  int readHandleNum = 0;
 
   // 阻止拷贝构造
   DISALLOW_COPY_AND_ASSIGN(DBLock);

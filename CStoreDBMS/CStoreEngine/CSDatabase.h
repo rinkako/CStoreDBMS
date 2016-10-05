@@ -101,9 +101,8 @@ private:
   //函数作用： 将输入载入表中
   //参数列表：
   //     tname 表名
-  //  filename 文件名
   //返 回 值： 操作成功与否
-  bool Load(istr, istr);
+  bool Load(istr);
 
   //函数作用： 通过主键获取记录
   //参数列表：
@@ -115,8 +114,9 @@ private:
   //函数作用： 压缩表
   //参数列表：
   //     tname 表名
+  //        pi 要压缩的列名
   //返 回 值： 操作成功与否
-  bool Compress(istr);
+  bool Compress(istr, istr);
 
   //函数作用： 自然连接表
   //参数列表：

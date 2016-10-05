@@ -18,10 +18,8 @@ int ordersOrderkeyBufferPool[64 * SIZE_PAGE];
 double ordersTotalpriceBufferPool[64 * SIZE_PAGE];
 int ordersShippriorityBufferPool[64 * SIZE_PAGE];
 int pagecounter = 0;
-//int importcounter = 0;
 int importcountercustomer = 0;
 
-//char page_buf[SIZE_PAGE];
 int page_ptr = 0;
 int count_spilt = 0;
 int maxcount = 0;
@@ -307,58 +305,11 @@ bool FileManager::RetrieveValueByOffset(DBTable& tab, std::string colName, std::
   return false;
 }
 
-int* FileManager::getOrderkeyBuffer(int _times, int &_maxcount) {
-	FILE* fin = fopen("orderkey_sorted.db", "rb");
-	if (fin == NULL) return NULL;
-	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
-	if (fin == 0) {
-		return NULL;
-	}
-	_maxcount = fread(ordersOrderkeyBufferPool, sizeof(int), 65536, fin);
-	fclose(fin);
-	return ordersOrderkeyBufferPool;
-}
-
-double *FileManager::getTotalpriceBuffer(int _times, int &_maxcount) {
-	FILE* fin = fopen("totalprice_sorted.db", "rb");
-	if (fin == NULL) return NULL;
-	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
-	if (fin == 0) {
-		return NULL;
-	}
-	_maxcount = fread(ordersTotalpriceBufferPool, sizeof(int), 65536, fin);
-	fclose(fin);
-	return ordersTotalpriceBufferPool;
-}
-
-int* FileManager::getShippriorityBuffer(int _times, int &_maxcount) {
-	FILE* fin = fopen("shippriority_sorted.db", "rb");
-	if (fin == NULL) return NULL;
-	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
-	if (fin == 0) {
-		return NULL;
-	}
-	_maxcount = fread(ordersShippriorityBufferPool, sizeof(int), 65536, fin);
-	fclose(fin);
-	return ordersShippriorityBufferPool;
-}
-
-void FileManager::getEXOrdersBuffer(int _times, int &_maxcount) {
-  FILE* fin = fopen("orders_orderkey.db", "rb");
-  fseek(fin, (long)(_times * 64 * SIZE_PAGE * sizeof(int)), SEEK_SET);
-  if (fin == 0) return;
-  _maxcount = fread(externSortOrdersBufferPool, sizeof(int), 64 * SIZE_PAGE, fin);
-  fclose(fin);
-}
-
-void FileManager::getEXCustkeyBuffer(int _times, int &_maxcount) {
-  FILE* fin = fopen("orders_custkey.db", "rb");
-  fseek(fin, (long)(_times * 64 * SIZE_PAGE * sizeof(int)), SEEK_SET);
-  if (fin == 0) return;
-  _maxcount = fread(externSortCustkeyBufferPool, sizeof(int), 64 * SIZE_PAGE, fin);
-  fclose(fin);
-}
-
+//函数作用： 外排序
+//参数列表：
+//       tab 表对象
+//       col 排序的列
+//返 回 值： N/A
 void FileManager::externSort() {
   int maxcount = 1024;
   int pc = 0;
@@ -476,6 +427,11 @@ void FileManager::externSort() {
   compressCustkey();
 }
 
+//函数作用： 压缩表
+//参数列表：
+//       tab 表对象
+//       col 压缩的列
+//返 回 值： N/A
 void FileManager::compressCustkey() {
   int compressBuffer[COMPRESS_SIZE];
   int outputBuffer[COMPRESS_SIZE];
@@ -579,6 +535,11 @@ void FileManager::compressCustkey() {
   }
 }
 
+//函数作用： 自然连接表
+//参数列表：
+//      tab1 表对象
+//      tab2 表对象
+//返 回 值： N/A
 void FileManager::join() {
   // 缓冲区
   int joinCustkeyBuffer[32 * SIZE_PAGE];
@@ -687,6 +648,28 @@ void FileManager::join() {
   fclose(joinFileCustomer);
 }
 
+//函数作用： 写出连接后的表
+//参数列表：
+//   bufList 缓冲区名向量
+//_incounter 最大数量
+//返 回 值： N/A
+void FileManager::writeJoinedItemToFile(int* _orderBuffer, int* _custBuffer, int _incounter) {
+  //FILE* joinOutOrderkey = fopen("joined_orderkey.db", "ab");
+  //FILE* joinOutCustkey = fopen("joined_custkey.db", "ab");
+  //fwrite(_orderBuffer, sizeof(int), _incounter, joinOutOrderkey);
+  //fwrite(_custBuffer, sizeof(int), _incounter, joinOutCustkey);
+  //fclose(joinOutOrderkey);
+  //fclose(joinOutCustkey);
+  for (int i = 0; i < _incounter; i++)
+  {
+    std::cout << _custBuffer[i] << " " << _orderBuffer[i] << std::endl;
+  }
+}
+
+//函数作用： 获取游程编码后表记录总数
+//参数列表：
+//       tab 表对象
+//返 回 值： 记录总数
 int FileManager::count() {
   FILE* fin = fopen("custkey_compressed.db", "rb");
   fseek(fin, 0L, SEEK_SET);
@@ -705,6 +688,58 @@ int FileManager::count() {
     fseek(fin, (long)(sizeof(int)* 1024 * ++it), SEEK_SET);
   } while (ctr != 0);
   return atr;
+}
+
+int* FileManager::getOrderkeyBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("orderkey_sorted.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(ordersOrderkeyBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return ordersOrderkeyBufferPool;
+}
+
+double *FileManager::getTotalpriceBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("totalprice_sorted.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(ordersTotalpriceBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return ordersTotalpriceBufferPool;
+}
+
+int* FileManager::getShippriorityBuffer(int _times, int &_maxcount) {
+	FILE* fin = fopen("shippriority_sorted.db", "rb");
+	if (fin == NULL) return NULL;
+	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
+	if (fin == 0) {
+		return NULL;
+	}
+	_maxcount = fread(ordersShippriorityBufferPool, sizeof(int), 65536, fin);
+	fclose(fin);
+	return ordersShippriorityBufferPool;
+}
+
+void FileManager::getEXOrdersBuffer(int _times, int &_maxcount) {
+  FILE* fin = fopen("orders_orderkey.db", "rb");
+  fseek(fin, (long)(_times * 64 * SIZE_PAGE * sizeof(int)), SEEK_SET);
+  if (fin == 0) return;
+  _maxcount = fread(externSortOrdersBufferPool, sizeof(int), 64 * SIZE_PAGE, fin);
+  fclose(fin);
+}
+
+void FileManager::getEXCustkeyBuffer(int _times, int &_maxcount) {
+  FILE* fin = fopen("orders_custkey.db", "rb");
+  fseek(fin, (long)(_times * 64 * SIZE_PAGE * sizeof(int)), SEEK_SET);
+  if (fin == 0) return;
+  _maxcount = fread(externSortCustkeyBufferPool, sizeof(int), 64 * SIZE_PAGE, fin);
+  fclose(fin);
 }
 
 int* FileManager::getCompressedCustkeyBuffer(int _times, int &_maxcount) {
@@ -988,19 +1023,6 @@ bool FileManager::insertIntoOrders(int orderkeyBuffer, int custkeyBuffer, double
 	return true;
 }
 
-void FileManager::writeJoinedItemToFile(int* _orderBuffer, int* _custBuffer, int _incounter) {
-  //FILE* joinOutOrderkey = fopen("joined_orderkey.db", "ab");
-  //FILE* joinOutCustkey = fopen("joined_custkey.db", "ab");
-  //fwrite(_orderBuffer, sizeof(int), _incounter, joinOutOrderkey);
-  //fwrite(_custBuffer, sizeof(int), _incounter, joinOutCustkey);
-  //fclose(joinOutOrderkey);
-  //fclose(joinOutCustkey);
-  for (int i = 0; i < _incounter; i++)
-  {
-    std::cout << _custBuffer[i] << " " << _orderBuffer[i] << std::endl;
-  }
-}
-
 void FileManager::writeCompressedCustkeyToFile(int* _orgBuffer, int _incounter) {
   FILE* fout = fopen("custkey_compressed.db", "ab");
   fwrite(_orgBuffer, sizeof(int), _incounter, fout);
@@ -1083,10 +1105,23 @@ bool FileManager::select_orders_orderkey(int _key) {
   }
 }
 
+//函数作用：  内排序
+//参数列表：
+// _orgBuffer 原串
+//_syncBuffer 伴随串
+//  _maxcount 串长度
+//返 回 值：  N/A
 void FileManager::innerSort(int* _orgBuffer, int* _syncBuffer, int _maxcount) {
   quickSort(_orgBuffer, _syncBuffer, 0, _maxcount - 1);
 }
 
+//函数作用： 快速排序
+//参数列表：
+//      _org 原串
+//     _sync 伴随串
+//       low 低位
+//      high 高位
+//返 回 值： N/A
 void FileManager::quickSort(int _org[], int _sync[], int low, int high) {
   if (low < high) {
     int _key = partition(_org, _sync, low, high);
@@ -1095,9 +1130,13 @@ void FileManager::quickSort(int _org[], int _sync[], int low, int high) {
   }
 }
 
-// 三数取中分割方法，返回主元下标。
-// _sync[]跟随_org[]变化。
-// 保证key的左边都比key小，右边都比key大。
+//函数作用： 三数取中分割分区
+//参数列表：
+//      _org 原串
+//     _sync 伴随串
+//      _low 低位
+//     _high 高位
+//返 回 值： 主元下标
 int FileManager::partition(int* _org, int *_sync, int _low, int _high) {
   // 交换，使得 data[_mid] < data[_low] < data[_high]
   int _mid = (_low + _high) / 2;
@@ -1131,24 +1170,35 @@ int FileManager::partition(int* _org, int *_sync, int _low, int _high) {
   return i;
 }
 
+//函数作用： 交换两个整形数
+//参数列表：
+//         a 交换变量
+//         b 交换变量
+//返 回 值： N/A
 void FileManager::swap(int& a, int& b) {
   int temp = a;
   a = b;
   b = temp;
 }
 
-// ===================  SYSTEM FUNS  =================== //
+//函数作用： 工厂方法，获得类的唯一实例
+//参数列表： N/A
+//返 回 值： 文件管理器的唯一实例
 FileManager* FileManager::GetInstance() {
   return FileManager::__instance == NULL ? 
     FileManager::__instance = new FileManager() : FileManager::__instance;
 }
 
+//函数作用： 私有的构造器
+//参数列表： N/A
+//返 回 值： N/A
 FileManager::FileManager() {
   this->allocator = DBAllocator::GetInstance();
   pos = 0;
   tpos = 0;
 }
 
+// 唯一实例
 FileManager* FileManager::__instance = NULL;
 
 CSTORE_NS_END

@@ -11,7 +11,7 @@ CSDatabase::CSDatabase() {
 // CSDatabase列出所有表
 void CSDatabase::ShowTable() {
   istr tableDescription = this->tableMana->ShowTable();
-  TRACE("Table in database");
+  TRACE("Table in database:");
   PILEPRINTLN(tableDescription);
 }
 
@@ -40,13 +40,17 @@ bool CSDatabase::Exist(istr name) {
 bool CSDatabase::Interpreter(DBCProxy &proxy) {
   // 取得操作码
   DashType opCode = proxy.opCode;
-  // 启动计时器
-  double startTime = clock();
   bool res = false;
   // 清空参数字典
   _param.clear();
   switch (opCode)
   {
+  case DashType::dash_load:
+    res = this->Load(proxy.opTable);
+    break;
+  case DashType::dash_retrieve:
+    res = this->Retrieve(proxy.opTable, proxy.aTag);
+    break;
   case DashType::dash_create:
     res = this->Create(proxy.opTable, proxy.Pi, proxy.PiType);
     break;
@@ -85,11 +89,13 @@ bool CSDatabase::Create(istr name, StrVec &pi, StrVec &pitype) {
 
 // CSDatabase删行
 bool CSDatabase::Delete(istr name, StrVec &condVec, SyntaxTreeNode* cond, DBCProxy* iproxy) {
+  TRACE("NOT IMPLEMENTATION EXCEPTION");
   return true;
 }
 
 // CSDatabase插入
 bool CSDatabase::Insert(istr name, StrVec &pilist, IntVec &pivalue, bool &errorbit) {
+  TRACE("NOT IMPLEMENTATION EXCEPTION");
   return true;
 }
 
@@ -99,7 +105,8 @@ bool CSDatabase::Select(istr name, StrVec &pi, bool star, StrVec &condVec, Synta
 }
 
 // 将输入载入表中
-bool CSDatabase::Load(istr tname, istr filename) {
+bool CSDatabase::Load(istr tname) {
+  // 取得表对象
   this->dbMutex.lock();
   DBTable* tobj = this->tableMana->GetTable(tname);
   if (tobj == NULL) {
@@ -110,33 +117,61 @@ bool CSDatabase::Load(istr tname, istr filename) {
   // 加互斥锁
   this->tableMana->GetTableLock(tname)->LockWrite();
   // 调用文件管理器端口
-
+  bool flag = this->fileMana->LoadTable(*tobj);
   // 解互斥锁
   this->tableMana->GetTableLock(tname)->UnlockWrite();
+  return flag;
 }
 
 // 通过主键获取记录
 bool CSDatabase::Retrieve(istr tname, int tkey) {
-  return false;
-
+  // 取得表对象
+  this->dbMutex.lock();
+  DBTable* tobj = this->tableMana->GetTable(tname);
+  if (tobj == NULL) {
+    this->iException("table not exist: " + tname);
+    return false;
+  }
+  this->dbMutex.unlock();
+  // 加共享锁
+  this->tableMana->GetTableLock(tname)->LockRead();
+  // 调用文件管理器接口
+  std::string outStr = "";
+  bool flag = this->fileMana->Retrieve(*tobj, tkey, outStr);
+  PILEPRINT(outStr);
+  // 解共享锁
+  this->tableMana->GetTableLock(tname)->UnlockRead();
+  return flag;
 }
 
 // 压缩表
-bool CSDatabase::Compress(istr tname) {
-  return false;
-
+bool CSDatabase::Compress(istr tname, istr pi) {
+  // 取得表对象
+  this->dbMutex.lock();
+  DBTable* tobj = this->tableMana->GetTable(tname);
+  if (tobj == NULL) {
+    this->iException("table not exist: " + tname);
+    return false;
+  }
+  this->dbMutex.unlock();
+  // 加共享锁
+  this->tableMana->GetTableLock(tname)->LockRead();
+  // 调用文件管理器接口
+  this->fileMana->externSort();
+  PILEPRINTLN("External Sort and Compress col " + pi + " OK.");
+  // 解共享锁
+  this->tableMana->GetTableLock(tname)->UnlockRead();
+  return true;
 }
 
 // 自然连接表
 bool CSDatabase::Join(istr t1name, istr t2name) {
   return false;
-
 }
 
 // 计算记录条目
 bool CSDatabase::Count(istr tname) {
   return false;
-
 }
 
 
