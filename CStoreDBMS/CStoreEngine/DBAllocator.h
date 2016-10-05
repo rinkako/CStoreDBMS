@@ -42,7 +42,7 @@ public:
   //函数作用： 释放DBMS各模块内存准备退出程序
   //参数列表： N/A
   //返 回 值： N/A
-  void Collapse();
+  static void Collapse();
 
 private:
   //函数作用： 私有的构造函数

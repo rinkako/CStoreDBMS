@@ -65,7 +65,9 @@ void DBAllocator::FreeAll() {
 
 // 释放DBMS各模块内存准备退出程序
 void DBAllocator::Collapse() {
-  this->FreeAll();
+  if (DBAllocator::Instance != NULL) {
+    DBAllocator::Instance->FreeAll();
+  }
 }
 
 // 唯一实例

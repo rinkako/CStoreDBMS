@@ -171,6 +171,7 @@ void DBConnectionPool::TransactionHandler() {
       core->ProcCounter--;
       core->queueMutex.unlock();
       PILEPRINTLN("      Query OK, cost: " + proTrans->GetDuration() + " sec(s)");
+      PILEPRINT("    >");
     }
   }
 }

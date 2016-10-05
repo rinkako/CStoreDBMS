@@ -2,6 +2,6 @@
 
 int main(int argc, char* argv[]) {
   CStore::DBController::Invoke()->StartDash(argc, argv);
-  CStore::DBAllocator::GetInstance()->Collapse();
+  CStore::DBAllocator::Collapse();
   return 0;
 }

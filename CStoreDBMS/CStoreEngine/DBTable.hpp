@@ -46,7 +46,7 @@ public:
   std::vector<std::string> PiTypeList;
 
   // 列名所对应的文件名
-  std::vector<std::string> PiFileNameList;
+  std::map<std::string, std::string> PiFileNameList;
 
   // 是否已经排序压缩
   bool IsSorted;

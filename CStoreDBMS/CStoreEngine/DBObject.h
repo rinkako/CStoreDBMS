@@ -12,7 +12,7 @@ public:
   //返 回 值： 由子类定义的实例字符串表达方式
   virtual std::string ToString();
 
-  //函数作用： 对比两个对象是否相等，如果子类不重载这个函数它相当于ReferenceEquals
+  //函数作用： 对比两个对象是否相等，如果子类不重写这个函数它相当于ReferenceEquals
   //参数列表：
   //    RefObj 要比较的对象引用
   //返 回 值： 是否相等
