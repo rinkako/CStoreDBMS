@@ -129,9 +129,11 @@ private:
 
   //函数作用： 计算记录条目
   //参数列表：
+  //     trans 事务
   //     tname 表名
+  //      ccol 参照列
   //返 回 值： 操作成功与否
-  bool Count(DBTransaction*, istr);
+  bool Count(DBTransaction*, istr, istr);
 
   // 互斥量
   std::mutex dbMutex;

@@ -24,6 +24,7 @@ bool TableManager::AddTable(const std::string& tabName, const std::string& loadF
   this->lockContainer.push_back(ntl);
   // 追加下标索引
   this->tableIndexDict[tabName] = this->tableContainer.size() - 1;
+  return true;
 }
 
 // 删除表
@@ -128,6 +129,8 @@ void TableManager::SaveContext() {
         f << "," << t->PiList[j] << "@" << t->PiTypeList[j];
       }
     }
+    f << t->TableName << "$";
+    f << t->IsSorted ? "1" : "0";
     f << NEWLINE;
   }
   f.close();
@@ -148,7 +151,7 @@ bool TableManager::LoadContext() {
     f.getline(buf, 256);
     std::string line(buf);
     std::vector<std::string> lineitem = CSCommonUtil::CStrSplit(line, "$");
-    if (lineitem.size() == 2) {
+    if (lineitem.size() == 3) {
       if (this->AddTable(lineitem[0], lineitem[0]) == false) {
         TRACE("Cannot reload table:" + lineitem[0]);
         continue;
@@ -161,6 +164,7 @@ bool TableManager::LoadContext() {
         tobj->PiTypeList.push_back(pisingle[1]);
         tobj->PiFileNameList[pisingle[0]] = lineitem[0] + "_" + pisingle[0] + ".db";
       }
+      tobj->IsSorted = lineitem[2] == "1";
     }
   }
   f.close();

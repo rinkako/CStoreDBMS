@@ -56,7 +56,8 @@ void IPile::Mise(DBCProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
     break;
   case SyntaxType::cstore_compress:
     myproxy.opCode = DashType::dash_compress;
-    myproxy.opTable = mynode->nodeValue;
+    myproxy.opTable = CSCommonUtil::CStrSplit(mynode->nodeValue, "@")[0];
+    myproxy.Pi.push_back(CSCommonUtil::CStrSplit(mynode->nodeValue, "@")[1]);
     break;
   case SyntaxType::cstore_join:
     myproxy.opCode = DashType::dash_join;
@@ -65,7 +66,8 @@ void IPile::Mise(DBCProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
     break;
   case SyntaxType::cstore_count:
     myproxy.opCode = DashType::dash_count;
-    myproxy.opTable = mynode->nodeValue;
+    myproxy.opTable = CSCommonUtil::CStrSplit(mynode->nodeValue, "@")[0];
+    myproxy.Pi.push_back(CSCommonUtil::CStrSplit(mynode->nodeValue, "@")[1]);
     break;
   case SyntaxType::case_ssql_stmt:
     Mise(myproxy, mynode->children[0], flag);

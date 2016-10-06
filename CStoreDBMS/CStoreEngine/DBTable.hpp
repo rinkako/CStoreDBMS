@@ -29,9 +29,27 @@ public:
         sb.Append("|" + this->PiList[it] + " " + this->PiTypeList[it]);
       }
     }
-    sb.Append("}]");
+    sb.Append("}, Compressed:").Append(this->IsSorted ? "Y" : "N").Append("]");
     return sb.ToString();
   };
+
+  //函数作用： 获取指定列名的类型名
+  //参数列表：
+  //       col 列名
+  //返 回 值： 列的类型名
+  std::string GetColType(std::string col) {
+    int idx;
+    for (idx = 0; idx < this->PiList.size(); idx++) {
+      if (this->PiList[idx] == col) {
+        break;
+      }
+    }
+    if (idx == this->PiList.size()) {
+      TRACE("Exception: expect to get type of col: " + col + " in table: " + this->TableName + " but not exist");
+      return "";
+    }
+    return this->PiTypeList[idx];
+  }
 
   // 表名
   std::string TableName;
@@ -52,7 +70,7 @@ public:
   bool IsSorted;
 
   // 排序压缩完后的列名所对应的文件名
-  std::vector<std::string> CompressedPiFileNameList;
+  std::map<std::string, std::string> CompressedPiFileNameList;
 
 private:
   // 阻止拷贝构造

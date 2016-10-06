@@ -51,6 +51,15 @@ bool CSDatabase::Interpreter(DBCProxy& proxy, DBTransaction& trans) {
   case DashType::dash_retrieve:
     res = this->Retrieve(&trans, proxy.opTable, static_cast<int>(proxy.aTag));
     break;
+  case DashType::dash_count:
+    res = this->Count(&trans, proxy.opTable, proxy.Pi[0]);
+    break;
+  case DashType::dash_compress:
+    res = this->Compress(&trans, proxy.opTable, proxy.Pi[0]);
+    break;
+  case DashType::dash_join:
+    res = this->Join(&trans, proxy.opTable, proxy.opTablePaired);
+    break;
   case DashType::dash_create:
     res = this->Create(trans, proxy.opTable, proxy.Pi, proxy.PiType);
     break;
@@ -164,10 +173,8 @@ bool CSDatabase::Compress(DBTransaction* trans, istr tname, istr pi) {
   // 加共享锁
   this->tableMana->GetTableLock(tname)->LockRead(trans);
   // 调用文件管理器接口
-  std::vector<std::string> syncList;
-  syncList.push_back(tobj->PiList[0]);
-  this->fileMana->ExternSort(*tobj, tobj->PiList[1], syncList);
-  PILEPRINTLN("External Sort and Compress col " + pi + " OK.");
+  this->fileMana->ExternSort(*tobj, pi, tobj->GetColType(pi), tobj->PiList[0], tobj->GetColType(tobj->PiList[0]));
+  PILEPRINTLN("External Sort and Compress col " + pi + " OK");
   // 解共享锁
   this->tableMana->GetTableLock(tname)->UnlockRead();
   return true;
@@ -200,7 +207,7 @@ bool CSDatabase::Join(DBTransaction* trans, istr t1name, istr t2name) {
 }
 
 // 计算记录条目
-bool CSDatabase::Count(DBTransaction* trans, istr tname) {
+bool CSDatabase::Count(DBTransaction* trans, istr tname, istr ccol) {
   // 取得表对象
   this->dbMutex.lock();
   DBTable* tobj = this->tableMana->GetTable(tname);
@@ -209,10 +216,24 @@ bool CSDatabase::Count(DBTransaction* trans, istr tname) {
     return false;
   }
   this->dbMutex.unlock();
+  bool existFlag = false;
+  for (int i = 0; i < tobj->PiList.size(); i++) {
+    if (tobj->PiList[i] == ccol) {
+      existFlag = true;
+      break;
+    }
+  }
+  if (existFlag == false) {
+    TRACE("reference column: " + ccol + " not exist");
+    return false;
+  }
   // 加共享锁
   this->tableMana->GetTableLock(tname)->LockRead(trans);
   // 调用文件管理器接口
-  this->fileMana->Count(*tobj, "custkey");
+  int atr = this->fileMana->Count(*tobj, ccol);
+  CSCommonUtil::StringBuilder sb("Total record num: ");
+  sb.Append(atr).Append(NEWLINE);
+  PILEPRINTLN(sb.ToString());
   // 解共享锁
   this->tableMana->GetTableLock(tname)->UnlockRead();
   return true;

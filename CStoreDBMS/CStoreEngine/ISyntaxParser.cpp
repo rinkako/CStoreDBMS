@@ -165,9 +165,25 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
         curRoot = NULL;
         return true;
       }
-      this->iPTRnextToken++;
-      curRoot->nodeName = "cstore_compress";
-      return true;
+      if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
+        Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
+        if (tableNameToken->aType == DBTokenType::token_iden) {
+          curRoot->nodeValue += "@" + tableNameToken->detail;
+        }
+        else {
+          TRACE("Compress command should end with a column name");
+          curRoot = NULL;
+          return true;
+        }
+        this->iPTRnextToken++;
+        curRoot->nodeName = "cstore_compress";
+        return true;
+      }
+      else {
+        TRACE("Compress command should end with a column name");
+        curRoot = NULL;
+        return true;
+      }
     }
     else {
       TRACE("Compress command should follow with tablename");
@@ -227,9 +243,25 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
         curRoot = NULL;
         return true;
       }
-      this->iPTRnextToken++;
-      curRoot->nodeName = "cstore_count";
-      return true;
+      if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
+        Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
+        if (tableNameToken->aType == DBTokenType::token_iden) {
+          curRoot->nodeValue += "@" + tableNameToken->detail;
+        }
+        else {
+          TRACE("Count command should end with a column name");
+          curRoot = NULL;
+          return true;
+        }
+        this->iPTRnextToken++;
+        curRoot->nodeName = "cstore_count";
+        return true;
+      }
+      else {
+        TRACE("Count command should end with a column name");
+        curRoot = NULL;
+        return true;
+      }
     }
     else {
       TRACE("Count command should follow with a table name");

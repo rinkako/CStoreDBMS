@@ -30,7 +30,7 @@ char page_buf[SIZE_PAGE];
 //   bufList 输出的缓冲区名向量
 //返 回 值： N/A
 bool FileManager::LoadTableBatch(int& times, FILE* fptr, std::string tname, std::vector<int>& colindice,
-  std::vector<std::string>& bufList, std::vector<std::string>& typeList, int totalCol, int& inCounter) {
+  std::vector<std::string>& bufList, std::vector<std::string>& typeList, int totalCol, int offset, int& inCounter) {
   int count_reco = 0;
   int content_ptr = 0;
   int transId = CStore::TableManager::GetInstance()->GetTableLock(tname)->LockTransaction->GetId();
@@ -39,7 +39,7 @@ bool FileManager::LoadTableBatch(int& times, FILE* fptr, std::string tname, std:
   while (count_reco < SIZE_PAGE) {
     // page_buf被读完
     if (page_ptr == maxcount) {
-      std::fseek(fptr, times++ * SIZE_PAGE * sizeof(char), SEEK_SET);
+      std::fseek(fptr, (times++ * SIZE_PAGE + offset) * sizeof(char), SEEK_SET);
       maxcount = std::fread(page_buf, sizeof(char), SIZE_PAGE, fptr);
       page_ptr = 0;
     }
@@ -107,7 +107,7 @@ bool FileManager::LoadTable(DBTable& tab) {
     bool existFlag = false;
     for (int i = 0; i < hItems.size(); i++) {
       if (tab.PiList[j] == hItems[i]) {
-        colIndices.push_back(i);
+        colIndices.push_back(i + 1);
         existFlag = true;
         break;
       }
@@ -147,7 +147,8 @@ bool FileManager::LoadTable(DBTable& tab) {
   int inCounter = 0;
   do {
     // 不断地读入文件到缓冲区
-    finflag = this->LoadTableBatch(pCounter, fin, tab.TableName, colIndices, bufferNameVec, tab.PiTypeList, hItems.size(), inCounter);
+    finflag = this->LoadTableBatch(pCounter, fin, tab.TableName, colIndices, bufferNameVec, tab.PiTypeList, hItems.size(), strHeader.size(), inCounter);
+
     // 将缓冲区内容写到文件
     for (int i = 0; i < tab.PiFileNameList.size(); i++) {
       if (tab.PiTypeList[i] == "DOUBLE") {
@@ -169,6 +170,7 @@ bool FileManager::LoadTable(DBTable& tab) {
   for (int i = 0; i < bufferNameVec.size(); i++) {
     this->allocator->Free(bufferNameVec[i]);
   }
+  return true;
 }
 
 //函数作用： 通过主键检索表格
@@ -309,35 +311,35 @@ bool FileManager::RetrieveValueByOffset(DBTable& tab, std::string colName, std::
 //       tab 表对象
 //       col 排序的列
 //返 回 值： N/A
-void FileManager::ExternSort(DBTable& tab, std::string col, std::vector<std::string> syncList) {
+void FileManager::ExternSort(DBTable& tab, std::string col, std::string cType, std::string sync, std::string sType) {
   int maxcount = 1024;
   int pc = 0;
   // 分配缓冲区
   int tranId = CStore::TableManager::GetInstance()->GetTableLock(tab.TableName)->LockTransaction->GetId();
-  std::string custkeyBufferName = CSCommonUtil::StringBuilder(tab.TableName + "@externSortCustkeyBufferPool#").Append(tranId).ToString();
-  std::string orderkeyBufferName = CSCommonUtil::StringBuilder(tab.TableName + "@externSortOrdersBufferPool#").Append(tranId).ToString();
-  int* externSortCustkeyBufferPool = (int*)this->allocator->Alloc(custkeyBufferName, COMPRESS_SIZE * sizeof(int));
-  int* externSortOrdersBufferPool = (int*)this->allocator->Alloc(orderkeyBufferName, COMPRESS_SIZE * sizeof(int));
+  std::string sortkeyBufferName = CSCommonUtil::StringBuilder(tab.TableName + "@externSort" + col + "BufferPool#").Append(tranId).ToString();
+  int* externSortBufferPool = (int*)this->allocator->Alloc(sortkeyBufferName, COMPRESS_SIZE * sizeof(int));
+  std::string synckeyBufferName = CSCommonUtil::StringBuilder(tab.TableName + "@externSort" + sync + "BufferPool#").Append(tranId).ToString();
+  int* externSortSyncBufferPool = (int*)this->allocator->Alloc(synckeyBufferName, COMPRESS_SIZE * sizeof(int));
   // 形成序列
   while (maxcount > 0) {
     // 每次读入128页
-    this->LoadColumnBatch(tab, std::string("custkey"), std::string("int"), pc, maxcount, externSortCustkeyBufferPool);
-    this->LoadColumnBatch(tab, std::string("orderkey"), std::string("int"), pc, maxcount, externSortOrdersBufferPool);
+    this->LoadColumnBatch(tab, col, cType, pc, maxcount, externSortBufferPool);
+    this->LoadColumnBatch(tab, sync, sType, pc, maxcount, externSortSyncBufferPool);
     if (maxcount == 0) break;
     // 然后关于custkey列做内排序
-    innerSort(externSortCustkeyBufferPool, externSortOrdersBufferPool, maxcount);
+    innerSort(externSortBufferPool, externSortSyncBufferPool, maxcount);
     // 内排序完毕后写临时文件
     char strBuffer[10];
-    std::string outFileName = "temp_exSortTempCustkey";
+    std::string outFileName = "temp_exSortTempSortkey";
     sprintf(strBuffer, "%d", pagecounter);
     outFileName += strBuffer;
     FILE* fout = fopen(outFileName.c_str(), "wb");
-    fwrite(externSortCustkeyBufferPool, sizeof(int), maxcount, fout);
+    fwrite(externSortBufferPool, sizeof(int), maxcount, fout);
     fclose(fout);
-    outFileName = "temp_exSortTempOrders";
+    outFileName = "temp_exSortTempSynckey";
     outFileName += strBuffer;
     fout = fopen(outFileName.c_str(), "wb");
-    fwrite(externSortOrdersBufferPool, sizeof(int), maxcount, fout);
+    fwrite(externSortSyncBufferPool, sizeof(int), maxcount, fout);
     fclose(fout);
     pagecounter++;
     pc++;
@@ -366,26 +368,26 @@ void FileManager::ExternSort(DBTable& tab, std::string col, std::vector<std::str
     for (int i = 0; i < pagecounter; i++) {
       // 如果这个缓冲区读完了，那么就要重新载入并定位指针
       if (mergePointer[i] == mergeBufferCapacity) {
-        memset(mergeBuffer[i], 0, mergeBufferCapacity * sizeof(int));
+        std::memset(mergeBuffer[i], 0, mergeBufferCapacity * sizeof(int));
         // 构造文件名
         char fstrBuffer[10];
-        inFileName = "temp_exSortTempCustkey";
-        sprintf(fstrBuffer, "%d", i);
+        inFileName = "temp_exSortTempSortkey";
+        std::sprintf(fstrBuffer, "%d", i);
         inFileName += fstrBuffer;
         // 继续把文件剩余部分放入缓冲区
-        FILE* fin = fopen(inFileName.c_str(), "rb");
-        fseek(fin, (long)(mergeTimes[i] * mergeBufferCapacity * sizeof(int)), SEEK_SET);
-        freadflag = fread(mergeBuffer[i], sizeof(int), mergeBufferCapacity, fin);
-        fclose(fin);
-        // 再次构造文件名，这次是对orderkey进行的
-        inFileName = "temp_exSortTempOrders";
-        sprintf(fstrBuffer, "%d", i);
+        FILE* fin = std::fopen(inFileName.c_str(), "rb");
+        std::fseek(fin, (long)(mergeTimes[i] * mergeBufferCapacity * sizeof(int)), SEEK_SET);
+        freadflag = std::fread(mergeBuffer[i], sizeof(int), mergeBufferCapacity, fin);
+        std::fclose(fin);
+        // 再次构造文件名，这次是对sync进行的
+        inFileName = "temp_exSortTempSynckey";
+        std::sprintf(fstrBuffer, "%d", i);
         inFileName += fstrBuffer;
         // 再次读文件并放缓冲区
-        fin = fopen(inFileName.c_str(), "rb");
-        fseek(fin, (long)(mergeTimes[i] * mergeBufferCapacity * sizeof(int)), SEEK_SET);
-        freadflag = fread(mergeBuffer[pagecounter + i], sizeof(int), mergeBufferCapacity, fin);
-        fclose(fin);
+        fin = std::fopen(inFileName.c_str(), "rb");
+        std::fseek(fin, (long)(mergeTimes[i] * mergeBufferCapacity * sizeof(int)), SEEK_SET);
+        freadflag = std::fread(mergeBuffer[pagecounter + i], sizeof(int), mergeBufferCapacity, fin);
+        std::fclose(fin);
         // 回归扫描指针，递增页面记录指针
         mergePointer[i] = 0;
         mergeTimes[i]++;
@@ -403,8 +405,8 @@ void FileManager::ExternSort(DBTable& tab, std::string col, std::vector<std::str
     // 如果最后一轮完成了但是缓冲区还有东西就输出
     if (minindex == -1) {
       if (outputPointer > 0) {
-        this->WriteBufferToFile(outputBuffer, outputPointer, "custkey_sorted.db");
-        this->WriteBufferToFile(syncBuffer, outputPointer, "orderkey_sorted.db");
+        this->WriteBufferToFile(outputBuffer, outputPointer, tab.TableName + "_" + col + "_sorted.db");
+        this->WriteBufferToFile(syncBuffer, outputPointer, tab.TableName + "_" + sync + "_sorted.db");
         outputPointer = 0;
       }
       break;
@@ -415,8 +417,8 @@ void FileManager::ExternSort(DBTable& tab, std::string col, std::vector<std::str
     syncBuffer[outputPointer++] = mergeBuffer[pagecounter + minindex][mergePointer[minindex]++];
     // 如果缓冲区写满了，那么输出到文件里并清空缓冲区
     if (outputPointer == SIZE_PAGE || (freadflag == 0 && outputPointer > 0)) {
-      this->WriteBufferToFile(outputBuffer, outputPointer, "custkey_sorted.db");
-      this->WriteBufferToFile(syncBuffer, outputPointer, "orderkey_sorted.db");
+      this->WriteBufferToFile(outputBuffer, outputPointer, tab.TableName + "_" + col + "_sorted.db");
+      this->WriteBufferToFile(syncBuffer, outputPointer, tab.TableName + "_" + sync + "_sorted.db");
       outputPointer = 0;
     }
     // 如果已经彻底读完了就出来，否则重置临时变量
@@ -429,18 +431,19 @@ void FileManager::ExternSort(DBTable& tab, std::string col, std::vector<std::str
     }
   }
   // 释放资源
-  this->allocator->Free(custkeyBufferName);
-  this->allocator->Free(orderkeyBufferName);
+  this->allocator->Free(sortkeyBufferName);
+  this->allocator->Free(synckeyBufferName);
   // 压缩
-  CompressCustkey();
+  this->Compress(tab, col, cType);
 }
 
 //函数作用： 压缩表
 //参数列表：
 //       tab 表对象
 //       col 压缩的列
+//     cType 列类型
 //返 回 值： N/A
-void FileManager::CompressCustkey() {
+void FileManager::Compress(DBTable& tab, std::string col, std::string cType) {
   int compressBuffer[COMPRESS_SIZE];
   int outputBuffer[COMPRESS_SIZE];
   int frontPointer = 0;
@@ -453,10 +456,15 @@ void FileManager::CompressCustkey() {
   int lastLength = 0;
   bool firstRound = true;
   bool finishFlag = false;
-  FILE* fin = fopen("custkey_sorted.db", "rb");
+  FILE* fin = std::fopen((tab.TableName + "_" + col + "_sorted.db").c_str(), "rb");
   while (true) {
-    memset(compressBuffer, 0, sizeof(int)* COMPRESS_SIZE);
-    maxcount = fread(compressBuffer, sizeof(int), COMPRESS_SIZE, fin);
+    std::memset(compressBuffer, 0, sizeof(int)* COMPRESS_SIZE);
+    if (cType == "DOUBLE") {
+      maxcount = std::fread(compressBuffer, sizeof(double), COMPRESS_SIZE, fin);
+    }
+    else {
+      maxcount = std::fread(compressBuffer, sizeof(int), COMPRESS_SIZE, fin);
+    }
     firstRound = true;
     if (maxcount == 0 && outputPointer == 0) {
       break;
@@ -471,7 +479,7 @@ void FileManager::CompressCustkey() {
         lastValue = 0;
         firstRound = false;
         if (outputPointer == COMPRESS_SIZE) {
-          this->WriteBufferToFile(outputBuffer, COMPRESS_SIZE, "custkey_compressed.db");
+          this->WriteBufferToFile(outputBuffer, COMPRESS_SIZE, tab.TableName + "_" + col + "_compressed.db");
           outputPointer = 0;
         }
       }
@@ -515,12 +523,12 @@ void FileManager::CompressCustkey() {
       }
       // 如果缓冲区满了，那么把缓冲区写到文件
       if (outputPointer == COMPRESS_SIZE) {
-        this->WriteBufferToFile(outputBuffer, COMPRESS_SIZE, "custkey_compressed.db");
+        this->WriteBufferToFile(outputBuffer, COMPRESS_SIZE, tab.TableName + "_" + col + "_compressed.db");
         outputPointer = 0;
       }
       // 如果这是最后一轮但是缓冲区还有数据那就写出去
       else if (maxcount == 0 && outputPointer > 0) {
-        this->WriteBufferToFile(outputBuffer, outputPointer, "custkey_compressed.db");
+        this->WriteBufferToFile(outputBuffer, outputPointer, tab.TableName + "_" + col + "_compressed.db");
         outputPointer = 0;
         finishFlag = true;
       }
@@ -533,14 +541,22 @@ void FileManager::CompressCustkey() {
     // 看看能否安全地退出
     if (finishFlag == true) {
       if (outputPointer > 0) {
-        this->WriteBufferToFile(outputBuffer, outputPointer, "custkey_compressed.db");
+        this->WriteBufferToFile(outputBuffer, outputPointer, tab.TableName + "_" + col + "_compressed.db");
         outputPointer = 0;
       }
       break;
     }
     // 重定位文件指针
-    fseek(fin, (long)(COMPRESS_SIZE * (++ftimes) * sizeof(int)), SEEK_SET);
+    if (cType == "DOUBLE") {
+      std::fseek(fin, (long)(COMPRESS_SIZE * (++ftimes) * sizeof(double)), SEEK_SET);
+    }
+    else {
+      std::fseek(fin, (long)(COMPRESS_SIZE * (++ftimes) * sizeof(int)), SEEK_SET);
+    }
   }
+  // 修改表的状态
+  tab.CompressedPiFileNameList[col] = tab.TableName + "_" + col + "_compressed.db";
+  tab.IsSorted = true;
 }
 
 //函数作用： 自然连接表

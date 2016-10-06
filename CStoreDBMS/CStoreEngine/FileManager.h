@@ -30,9 +30,10 @@ public:
   //   bufList 输出的缓冲区名向量
   //  typeList 类型向量
   //  totalCol 总列数
+  //    offset 表头偏移量
   // inCounter 读取的数量
   //返 回 值： 操作成功与否
-  bool LoadTableBatch(int& times, FILE* fptr, std::string tname, std::vector<int>& colindice, std::vector<std::string>& bufList, std::vector<std::string>& typeList, int totalCol, int& inCounter);
+  bool LoadTableBatch(int& times, FILE* fptr, std::string tname, std::vector<int>& colindice, std::vector<std::string>& bufList, std::vector<std::string>& typeList, int totalCol, int offset, int& inCounter);
 
   //函数作用： 载入表格
   //参数列表：
@@ -87,9 +88,9 @@ public:
   //参数列表：
   //       tab 表对象
   //       col 排序的列
-  //  syncList 同步变化的列
+  //      sync 同步变化列
   //返 回 值： N/A
-  void ExternSort(DBTable& tab, std::string col, std::vector<std::string> syncList);
+  void ExternSort(DBTable& tab, std::string col, std::string cType, std::string sync, std::string sType);
 
   //函数作用： 将缓冲区写到文件
   //参数列表：
@@ -103,15 +104,10 @@ public:
   //参数列表：
   //       tab 表对象
   //       col 压缩的列
+  //     cType 列类型
   //返 回 值： N/A
-  void CompressCustkey();
+  void Compress(DBTable& tab, std::string col, std::string cType);
 
-  /* OLD FUNCTIONS */
-
-  //void getEXOrdersBuffer(int _times, int &_maxcount);
-  //void getEXCustkeyBuffer(int _times, int &_maxcount);
-
-  
 
 private:
   //函数作用： 私有的构造器
