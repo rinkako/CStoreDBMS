@@ -157,7 +157,7 @@ void DBConnectionPool::TransactionHandler() {
     // 处理这个事务
     if (proTrans != NULL) {
       DBBridge* IBridge = new DBBridge();
-      IBridge->StartTransaction(proTrans->GetCode(), core->isDebug);
+      IBridge->StartTransaction(*proTrans, core->isDebug);
       proTrans->Finish();
       core->queueMutex.lock();
       for (std::vector<DBTransaction*>::iterator iter = core->processingTransactionVector.begin();

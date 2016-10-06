@@ -37,7 +37,7 @@ bool CSDatabase::Exist(istr name) {
 }
 
 // CSDatabase执行一条语句
-bool CSDatabase::Interpreter(DBCProxy &proxy) {
+bool CSDatabase::Interpreter(DBCProxy& proxy, DBTransaction& trans) {
   // 取得操作码
   DashType opCode = proxy.opCode;
   bool res = false;
@@ -49,10 +49,10 @@ bool CSDatabase::Interpreter(DBCProxy &proxy) {
     res = this->Load(proxy.opTable);
     break;
   case DashType::dash_retrieve:
-    res = this->Retrieve(proxy.opTable, proxy.aTag);
+    res = this->Retrieve(proxy.opTable, static_cast<int>(proxy.aTag));
     break;
   case DashType::dash_create:
-    res = this->Create(proxy.opTable, proxy.Pi, proxy.PiType);
+    res = this->Create(trans, proxy.opTable, proxy.Pi, proxy.PiType);
     break;
   case DashType::dash_delete:
     res = this->Delete(proxy.opTable, proxy.CondPi, proxy.condPtr, &proxy);
@@ -75,12 +75,13 @@ bool CSDatabase::Interpreter(DBCProxy &proxy) {
 }
 
 // CSDatabase建表
-bool CSDatabase::Create(istr name, StrVec &pi, StrVec &pitype) {
+bool CSDatabase::Create(DBTransaction& trans, istr name, StrVec &pi, StrVec &pitype) {
   this->dbMutex.lock();
   if (this->tableMana->AddTable(name, name) == false) {
     return false;
   }
   DBTable* tobj = this->tableMana->GetTable(name);
+  this->tableMana->GetTableLock(name)->LockTransaction = &trans;
   tobj->PiList = std::vector<std::string>(pi);
   tobj->PiTypeList = std::vector<std::string>(pitype);
   this->dbMutex.unlock();
@@ -157,7 +158,9 @@ bool CSDatabase::Compress(istr tname, istr pi) {
   // 加共享锁
   this->tableMana->GetTableLock(tname)->LockRead();
   // 调用文件管理器接口
-  this->fileMana->externSort();
+  std::vector<std::string> syncList;
+  syncList.push_back(tobj->PiList[0]);
+  this->fileMana->ExternSort(*tobj, tobj->PiList[1], syncList);
   PILEPRINTLN("External Sort and Compress col " + pi + " OK.");
   // 解共享锁
   this->tableMana->GetTableLock(tname)->UnlockRead();
@@ -171,7 +174,21 @@ bool CSDatabase::Join(istr t1name, istr t2name) {
 
 // 计算记录条目
 bool CSDatabase::Count(istr tname) {
-  return false;
+  // 取得表对象
+  this->dbMutex.lock();
+  DBTable* tobj = this->tableMana->GetTable(tname);
+  if (tobj == NULL) {
+    this->iException("table not exist: " + tname);
+    return false;
+  }
+  this->dbMutex.unlock();
+  // 加共享锁
+  this->tableMana->GetTableLock(tname)->LockRead();
+  // 调用文件管理器接口
+  this->fileMana->Count(*tobj, "custkey");
+  // 解共享锁
+  this->tableMana->GetTableLock(tname)->UnlockRead();
+  return true;
 }
 
 

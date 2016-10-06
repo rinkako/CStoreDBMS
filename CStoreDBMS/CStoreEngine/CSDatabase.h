@@ -31,8 +31,9 @@ public:
   //函数作用： 解释执行一条SSQL语句
   //参数列表：
   //     proxy 解释执行的命令
+  //     trans 事务实例
   //返 回 值： bool 是否成功解释
-  bool Interpreter(DBCProxy&);
+  bool Interpreter(DBCProxy&, DBTransaction&);
 
   //函数作用： 查询一个执行列的字典值
   //参数列表：
@@ -64,11 +65,12 @@ private:
 
   //函数作用： 建立一个新表
   //参数列表：
+  //     trans 事务实例
   //      name 表名
   //        pi 列向量
   //    pitype 列类型向量
   //返 回 值： 操作成功与否
-  bool Create(istr, StrVec&, StrVec&);
+  bool Create(DBTransaction&, istr, StrVec&, StrVec&);
 
   //函数作用： 删除一个表中的指定行
   //参数列表：

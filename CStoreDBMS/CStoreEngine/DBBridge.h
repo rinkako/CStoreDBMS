@@ -17,10 +17,10 @@ public:
 
   //函数作用： 启动解释器
   //参数列表：
-  //     query 查询代码
+  //     trans 事务
   //   isDebug 是否为调试模式
   //返 回 值： N/A
-  void StartTransaction(istr, bool = false);
+  void StartTransaction(DBTransaction&, bool = false);
 
 private:
   //函数作用： 从文件读入源代码

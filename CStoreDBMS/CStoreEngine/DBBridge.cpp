@@ -15,9 +15,9 @@ DBBridge::DBBridge()
 }
 
 // IBridge执行解释器
-void DBBridge::StartTransaction(istr query, bool isDebug) {
+void DBBridge::StartTransaction(DBTransaction& trans, bool isDebug) {
   // 复位并启动词法分析
-  this->sourceCode = query;
+  this->sourceCode = trans.GetCode();
   iLexiana.Reset();
   iLexiana.SetSourceCode(this->sourceCode);
   sourceCodeTokenStream = iLexiana.Analyze();
@@ -48,7 +48,7 @@ void DBBridge::StartTransaction(istr query, bool isDebug) {
     if (isDebug) {
       PILEPRINTLN(">>> Interpreter Output:");
     }
-    iDB.Interpreter(currentProxy);
+    iDB.Interpreter(currentProxy, trans);
   }
 }
 

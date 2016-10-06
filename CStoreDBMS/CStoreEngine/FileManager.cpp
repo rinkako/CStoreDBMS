@@ -1,4 +1,5 @@
 #include "FileManager.h"
+#include "TableManager.h"
 #include <limits.h>
 #include <string.h>
 #include <string>
@@ -10,13 +11,10 @@ CSTORE_NS_BEGIN
 #define COLUMNBATCHSIZE (64 * SIZE_PAGE)
 using namespace std;
 
-int externSortOrdersBufferPool[64 * SIZE_PAGE];
-int externSortCustkeyBufferPool[64 * SIZE_PAGE];
+//int externSortOrdersBufferPool[64 * SIZE_PAGE];
+//int externSortCustkeyBufferPool[64 * SIZE_PAGE];
 int compressedCustkeyBufferPool[64 * SIZE_PAGE];
 
-int ordersOrderkeyBufferPool[64 * SIZE_PAGE];
-double ordersTotalpriceBufferPool[64 * SIZE_PAGE];
-int ordersShippriorityBufferPool[64 * SIZE_PAGE];
 int pagecounter = 0;
 int importcountercustomer = 0;
 
@@ -35,7 +33,9 @@ bool FileManager::LoadTableBatch(int& times, FILE* fptr, std::string tname, std:
   std::vector<std::string>& bufList, std::vector<std::string>& typeList, int totalCol, int& inCounter) {
   int count_reco = 0;
   int content_ptr = 0;
-  char* content_buf = (char*)this->allocator->Alloc("content_buf_" + tname, sizeof(char)* 128);
+  int transId = CStore::TableManager::GetInstance()->GetTableLock(tname)->LockTransaction->GetId();
+  std::string bufname = CSCommonUtil::StringBuilder("content_buf_" + tname + "#").Append(transId).ToString();
+  char* content_buf = (char*)this->allocator->Alloc(bufname, 128 * sizeof(char));
   while (count_reco < SIZE_PAGE) {
     // page_buf被读完
     if (page_ptr == maxcount) {
@@ -78,7 +78,7 @@ bool FileManager::LoadTableBatch(int& times, FILE* fptr, std::string tname, std:
   }
   // 输出读入的记录数目
   inCounter = count_reco;
-  this->allocator->Free("content_buf_" + tname);
+  this->allocator->Free(bufname);
   return maxcount == 0;
 }
 
@@ -129,9 +129,10 @@ bool FileManager::LoadTable(DBTable& tab) {
     fColPtrArr[i] = std::fopen(tab.PiFileNameList[tab.PiList[i]].c_str(), "ab");
   }
   // 分配缓冲区
+  int transId = CStore::TableManager::GetInstance()->GetTableLock(tab.TableName)->LockTransaction->GetId();
   std::vector<std::string> bufferNameVec;
   for (int i = 0; i < tab.PiList.size(); i++) {
-    std::string bufName = tab.TableName + "@" + tab.PiList[i];
+    std::string bufName = CSCommonUtil::StringBuilder(tab.TableName + "@" + tab.PiList[i] + "#").Append(transId).ToString();
     bufferNameVec.push_back(bufName);
     if (tab.PiTypeList[i] == "DOUBLE") {
       this->allocator->Alloc(bufName, SIZE_PAGE * sizeof(double));
@@ -184,7 +185,8 @@ bool FileManager::Retrieve(DBTable& tab, int key, std::string& record) {
   // 先搜索主键
   bool _successFlag = false;
   bool _failFlag = false;
-  std::string buffername = "retrieve_buffer_" + tab.TableName;
+  int transId = CStore::TableManager::GetInstance()->GetTableLock(tab.TableName)->LockTransaction->GetId();
+  std::string buffername = CSCommonUtil::StringBuilder("retrieve_buffer_" + tab.TableName + "#").Append(transId).ToString();
   int* bufferPtr = (int*)this->allocator->Alloc(buffername, COLUMNBATCHSIZE * sizeof(int));
   int pcounter = 0;
   int sindex = 0;
@@ -274,6 +276,23 @@ bool FileManager::LoadColumnBatch(DBTable& tab, std::string& colName, std::strin
   return true;
 }
 
+//void FileManager::getEXOrdersBuffer(int _times, int &_maxcount) {
+//  FILE* fin = fopen("orders_orderkey.db", "rb");
+//  fseek(fin, (long)(_times * 64 * SIZE_PAGE * sizeof(int)), SEEK_SET);
+//  if (fin == 0) return;
+//  _maxcount = fread(externSortOrdersBufferPool, sizeof(int), 64 * SIZE_PAGE, fin);
+//  fclose(fin);
+//}
+//
+//void FileManager::getEXCustkeyBuffer(int _times, int &_maxcount) {
+//  FILE* fin = fopen("orders_custkey.db", "rb");
+//  fseek(fin, (long)(_times * 64 * SIZE_PAGE * sizeof(int)), SEEK_SET);
+//  if (fin == 0) return;
+//  _maxcount = fread(externSortCustkeyBufferPool, sizeof(int), 64 * SIZE_PAGE, fin);
+//  fclose(fin);
+//}
+
+
 //函数作用： 通过偏移量取出对应位置的值的字符串
 //参数列表：
 //       tab 表对象
@@ -310,14 +329,20 @@ bool FileManager::RetrieveValueByOffset(DBTable& tab, std::string colName, std::
 //       tab 表对象
 //       col 排序的列
 //返 回 值： N/A
-void FileManager::externSort() {
+void FileManager::ExternSort(DBTable& tab, std::string col, std::vector<std::string> syncList) {
   int maxcount = 1024;
   int pc = 0;
+  // 分配缓冲区
+  int tranId = CStore::TableManager::GetInstance()->GetTableLock(tab.TableName)->LockTransaction->GetId();
+  std::string custkeyBufferName = CSCommonUtil::StringBuilder(tab.TableName + "@externSortCustkeyBufferPool#").Append(tranId).ToString();
+  std::string orderkeyBufferName = CSCommonUtil::StringBuilder(tab.TableName + "@externSortOrdersBufferPool#").Append(tranId).ToString();
+  int* externSortCustkeyBufferPool = (int*)this->allocator->Alloc(custkeyBufferName, COMPRESS_SIZE * sizeof(int));
+  int* externSortOrdersBufferPool = (int*)this->allocator->Alloc(orderkeyBufferName, COMPRESS_SIZE * sizeof(int));
   // 形成序列
   while (maxcount > 0) {
     // 每次读入128页
-    getEXOrdersBuffer(pc, maxcount);
-    getEXCustkeyBuffer(pc, maxcount);
+    this->LoadColumnBatch(tab, std::string("custkey"), std::string("int"), pc, maxcount, externSortCustkeyBufferPool);
+    this->LoadColumnBatch(tab, std::string("orderkey"), std::string("int"), pc, maxcount, externSortOrdersBufferPool);
     if (maxcount == 0) break;
     // 然后关于custkey列做内排序
     innerSort(externSortCustkeyBufferPool, externSortOrdersBufferPool, maxcount);
@@ -398,8 +423,8 @@ void FileManager::externSort() {
     // 如果最后一轮完成了但是缓冲区还有东西就输出
     if (minindex == -1) {
       if (outputPointer > 0) {
-        writeCustkeyOutputBufferToFile(outputBuffer, outputPointer);
-        writeOrdersOutputBufferToFile(syncBuffer, outputPointer);
+        this->WriteBufferToFile(outputBuffer, outputPointer, "custkey_sorted.db");
+        this->WriteBufferToFile(syncBuffer, outputPointer, "orderkey_sorted.db");
         outputPointer = 0;
       }
       break;
@@ -410,8 +435,8 @@ void FileManager::externSort() {
     syncBuffer[outputPointer++] = mergeBuffer[pagecounter + minindex][mergePointer[minindex]++];
     // 如果缓冲区写满了，那么输出到文件里并清空缓冲区
     if (outputPointer == SIZE_PAGE || (freadflag == 0 && outputPointer > 0)) {
-      writeCustkeyOutputBufferToFile(outputBuffer, outputPointer);
-      writeOrdersOutputBufferToFile(syncBuffer, outputPointer);
+      this->WriteBufferToFile(outputBuffer, outputPointer, "custkey_sorted.db");
+      this->WriteBufferToFile(syncBuffer, outputPointer, "orderkey_sorted.db");
       outputPointer = 0;
     }
     // 如果已经彻底读完了就出来，否则重置临时变量
@@ -423,8 +448,11 @@ void FileManager::externSort() {
       minindex = -1;
     }
   }
+  // 释放资源
+  this->allocator->Free(custkeyBufferName);
+  this->allocator->Free(orderkeyBufferName);
   // 压缩
-  compressCustkey();
+  CompressCustkey();
 }
 
 //函数作用： 压缩表
@@ -432,7 +460,7 @@ void FileManager::externSort() {
 //       tab 表对象
 //       col 压缩的列
 //返 回 值： N/A
-void FileManager::compressCustkey() {
+void FileManager::CompressCustkey() {
   int compressBuffer[COMPRESS_SIZE];
   int outputBuffer[COMPRESS_SIZE];
   int frontPointer = 0;
@@ -463,7 +491,7 @@ void FileManager::compressCustkey() {
         lastValue = 0;
         firstRound = false;
         if (outputPointer == COMPRESS_SIZE) {
-          writeCompressedCustkeyToFile(outputBuffer, COMPRESS_SIZE);
+          this->WriteBufferToFile(outputBuffer, COMPRESS_SIZE, "custkey_compressed.db");
           outputPointer = 0;
         }
       }
@@ -507,12 +535,12 @@ void FileManager::compressCustkey() {
       }
       // 如果缓冲区满了，那么把缓冲区写到文件
       if (outputPointer == COMPRESS_SIZE) {
-        writeCompressedCustkeyToFile(outputBuffer, COMPRESS_SIZE);
+        this->WriteBufferToFile(outputBuffer, COMPRESS_SIZE, "custkey_compressed.db");
         outputPointer = 0;
       }
       // 如果这是最后一轮但是缓冲区还有数据那就写出去
       else if (maxcount == 0 && outputPointer > 0) {
-        writeCompressedCustkeyToFile(outputBuffer, outputPointer);
+        this->WriteBufferToFile(outputBuffer, outputPointer, "custkey_compressed.db");
         outputPointer = 0;
         finishFlag = true;
       }
@@ -525,7 +553,7 @@ void FileManager::compressCustkey() {
     // 看看能否安全地退出
     if (finishFlag == true) {
       if (outputPointer > 0) {
-        writeCompressedCustkeyToFile(outputBuffer, outputPointer);
+        this->WriteBufferToFile(outputBuffer, outputPointer, "custkey_compressed.db");
         outputPointer = 0;
       }
       break;
@@ -540,7 +568,7 @@ void FileManager::compressCustkey() {
 //      tab1 表对象
 //      tab2 表对象
 //返 回 值： N/A
-void FileManager::join() {
+void FileManager::Join() {
   // 缓冲区
   int joinCustkeyBuffer[32 * SIZE_PAGE];
   int joinCustomerBuffer[32 * SIZE_PAGE];
@@ -581,7 +609,8 @@ void FileManager::join() {
           joinOutputPointer++;
           // 如果输出缓冲区满，那么写文件并清缓存区
           if (joinOutputPointer == 32 * SIZE_PAGE) {
-            writeJoinedItemToFile(joinOutputOrderkeyBuffer, joinOutputCustkeyBuffer, joinOutputPointer);
+            this->WriteBufferToFile(joinOutputOrderkeyBuffer, joinOutputPointer, "joined_orderkey.db");
+            this->WriteBufferToFile(joinOutputCustkeyBuffer, joinOutputPointer, "joined_custkey.db");
             joinOutputPointer = 0;
           }
         }
@@ -606,7 +635,8 @@ void FileManager::join() {
     }
     // 如果有哪个缓冲区到达边界，那么就要重入
     if (joinOutputPointer == 32 * SIZE_PAGE) {
-      writeJoinedItemToFile(joinOutputOrderkeyBuffer, joinOutputCustkeyBuffer, joinOutputPointer);
+      this->WriteBufferToFile(joinOutputOrderkeyBuffer, joinOutputPointer, "joined_orderkey.db");
+      this->WriteBufferToFile(joinOutputCustkeyBuffer, joinOutputPointer, "joined_custkey.db");
       joinOutputPointer = 0;
     }
     if (joinCustkeyBufferPointer == 32 * SIZE_PAGE) {
@@ -629,7 +659,8 @@ void FileManager::join() {
     }
     // 如果做完了但缓冲区还有东西那就清空，否则退出
     if ((custkeyMaxcount == 0 || customerMaxcount == 0) && (joinOutputPointer > 0)) {
-      writeJoinedItemToFile(joinOutputOrderkeyBuffer, joinOutputCustkeyBuffer, joinOutputPointer);
+      this->WriteBufferToFile(joinOutputOrderkeyBuffer, joinOutputPointer, "joined_orderkey.db");
+      this->WriteBufferToFile(joinOutputCustkeyBuffer, joinOutputPointer, "joined_custkey.db");
       joinOutputPointer = 0;
     }
     else if ((custkeyMaxcount == 0 || customerMaxcount == 0) && (joinOutputPointer == 0)) {
@@ -639,7 +670,8 @@ void FileManager::join() {
   }
   // 确认安全地退出
   if (joinOutputPointer > 0) {
-    writeJoinedItemToFile(joinOutputOrderkeyBuffer, joinOutputCustkeyBuffer, joinOutputPointer);
+    this->WriteBufferToFile(joinOutputOrderkeyBuffer, joinOutputPointer, "joined_orderkey.db");
+    this->WriteBufferToFile(joinOutputCustkeyBuffer, joinOutputPointer, "joined_custkey.db");
     joinOutputPointer = 0;
   }
   // 保存文件
@@ -648,461 +680,63 @@ void FileManager::join() {
   fclose(joinFileCustomer);
 }
 
-//函数作用： 写出连接后的表
-//参数列表：
-//   bufList 缓冲区名向量
-//_incounter 最大数量
-//返 回 值： N/A
-void FileManager::writeJoinedItemToFile(int* _orderBuffer, int* _custBuffer, int _incounter) {
-  //FILE* joinOutOrderkey = fopen("joined_orderkey.db", "ab");
-  //FILE* joinOutCustkey = fopen("joined_custkey.db", "ab");
-  //fwrite(_orderBuffer, sizeof(int), _incounter, joinOutOrderkey);
-  //fwrite(_custBuffer, sizeof(int), _incounter, joinOutCustkey);
-  //fclose(joinOutOrderkey);
-  //fclose(joinOutCustkey);
-  for (int i = 0; i < _incounter; i++)
-  {
-    std::cout << _custBuffer[i] << " " << _orderBuffer[i] << std::endl;
-  }
-}
-
-//函数作用： 获取游程编码后表记录总数
+//函数作用： 获取表记录总数
 //参数列表：
 //       tab 表对象
+//      ccol 参照列的列名
 //返 回 值： 记录总数
-int FileManager::count() {
-  FILE* fin = fopen("custkey_compressed.db", "rb");
-  fseek(fin, 0L, SEEK_SET);
-  int ctr = 0;
-  int atr = 0;
-  int buf[1024];
-  int it = 0;
-  do {
-    memset(buf, 0, sizeof(int)* 1024);
-    ctr = fread(buf, sizeof(int), 1024, fin);
-    for (int j = 0; j < ctr; j++) {
-      if (j % 2 == 1) {
-        atr += buf[j];
-      }
+int FileManager::Count(DBTable& tab, std::string ccol) {
+  bool compressedFlag = true;
+  FILE* fin = fopen((tab.TableName + "_" + ccol + "_compressed.db").c_str(), "rb");
+  if (fin == NULL) {
+    fin = fopen((tab.TableName + "_" + ccol + ".db").c_str(), "rb");
+    if (fin == NULL) {
+      TRACE("Exception: cannot count table" + tab.TableName);
     }
-    fseek(fin, (long)(sizeof(int)* 1024 * ++it), SEEK_SET);
-  } while (ctr != 0);
+    compressedFlag = false;
+  }
+  fseek(fin, 0L, SEEK_SET);
+  int atr = 0;
+  int ctr = 0;
+  int buf[SIZE_PAGE];
+  int it = 0;
+  if (compressedFlag) {
+    do {
+      memset(buf, 0, sizeof(int) * SIZE_PAGE);
+      ctr = fread(buf, sizeof(int), SIZE_PAGE, fin);
+      for (int j = 0; j < ctr; j++) {
+        if (j % 2 == 1) {
+          atr += buf[j];
+        }
+      }
+      fseek(fin, (long)(sizeof(int) * SIZE_PAGE * ++it), SEEK_SET);
+    } while (ctr != 0);
+  }
+  else {
+    do {
+      memset(buf, 0, sizeof(int)* SIZE_PAGE);
+      ctr = fread(buf, sizeof(int), SIZE_PAGE, fin);
+      atr += ctr;
+      fseek(fin, (long)(sizeof(int)* SIZE_PAGE * ++it), SEEK_SET);
+    } while (ctr != 0);
+  }
   return atr;
 }
 
-int* FileManager::getOrderkeyBuffer(int _times, int &_maxcount) {
-	FILE* fin = fopen("orderkey_sorted.db", "rb");
-	if (fin == NULL) return NULL;
-	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
-	if (fin == 0) {
-		return NULL;
-	}
-	_maxcount = fread(ordersOrderkeyBufferPool, sizeof(int), 65536, fin);
-	fclose(fin);
-	return ordersOrderkeyBufferPool;
-}
-
-double *FileManager::getTotalpriceBuffer(int _times, int &_maxcount) {
-	FILE* fin = fopen("totalprice_sorted.db", "rb");
-	if (fin == NULL) return NULL;
-	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
-	if (fin == 0) {
-		return NULL;
-	}
-	_maxcount = fread(ordersTotalpriceBufferPool, sizeof(int), 65536, fin);
-	fclose(fin);
-	return ordersTotalpriceBufferPool;
-}
-
-int* FileManager::getShippriorityBuffer(int _times, int &_maxcount) {
-	FILE* fin = fopen("shippriority_sorted.db", "rb");
-	if (fin == NULL) return NULL;
-	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
-	if (fin == 0) {
-		return NULL;
-	}
-	_maxcount = fread(ordersShippriorityBufferPool, sizeof(int), 65536, fin);
-	fclose(fin);
-	return ordersShippriorityBufferPool;
-}
-
-void FileManager::getEXOrdersBuffer(int _times, int &_maxcount) {
-  FILE* fin = fopen("orders_orderkey.db", "rb");
-  fseek(fin, (long)(_times * 64 * SIZE_PAGE * sizeof(int)), SEEK_SET);
-  if (fin == 0) return;
-  _maxcount = fread(externSortOrdersBufferPool, sizeof(int), 64 * SIZE_PAGE, fin);
-  fclose(fin);
-}
-
-void FileManager::getEXCustkeyBuffer(int _times, int &_maxcount) {
-  FILE* fin = fopen("orders_custkey.db", "rb");
-  fseek(fin, (long)(_times * 64 * SIZE_PAGE * sizeof(int)), SEEK_SET);
-  if (fin == 0) return;
-  _maxcount = fread(externSortCustkeyBufferPool, sizeof(int), 64 * SIZE_PAGE, fin);
-  fclose(fin);
-}
-
-int* FileManager::getCompressedCustkeyBuffer(int _times, int &_maxcount) {
-	FILE* fin = fopen("custkey_compressed.db", "rb");
-	if (fin == NULL) return NULL;
-	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
-	if (fin == 0) {
-		return NULL;
-	}
-	_maxcount = fread(compressedCustkeyBufferPool, sizeof(int), 65536, fin);
-	fclose(fin);
-	return compressedCustkeyBufferPool;
-}
-
-void writeCompressedCustkeyToTemp(int* _orgBuffer, int _incounter) {
-	FILE* fout = fopen("custkey_compressed_temp.db", "ab");
-	fwrite(_orgBuffer, sizeof(int), _incounter, fout);
-	fclose(fout);
-}
-
-int* getCompressedCustkeyTempBuffer(int _times, int &_maxcount) {
-	FILE* fin = fopen("custkey_compressed_temp.db", "rb");
-	if (fin == NULL) return NULL;
-	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
-	if (fin == 0) {
-		return NULL;
-	}
-	_maxcount = fread(compressedCustkeyBufferPool, sizeof(int), 65536, fin);
-	fclose(fin);
-	return compressedCustkeyBufferPool;
-}
-
-void writeOrderkeyToTemp(int* _orgBuffer, int _incounter) {
-	FILE* fout = fopen("orders_orderkey_temp.db", "ab");
-	fwrite(_orgBuffer, sizeof(int), _incounter, fout);
-	fclose(fout);
-}
-
-int* getOrderkeyTempBuffer(int _times, int &_maxcount) {
-	FILE* fin = fopen("orders_orderkey_temp.db", "rb");
-	if (fin == NULL) return NULL;
-	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
-	if (fin == 0) {
-		return NULL;
-	}
-	_maxcount = fread(ordersOrderkeyBufferPool, sizeof(int), 65536, fin);
-	fclose(fin);
-	return ordersOrderkeyBufferPool;
-}
-
-void writeTotalpriceToTemp(double* _orgBuffer, int _incounter) {
-	FILE* fout = fopen("orders_totalprice_temp.db", "ab");
-	fwrite(_orgBuffer, sizeof(double), _incounter, fout);
-	fclose(fout);
-}
-
-double* getTotalpriceTempBuffer(int _times, int &_maxcount) {
-	FILE* fin = fopen("orders_totalprice_temp.db", "rb");
-	if (fin == NULL) return NULL;
-	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
-	if (fin == 0) {
-		return NULL;
-	}
-	_maxcount = fread(ordersTotalpriceBufferPool, sizeof(double), 65536, fin);
-	fclose(fin);
-	return ordersTotalpriceBufferPool;
-}
-
-void writeShippriorityToTemp(int* _orgBuffer, int _incounter) {
-	FILE* fout = fopen("orders_shippriority_temp.db", "ab");
-	fwrite(_orgBuffer, sizeof(int), _incounter, fout);
-	fclose(fout);
-}
-
-int* getShippriorityTempBuffer(int _times, int &_maxcount) {
-	FILE* fin = fopen("orders_shippriority_temp.db", "rb");
-	if (fin == NULL) return NULL;
-	fseek(fin, (long)(_times * 65536 * sizeof(int)), SEEK_SET);
-	if (fin == 0) {
-		return NULL;
-	}
-	_maxcount = fread(ordersShippriorityBufferPool, sizeof(int), 65536, fin);
-	fclose(fin);
-	return ordersShippriorityBufferPool;
-}
-
-int FileManager::getCustKeyRunLength(int _key) {
-	bool _successFlag = false;
-	bool _failFlag = false;
-	int* bufferPtr = NULL;
-	int* tempPtr = NULL;
-	int pcounter = 0;
-	int tempPcounter = 0;
-	int iindex = 0;
-	int maxcount = 65536;
-	int tempMaxcount = 65536;
-	int runLength = 0;
-	// 分页读入
-	do {
-		bufferPtr = getCompressedCustkeyBuffer(pcounter++, maxcount);
-		if (maxcount == 0) {
-			_failFlag = true;
-			break;
-		}
-		// 累加行程长度
-		if (bufferPtr[maxcount - 2] < _key) {
-			for (int i = 1; i < maxcount; i += 2) {
-				runLength += bufferPtr[i];
-			}
-			continue;
-		}
-		if (bufferPtr[0] > _key) {
-			_failFlag = true;
-			break;
-		}
-
-		// 二分查找
-		int mid = 0, low = 0, high = maxcount - 2;
-		while (low <= high) {
-			mid = (low + high) / 2;
-			if (mid % 2 == 1) {
-				mid -= 1;
-			}
-			if (bufferPtr[mid] == _key) {
-				iindex = mid;
-				_successFlag = true;
-				bufferPtr[mid + 1] ++;
-				break;
-			}
-			else if (low == high) {
-				_successFlag = true;
-				iindex = low;
-
-				// 当前页插入点后面的item移到临时buffer
-				//tempPtr = &bufferPtr[iindex];
-				tempPtr = bufferPtr + iindex;
-				writeCompressedCustkeyToTemp(tempPtr, maxcount - iindex);
-
-				// 剩余所有页移到临时buffer
-				bufferPtr = getCompressedCustkeyBuffer(pcounter++, maxcount);
-				while (bufferPtr != NULL) {
-					writeCompressedCustkeyToTemp(bufferPtr, maxcount);
-					bufferPtr = getCompressedCustkeyBuffer(pcounter++, maxcount);
-				}
-
-				// 插入新item到compressedcustkeyFile
-				int * newItem = new int[2];
-				newItem[0] = _key;
-				newItem[1] = 1;
-				writeCompressedCustkeyToFile(newItem, 2);
-
-				// 把临时buffer的compressedcustkey复写回compressedcustkeyFile
-				tempPtr = getCompressedCustkeyTempBuffer(tempPcounter++, tempMaxcount);
-				while (tempPtr != NULL) {
-					writeCompressedCustkeyToFile(tempPtr, tempMaxcount);
-					tempPtr = getCompressedCustkeyTempBuffer(tempPcounter++, tempMaxcount);
-				}
-
-				// 删掉临时buffer文件
-				remove("custkey_compressed_temp.db");
-
-				for (int i = 1; i < iindex; i += 2) {
-					runLength += bufferPtr[i];
-				}
-				break;
-			}
-			else if (bufferPtr[mid] > _key) {
-				high = mid - 2;
-			}
-			else if (bufferPtr[mid] < _key) {
-				low = mid + 2;
-			}
-		}
-
-	} while (_successFlag != true);
-
-	if (_successFlag == true) {
-		return runLength;
-	}
-	else {
-		return NULL;
-	}
-}
-
-bool FileManager::insertIntoOrders(int orderkeyBuffer, int custkeyBuffer, double totalpriceBuffer, int shippriorityBuffer) {
-	bool _keyExistFlag = false;
-	int runLength = 0;
-	int poffset = 0;
-	int offset = 0;
-	int pcounter = 0;
-
-	int* bufferOrderkey = NULL;
-	int* bufferOrderkeyTemp = NULL;
-	double* bufferTotalprice = NULL;
-	double* bufferTotalpriceTemp = NULL;
-	int* bufferShippriority = NULL;
-	int* bufferShippriorityTemp = NULL;
-
-	int maxcount1 = 0, maxcount2 = 0, maxcount3 = 0;
-
-	FILE *fin1, *fin2, *fin3;
-
-	FILE *fout1, *fout2, *fout3;
-
-	fout1 = fopen("orderkey_sorted.db", "ab");
-	fout2 = fopen("totalprice_sorted.db", "ab");
-	fout3 = fopen("shippriority_sorted.db", "ab");
-
-	//判断表中主键的存在性
-	_keyExistFlag = select_orders_orderkey(orderkeyBuffer);
-	if (_keyExistFlag == true) {
-		cout << "FILE CANNOT INSERT: primary key conflicts" << endl;
-		return false;
-	}
-	else {
-		// 不存在主键，插入
-		runLength = getCustKeyRunLength(custkeyBuffer);
-		if (runLength == NULL) {
-			return false;
-		}
-		poffset = runLength / (64 * SIZE_PAGE);
-		offset = runLength - (poffset * 64 * SIZE_PAGE);
-		
-		// 插入orderkey
-		pcounter = poffset;
-		bufferOrderkey = getOrderkeyBuffer(pcounter++, maxcount1);
-		bufferOrderkeyTemp = bufferOrderkey + offset + 1;
-		writeOrderkeyToTemp(bufferOrderkeyTemp, maxcount1 - offset);
-		bufferOrderkey = getOrderkeyBuffer(pcounter++, maxcount1);
-		while (bufferOrderkey != NULL) {
-			writeOrderkeyToTemp(bufferOrderkey, maxcount1);
-			bufferOrderkey = getOrderkeyBuffer(pcounter++, maxcount1);
-		}
-		fwrite(&orderkeyBuffer, sizeof(int), 1, fout1);
-		pcounter = 0;
-		bufferOrderkeyTemp = getOrderkeyTempBuffer(pcounter++, maxcount1);
-		while (bufferOrderkeyTemp != NULL) {
-			writeOrdersOutputBufferToFile(bufferOrderkeyTemp, maxcount1);
-			bufferOrderkeyTemp = getOrderkeyTempBuffer(pcounter++, maxcount1);
-		}
-		remove("orders_orderkey_temp.db");
-
-		// 插入totalprice
-		pcounter = poffset;
-		bufferTotalprice = getTotalpriceBuffer(pcounter++, maxcount2);
-		bufferTotalpriceTemp = bufferTotalprice + offset + 1;
-		writeTotalpriceToTemp(bufferTotalpriceTemp, maxcount2 - offset);
-		bufferTotalprice = getTotalpriceBuffer(pcounter++, maxcount2);
-		while (bufferTotalprice != NULL) {
-			writeTotalpriceToTemp(bufferTotalprice, maxcount2);
-			bufferTotalprice = getTotalpriceBuffer(pcounter++, maxcount2);
-		}
-		fwrite(&totalpriceBuffer, sizeof(double), 1, fout2);
-		pcounter = 0;
-		bufferTotalpriceTemp = getTotalpriceTempBuffer(pcounter++, maxcount2);
-		while (bufferOrderkeyTemp != NULL) {
-			writeTotalpriceOutputBufferToFile(bufferTotalpriceTemp, maxcount2);
-			bufferTotalpriceTemp = getTotalpriceTempBuffer(pcounter++, maxcount2);
-		}
-		remove("orders_totalprice_temp.db");
-
-		// 插入shippriority
-		pcounter = poffset;
-		bufferShippriority = getShippriorityBuffer(pcounter++, maxcount3);
-		bufferShippriorityTemp = bufferShippriority + offset + 1;
-		writeShippriorityToTemp(bufferShippriorityTemp, maxcount3 - offset);
-		bufferShippriority = getShippriorityBuffer(pcounter++, maxcount3);
-		while (bufferShippriority != NULL) {
-			writeShippriorityToTemp(bufferShippriority, maxcount3);
-			bufferShippriority = getShippriorityBuffer(pcounter++, maxcount3);
-		}
-		fwrite(&shippriorityBuffer, sizeof(int), 1, fout3);
-		pcounter = 0;
-		bufferShippriorityTemp = getShippriorityTempBuffer(pcounter++, maxcount3);
-		while (bufferShippriorityTemp != NULL){
-			writeShippriorityOutputBufferToFile(bufferShippriorityTemp, maxcount3);
-			bufferShippriorityTemp = getShippriorityTempBuffer(pcounter++, maxcount3);
-		}
-		remove("orders_shippriority_temp.db");
-	}
-	return true;
-}
-
-void FileManager::writeCompressedCustkeyToFile(int* _orgBuffer, int _incounter) {
-  FILE* fout = fopen("custkey_compressed.db", "ab");
-  fwrite(_orgBuffer, sizeof(int), _incounter, fout);
-  fclose(fout);
-}
-
-void FileManager::writeOrdersOutputBufferToFile(int* _orgBuffer, int _incounter) {
-  FILE* fout = fopen("orderkey_sorted.db", "ab");
-  fwrite(_orgBuffer, sizeof(int), _incounter, fout);
-  fclose(fout);
-}
-
-void FileManager::writeCustkeyOutputBufferToFile(int* _orgBuffer, int _incounter) {
-  FILE* fout = fopen("custkey_sorted.db", "ab");
-  fwrite(_orgBuffer, sizeof(int), _incounter, fout);
-  fclose(fout);
-}
-
-void FileManager::writeTotalpriceOutputBufferToFile(double* _orgBuffer, int _incounter) {
-	FILE* fout = fopen("totalprice_sorted.db", "ab");
-	fwrite(_orgBuffer, sizeof(double), _incounter, fout);
-	fclose(fout);
-}
-
-void FileManager::writeShippriorityOutputBufferToFile(int* _orgBuffer, int _incounter) {
-	FILE* fout = fopen("shippriority_sorted.db", "ab");
-	fwrite(_orgBuffer, sizeof(int), _incounter, fout);
-	fclose(fout);
-}
-
-bool FileManager::select_orders_orderkey(int _key) {
-  return false;
-  bool _successFlag = false;
-  bool _failFlag = false;
-  int* bufferPtr = (int*)this->allocator->Alloc("select_orders_orderkey_buffer", COLUMNBATCHSIZE * sizeof(int));
-  int pcounter = 0;
-  int sindex = 0;
-  int maxcount = 65536;
-  // 分页读入
-  do {
-    //bufferPtr = this->LoadColumnBatch(getOrdersBuffer(pcounter++, maxcount);
-    if (maxcount == 0) {
-      _failFlag = true;
-      break;
-    }
-    if (bufferPtr[maxcount - 1] < _key) {
-      continue;
-    }
-    if (bufferPtr[0] > _key) {
-      _failFlag = true;
-      break;
-    }
-
-    // 二分查找
-    int mid = 0, low = 0, high = maxcount - 1;
-    while (low <= high) {
-      mid = (low + high) / 2;
-      if (bufferPtr[mid] == _key) {
-        sindex = mid;
-        _successFlag = true;
-        break;
-      }
-      else if (bufferPtr[mid] > _key) {
-        high = mid - 1;
-      }
-      else if (bufferPtr[mid] < _key) {
-        low = mid + 1;
-      }
-    }
-
-  } while (_successFlag != true);
-  // 处理结果，返回给Service
-  if (_failFlag == true) {
-    return false;
+//函数作用： 将缓冲区写到文件
+//参数列表：
+// orgBuffer 缓冲区指针
+// incounter 缓冲区长度
+//     fname 文件名
+//返 回 值： N/A
+void FileManager::WriteBufferToFile(int* orgBuffer, int incounter, std::string fname) {
+  FILE* fout = fopen(fname.c_str(), "ab");
+  if (fout == NULL) {
+    TRACE("Exception: cannot write file: " + fname);
+    return;
   }
-  else {
-    //_pc = pcounter - 1;
-    //_si = sindex;
-    return true;
-  }
+  fwrite(orgBuffer, sizeof(int), incounter, fout);
+  fclose(fout);
 }
 
 //函数作用：  内排序
@@ -1185,8 +819,8 @@ void FileManager::swap(int& a, int& b) {
 //参数列表： N/A
 //返 回 值： 文件管理器的唯一实例
 FileManager* FileManager::GetInstance() {
-  return FileManager::__instance == NULL ? 
-    FileManager::__instance = new FileManager() : FileManager::__instance;
+  return FileManager::Instance == NULL ?
+    FileManager::Instance = new FileManager() : FileManager::Instance;
 }
 
 //函数作用： 私有的构造器
@@ -1194,11 +828,9 @@ FileManager* FileManager::GetInstance() {
 //返 回 值： N/A
 FileManager::FileManager() {
   this->allocator = DBAllocator::GetInstance();
-  pos = 0;
-  tpos = 0;
 }
 
 // 唯一实例
-FileManager* FileManager::__instance = NULL;
+FileManager* FileManager::Instance = NULL;
 
 CSTORE_NS_END
