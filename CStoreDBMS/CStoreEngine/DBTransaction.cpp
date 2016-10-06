@@ -13,15 +13,23 @@ DBTransaction::DBTransaction(std::string queryCode)
   this->timestamp = std::string(timeBuffer);
   this->successFlag = false;
   this->finishstamp = "";
+  this->duration = "";
   this->code = queryCode;
   beginStampObj = std::clock();
 }
 
-// 获取事务持续时长
-std::string DBTransaction::GetDuration() {
-  char dBuffer[16];
-  std::sprintf(dBuffer, "%.8lf", (double)(std::clock() - this->beginStampObj) / (double)CLOCKS_PER_SEC);
-  return std::string(dBuffer);
+//函数作用： 标记事务成功
+//参数列表： N/A
+//返 回 值： N/A
+void DBTransaction::Finish() {
+  time_t ts = std::time(NULL);
+  tm* localt = std::localtime(&ts);
+  char timeBuffer[16];
+  std::sprintf(timeBuffer, "%02d:%02d:%02d", localt->tm_hour, localt->tm_min, localt->tm_sec);
+  this->finishstamp = std::string(timeBuffer);
+  std::sprintf(timeBuffer, "%.8lf", (double)(std::clock() - this->beginStampObj) / (double)CLOCKS_PER_SEC);
+  this->duration = std::string(timeBuffer);
+  this->successFlag = true;
 }
 
 // 重写字符串化方法

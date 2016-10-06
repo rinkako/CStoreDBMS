@@ -1,5 +1,8 @@
 #include "DBConnectionPool.h"
 #include "DBBridge.h"
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 CSTORE_NS_BEGIN
 
@@ -119,14 +122,15 @@ std::string DBConnectionPool::ShowFinishedTransaction() {
 //返 回 值： 含有全部事务详细说明的字符串
 std::string DBConnectionPool::ShowTransaction() {
   CSCommonUtil::StringBuilder sb;
-  sb.Append("Pending Count: ").Append((int)this->transactionQueue.size()).Append(NEWLINE);
+  sb.Append("Pending Count: ").Append((int)this->transactionQueue.size()).Append(NEWLINE).Append(NEWLINE);
   sb.Append("Processing:").Append(NEWLINE);
   for (int i = 0; i < this->processingTransactionVector.size(); i++) {
     if (this->processingTransactionVector[i] != NULL) {
       sb.Append(this->processingTransactionVector[i]->ToString()).Append(NEWLINE);
     }
   }
-  sb.Append("Finished:");
+  sb.Append(NEWLINE);
+  sb.Append("Finished:").Append(NEWLINE);
   sb.Append(this->ShowFinishedTransaction());
   return sb.ToString();
 }
@@ -149,6 +153,9 @@ void DBConnectionPool::TransactionHandler() {
     }
     else {
       core->queueMutex.unlock();
+#ifdef _WIN32
+      Sleep(10);
+#endif
       continue;
     }
     core->processingTransactionVector.push_back(proTrans);

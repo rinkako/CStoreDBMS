@@ -18,7 +18,7 @@ public:
   explicit Token(const Token&);
 
   // 词类型
-  TokenType aType;
+  DBTokenType aType;
   // 命中行
   int aLine;
   // 命中列

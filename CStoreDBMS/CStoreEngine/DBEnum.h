@@ -112,7 +112,7 @@ typedef enum __CharaType {
 // 枚举：Token类型
 typedef enum __ITokenType {
   // 未知的单词符号
-  unknown,
+  tkunknown,
   // "create"
   token_create,
   // "table"
@@ -201,7 +201,7 @@ typedef enum __ITokenType {
   token_on,
   // "set"
   token_set
-} TokenType;
+} DBTokenType;
 
 // 枚举：语法树节点类型
 typedef enum __ISyntaxType
@@ -277,7 +277,7 @@ typedef enum __ISyntaxType
   // <column_pi> ::= "," identifier <column_pi> | null;
   case_column_pi,
   // 未知的语法结点符号
-  Unknown,
+  SyntaxUnknown,
   // "create"
   tail_createLeave,
   // "table"
@@ -585,11 +585,6 @@ typedef enum __FunctionType {
   // ERROR
   umi_errorEnd
 } CFunctionType;
-
-// 枚举：数据库操作类型
-typedef enum __DBOperationType {
-
-} DBOperationType;
 
 // 枚举：数据表锁状态
 typedef enum __DBTableLockType {

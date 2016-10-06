@@ -91,6 +91,8 @@ void DBController::Terminal() {
     std::string commitQuery = queryBuilder.ToString();
     std::string _query = commitQuery;
     std::transform(_query.begin(), _query.end(), _query.begin(), tolower);
+    _query = CSCommonUtil::CStrReplace(_query, "\n", " ");
+    _query = CSCommonUtil::CStrTrim(_query);
     // ÌØÊâÃüÁîµÄÅÐ¶Ï
     if (_query == "exit;") {
       TRACE("Good Bye!");
@@ -111,6 +113,8 @@ void DBController::Terminal() {
 void DBController::Dash(const std::string& query) {
   std::string _query = query;
   std::transform(_query.begin(), _query.end(), _query.begin(), tolower);
+  _query = CSCommonUtil::CStrReplace(_query, "\n", " ");
+  _query = CSCommonUtil::CStrTrim(_query);
   // ÌØÊâÃüÁîµÄÅÐ¶Ï
   if (_query == "exit;") {
     TRACE("Good Bye!");
@@ -140,6 +144,12 @@ bool DBController::ReservedRouter(const std::string& query) {
   }
   else if (query == "show tables;") {
     PILEPRINTLN(TableManager::GetInstance()->ShowTable());
+    return true;
+  }
+  else if (query == "drop all;") {
+    int counter = TableManager::GetInstance()->CountTable();
+    TableManager::GetInstance()->Clear();
+    PILEPRINTLN(CSCommonUtil::StringBuilder("Droped ").Append(counter).Append(" table(s).").ToString());
     return true;
   }
   return false;

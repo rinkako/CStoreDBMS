@@ -69,6 +69,11 @@ public:
   //返 回 值： 操作成功与否
   bool LoadContext();
 
+  //函数作用： 析构函数
+  //参数列表： N/A
+  //返 回 值： N/A
+  ~TableManager();
+
 private:
   //函数作用： 私有的构造函数
   //参数列表： N/A

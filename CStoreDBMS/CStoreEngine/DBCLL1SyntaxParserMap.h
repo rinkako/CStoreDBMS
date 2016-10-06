@@ -26,7 +26,7 @@ public:
   //       col 行长度
   //     leave Token类型
   //返 回 值： N/A
-  void SetCol(int, TokenType);
+  void SetCol(int, DBTokenType);
 
   //函数作用： 设置节点分析函数
   //参数列表：
@@ -42,7 +42,7 @@ public:
   //     leave Token类型
   //      proc 候选式函数
   //返 回 值： N/A
-  void SetCellular(SyntaxType, TokenType, CandidateFunction*);
+  void SetCellular(SyntaxType, DBTokenType, CandidateFunction*);
 
   //函数作用： 取得节点的处理函数
   //参数列表：
@@ -57,7 +57,7 @@ public:
   //     leave Token类型
   // nilserver epsilon处理器
   //返 回 值： CandidateFunction* 候选式函数指针
-  CandidateFunction* GetCFunction(SyntaxType, TokenType, iHandle);
+  CandidateFunction* GetCFunction(SyntaxType, DBTokenType, iHandle);
 
 private:
   // 行浮标

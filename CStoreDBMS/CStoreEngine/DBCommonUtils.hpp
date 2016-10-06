@@ -180,7 +180,7 @@ namespace CSCommonUtil {
     //参数列表：
     //  appender 要追加的东西
     //返 回 值： N/A
-    StringBuilder& Append (CStore::DBObject& appender) {
+    StringBuilder& Append(CStore::DBObject& appender) {
       this->_str.append(appender.ToString().c_str());
       return *this;
     }

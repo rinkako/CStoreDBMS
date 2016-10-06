@@ -1,4 +1,5 @@
 #include "DBAllocator.h"
+#include "TableManager.h"
 CSTORE_NS_BEGIN
 
 // 私有的构造函数
@@ -65,9 +66,13 @@ void DBAllocator::FreeAll() {
 
 // 释放DBMS各模块内存准备退出程序
 void DBAllocator::Collapse() {
+  TRACE("DBMS Environment Begin to Collapse");
+  // 释放全部缓冲区
   if (DBAllocator::Instance != NULL) {
     DBAllocator::Instance->FreeAll();
   }
+  // 保存表格
+  CStore::TableManager::GetInstance()->SaveContext();
 }
 
 // 唯一实例

@@ -32,21 +32,25 @@ public:
   }
 
   //函数作用： 互斥锁定
-  //参数列表： N/A
+  //参数列表：
+  //    locker 触发锁的事务
   //返 回 值： N/A
-  inline void LockWrite() {
+  inline void LockWrite(DBTransaction* locker) {
     this->synLockObjWrite.lock();
     this->synLockObjRead.lock();
+    this->LockTransaction = locker;
     this->Type = TableLockType::tblock_mutex;
   }
 
   //函数作用： 共享锁定
-  //参数列表： N/A
+  //参数列表：
+  //    locker 触发锁的事务
   //返 回 值： N/A
-  inline void LockRead() {
+  inline void LockRead(DBTransaction* locker) {
     this->lockMutex.lock();
     this->synLockObjRead.try_lock();
     this->readHandleNum++;
+    this->LockTransaction = locker;
     this->Type = TableLockType::tblock_share;
     this->lockMutex.unlock();
   }

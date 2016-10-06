@@ -44,7 +44,7 @@ void SyntaxTreeNode::GetTree(istr &builder, SyntaxTreeNode* myNode, int &identat
   }
   // »­Ê÷
   builder += DrawTree(myNode) + myNode->nodeName;
-  if (myNode->nodeSyntaxType >= SyntaxType::Unknown
+  if (myNode->nodeSyntaxType >= SyntaxType::SyntaxUnknown
     && myNode->nodeSyntaxType != SyntaxType::epsilonLeave
     && myNode->nodeSyntaxType != SyntaxType::tail_startEndLeave) {
     builder += " (" + myNode->nodeValue + ")";

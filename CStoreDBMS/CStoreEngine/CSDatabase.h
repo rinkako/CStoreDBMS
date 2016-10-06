@@ -104,34 +104,34 @@ private:
   //参数列表：
   //     tname 表名
   //返 回 值： 操作成功与否
-  bool Load(istr);
+  bool Load(DBTransaction*, istr);
 
   //函数作用： 通过主键获取记录
   //参数列表：
   //     tname 表名
   //      tkey 主键的值
   //返 回 值： 操作成功与否
-  bool Retrieve(istr, int);
+  bool Retrieve(DBTransaction*, istr, int);
 
   //函数作用： 压缩表
   //参数列表：
   //     tname 表名
   //        pi 要压缩的列名
   //返 回 值： 操作成功与否
-  bool Compress(istr, istr);
+  bool Compress(DBTransaction*, istr, istr);
 
   //函数作用： 自然连接表
   //参数列表：
   //    t1name 表名
   //    t2name 表名
   //返 回 值： 操作成功与否
-  bool Join(istr, istr);
+  bool Join(DBTransaction*, istr, istr);
 
   //函数作用： 计算记录条目
   //参数列表：
   //     tname 表名
   //返 回 值： 操作成功与否
-  bool Count(istr);
+  bool Count(DBTransaction*, istr);
 
   // 互斥量
   std::mutex dbMutex;

@@ -113,23 +113,69 @@ void TableManager::Clear() {
   }
   this->tableIndexDict.clear();
   this->tableContainer.clear();
+  this->SaveContext();
 }
 
 // 将当前数据库表状态保存到磁盘
 void TableManager::SaveContext() {
-
+  std::ofstream f("table.dbconf");
+  for (int i = 0; i < this->tableContainer.size(); i++) {
+    DBTable* t = this->tableContainer[i];
+    f << t->TableName << "$";
+    if (t->PiList.size() > 0) {
+      f << t->PiList[0] << "@" << t->PiTypeList[0];
+      for (int j = 1; j < t->PiList.size(); j++) {
+        f << "," << t->PiList[j] << "@" << t->PiTypeList[j];
+      }
+    }
+    f << NEWLINE;
+  }
+  f.close();
 }
 
 // 将当前数据库表状态从磁盘读入
 bool TableManager::LoadContext() {
-
+  // 没有配置文件时
+  std::ifstream f("table.dbconf");
+  if (!f) {
+    TRACE("No table config file found, DBMS will be reset.");
+    f.close();
+    return false;
+  }
+  // 读取配置文件，还原表格们
+  char buf[256];
+  while (!f.eof()) {
+    f.getline(buf, 256);
+    std::string line(buf);
+    std::vector<std::string> lineitem = CSCommonUtil::CStrSplit(line, "$");
+    if (lineitem.size() == 2) {
+      if (this->AddTable(lineitem[0], lineitem[0]) == false) {
+        TRACE("Cannot reload table:" + lineitem[0]);
+        continue;
+      }
+      DBTable* tobj = this->GetTable(lineitem[0]);
+      std::vector<std::string> piitem = CSCommonUtil::CStrSplit(lineitem[1], ",");
+      for (int p = 0; p < piitem.size(); p++) {
+        std::vector<std::string> pisingle = CSCommonUtil::CStrSplit(piitem[p], "@");
+        tobj->PiList.push_back(pisingle[0]);
+        tobj->PiTypeList.push_back(pisingle[1]);
+        tobj->PiFileNameList[pisingle[0]] = lineitem[0] + "_" + pisingle[0] + ".db";
+      }
+    }
+  }
+  f.close();
   return true;
+}
+
+// 析构函数
+TableManager::~TableManager() {
+  this->SaveContext();
 }
 
 // 私有的构造函数
 TableManager::TableManager()
   :DBObject("TableManager", this) {
-
+  this->LoadContext();
 }
 
 // 唯一实例

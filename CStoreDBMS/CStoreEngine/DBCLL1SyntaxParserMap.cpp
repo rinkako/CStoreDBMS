@@ -21,7 +21,7 @@ void LL1SyntaxParserMap::SetRow(int row, SyntaxType left) {
 }
 
 // LL1SyntaxParserMap设置列类型
-void LL1SyntaxParserMap::SetCol(int col, TokenType leave) {
+void LL1SyntaxParserMap::SetCol(int col, DBTokenType leave) {
   if (0 <= col && col < this->iColCount) {
     iNextLeaves.insert(TokenPair(leave, col));
   }
@@ -36,7 +36,7 @@ void LL1SyntaxParserMap::SetCellular(int row, int col, CandidateFunction* proc) 
 }
 
 // LL1SyntaxParserMap设置给定产生式的函数
-void LL1SyntaxParserMap::SetCellular(SyntaxType left, TokenType leave, CandidateFunction* proc) {
+void LL1SyntaxParserMap::SetCellular(SyntaxType left, DBTokenType leave, CandidateFunction* proc) {
   this->SetCellular(this->iLeftNodes[left], this->iNextLeaves[leave], proc);
 }
 
@@ -46,7 +46,7 @@ CandidateFunction* LL1SyntaxParserMap::GetCFunction(int row, int col) {
 }
 
 // LL1SyntaxParserMap取得产生式的处理函数
-CandidateFunction* LL1SyntaxParserMap::GetCFunction(SyntaxType left, TokenType leave, iHandle nilserver) {
+CandidateFunction* LL1SyntaxParserMap::GetCFunction(SyntaxType left, DBTokenType leave, iHandle nilserver) {
   if (left == SyntaxType::epsilonLeave) {
     return new CandidateFunction(nilserver, CFunctionType::umi_epsilon);
   }

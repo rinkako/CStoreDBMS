@@ -46,10 +46,10 @@ bool CSDatabase::Interpreter(DBCProxy& proxy, DBTransaction& trans) {
   switch (opCode)
   {
   case DashType::dash_load:
-    res = this->Load(proxy.opTable);
+    res = this->Load(&trans, proxy.opTable);
     break;
   case DashType::dash_retrieve:
-    res = this->Retrieve(proxy.opTable, static_cast<int>(proxy.aTag));
+    res = this->Retrieve(&trans, proxy.opTable, static_cast<int>(proxy.aTag));
     break;
   case DashType::dash_create:
     res = this->Create(trans, proxy.opTable, proxy.Pi, proxy.PiType);
@@ -102,11 +102,12 @@ bool CSDatabase::Insert(istr name, StrVec &pilist, IntVec &pivalue, bool &errorb
 
 // CSDatabase查询
 bool CSDatabase::Select(istr name, StrVec &pi, bool star, StrVec &condVec, SyntaxTreeNode* cond, DBCProxy* iproxy) {
+  TRACE("NOT IMPLEMENTATION EXCEPTION");
   return true;
 }
 
 // 将输入载入表中
-bool CSDatabase::Load(istr tname) {
+bool CSDatabase::Load(DBTransaction* trans, istr tname) {
   // 取得表对象
   this->dbMutex.lock();
   DBTable* tobj = this->tableMana->GetTable(tname);
@@ -116,7 +117,7 @@ bool CSDatabase::Load(istr tname) {
   }
   this->dbMutex.unlock();
   // 加互斥锁
-  this->tableMana->GetTableLock(tname)->LockWrite();
+  this->tableMana->GetTableLock(tname)->LockWrite(trans);
   // 调用文件管理器端口
   bool flag = this->fileMana->LoadTable(*tobj);
   // 解互斥锁
@@ -125,7 +126,7 @@ bool CSDatabase::Load(istr tname) {
 }
 
 // 通过主键获取记录
-bool CSDatabase::Retrieve(istr tname, int tkey) {
+bool CSDatabase::Retrieve(DBTransaction* trans, istr tname, int tkey) {
   // 取得表对象
   this->dbMutex.lock();
   DBTable* tobj = this->tableMana->GetTable(tname);
@@ -135,18 +136,23 @@ bool CSDatabase::Retrieve(istr tname, int tkey) {
   }
   this->dbMutex.unlock();
   // 加共享锁
-  this->tableMana->GetTableLock(tname)->LockRead();
+  this->tableMana->GetTableLock(tname)->LockRead(trans);
   // 调用文件管理器接口
   std::string outStr = "";
   bool flag = this->fileMana->Retrieve(*tobj, tkey, outStr);
-  PILEPRINT(outStr);
+  if (flag) {
+    PILEPRINTLN(outStr);
+  }
+  else {
+    PILEPRINTLN(CSCommonUtil::StringBuilder("Primary key value: ").Append(tkey).Append(" not exist").ToString());
+  }
   // 解共享锁
   this->tableMana->GetTableLock(tname)->UnlockRead();
-  return flag;
+  return true;
 }
 
 // 压缩表
-bool CSDatabase::Compress(istr tname, istr pi) {
+bool CSDatabase::Compress(DBTransaction* trans, istr tname, istr pi) {
   // 取得表对象
   this->dbMutex.lock();
   DBTable* tobj = this->tableMana->GetTable(tname);
@@ -156,7 +162,7 @@ bool CSDatabase::Compress(istr tname, istr pi) {
   }
   this->dbMutex.unlock();
   // 加共享锁
-  this->tableMana->GetTableLock(tname)->LockRead();
+  this->tableMana->GetTableLock(tname)->LockRead(trans);
   // 调用文件管理器接口
   std::vector<std::string> syncList;
   syncList.push_back(tobj->PiList[0]);
@@ -168,12 +174,33 @@ bool CSDatabase::Compress(istr tname, istr pi) {
 }
 
 // 自然连接表
-bool CSDatabase::Join(istr t1name, istr t2name) {
-  return false;
+bool CSDatabase::Join(DBTransaction* trans, istr t1name, istr t2name) {
+  // 取得表对象
+  this->dbMutex.lock();
+  DBTable* tobj1 = this->tableMana->GetTable(t1name);
+  DBTable* tobj2 = this->tableMana->GetTable(t2name);
+  if (tobj1 == NULL) {
+    this->iException("table not exist: " + t1name);
+    return false;
+  }
+  if (tobj2 == NULL) {
+    this->iException("table not exist: " + t2name);
+    return false;
+  }
+  this->dbMutex.unlock();
+  // 加共享锁
+  this->tableMana->GetTableLock(t1name)->LockRead(trans);
+  this->tableMana->GetTableLock(t2name)->LockRead(trans);
+  // 调用文件管理器接口
+  this->fileMana->Join();
+  // 解共享锁
+  this->tableMana->GetTableLock(t1name)->UnlockRead();
+  this->tableMana->GetTableLock(t2name)->UnlockRead();
+  return true;
 }
 
 // 计算记录条目
-bool CSDatabase::Count(istr tname) {
+bool CSDatabase::Count(DBTransaction* trans, istr tname) {
   // 取得表对象
   this->dbMutex.lock();
   DBTable* tobj = this->tableMana->GetTable(tname);
@@ -183,7 +210,7 @@ bool CSDatabase::Count(istr tname) {
   }
   this->dbMutex.unlock();
   // 加共享锁
-  this->tableMana->GetTableLock(tname)->LockRead();
+  this->tableMana->GetTableLock(tname)->LockRead(trans);
   // 调用文件管理器接口
   this->fileMana->Count(*tobj, "custkey");
   // 解共享锁

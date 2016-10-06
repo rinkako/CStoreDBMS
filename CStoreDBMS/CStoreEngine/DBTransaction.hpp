@@ -12,6 +12,16 @@ public:
   //返 回 值： N/A
   DBTransaction(std::string);
 
+  //函数作用： 标记事务成功
+  //参数列表： N/A
+  //返 回 值： N/A
+  void Finish();
+
+  //函数作用： 重写字符串化方法
+  //参数列表： N/A
+  //返 回 值： 事务的说明
+  virtual std::string ToString();
+
   //函数作用： 获取事务的编号
   //参数列表： N/A
   //返 回 值： 代表事务编号的整数
@@ -37,20 +47,10 @@ public:
   //返 回 值： 完成时刻字符串
   inline std::string GetBeginTimestamp() { return this->timestamp; }
 
-  //函数作用： 标记事务成功
-  //参数列表： N/A
-  //返 回 值： N/A
-  inline void Finish() { this->successFlag = true; }
-
   //函数作用： 获取事务持续时长
   //参数列表： N/A
   //返 回 值： 持续时间字符串，以秒为单位
-  std::string GetDuration();
-
-  //函数作用： 重写字符串化方法
-  //参数列表： N/A
-  //返 回 值： 事务的说明
-  virtual std::string ToString();
+  std::string GetDuration() { return this->duration; }
 
 private:
   // 事务id
@@ -70,6 +70,9 @@ private:
 
   // 发生时间戳对象
   std::clock_t beginStampObj;
+
+  // 持续时长
+  std::string duration;
 
   // 事务计数器
   static int encounter;

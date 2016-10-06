@@ -153,7 +153,7 @@ bool LexicalAnalyzer::GetSpace(Token *result) {
 // LexicalAnalyzer获取器，得到未知字符对应的Token
 bool LexicalAnalyzer::GetUnknown(Token *result) {
   // 生成错误token
-  result->aType = TokenType::unknown;
+  result->aType = DBTokenType::tkunknown;
   result->detail = this->GetSourceCode()[PTRnextLetter];
   result->errorCode = 1;
   result->errorInfo = "错误：未知的字符" + result->detail + "\n";
@@ -180,7 +180,7 @@ bool LexicalAnalyzer::GetIdentifier(Token *result) {
     }
   }
   // 修改token标签
-  result->aType = TokenType::token_iden;
+  result->aType = DBTokenType::token_iden;
   result->detail = builder;
   return true;
 }
@@ -206,7 +206,7 @@ bool LexicalAnalyzer::GetConstantNumber(Token *result) {
   }
   // 成功得到了数字token
   if (successFlag) {
-    result->aType = TokenType::number;
+    result->aType = DBTokenType::number;
     result->detail = numberBuilder;
     result->aTag = atoi(numberBuilder.c_str());
     return true;
@@ -221,31 +221,31 @@ bool LexicalAnalyzer::GetOneCharaCalculator(Token *result) {
     istr str = this->GetSourceCode().substr(PTRnextLetter, 1);
     result->detail = str;
     if (str == "+") {
-      result->aType = TokenType::token_Plus_;
+      result->aType = DBTokenType::token_Plus_;
     }
     else if (str == "-") {
-      result->aType = TokenType::token_Minus_;
+      result->aType = DBTokenType::token_Minus_;
     }
     else if (str == "*") {
-      result->aType = TokenType::token_Multiply_;
+      result->aType = DBTokenType::token_Multiply_;
     }
     else if (str == "/") {
-      result->aType = TokenType::token_Divide_;
+      result->aType = DBTokenType::token_Divide_;
     }
     else if (str == "!") {
-      result->aType = TokenType::token_Not_;
+      result->aType = DBTokenType::token_Not_;
     }
     else if (str == "(") {
-      result->aType = TokenType::token_LeftParentheses_;
+      result->aType = DBTokenType::token_LeftParentheses_;
     }
     else if (str == ")") {
-      result->aType = TokenType::token_RightParentheses_;
+      result->aType = DBTokenType::token_RightParentheses_;
     }
     else if (str == ",") {
-      result->aType = TokenType::token_Comma_;
+      result->aType = DBTokenType::token_Comma_;
     }
     else if (str == ";") {
-      result->aType = TokenType::token_Semicolon_;
+      result->aType = DBTokenType::token_Semicolon_;
     }
     // 递增字符指针
     Jump(1);
@@ -262,27 +262,27 @@ bool LexicalAnalyzer::GetTwoCharaCalculator(Token *result) {
     bool okFlag = false;
     istr str = this->GetSourceCode().substr(PTRnextLetter, 2);
     if (str == "==") {
-      result->aType = TokenType::token_Equality_Equality_;
+      result->aType = DBTokenType::token_Equality_Equality_;
       okFlag = true;
     }
     else if (str == ">=") {
-      result->aType = TokenType::token_GreaterThan_Equality_;
+      result->aType = DBTokenType::token_GreaterThan_Equality_;
       okFlag = true;
     }
     else if (str == "<=") {
-      result->aType = TokenType::token_LessThan_Equality_;
+      result->aType = DBTokenType::token_LessThan_Equality_;
       okFlag = true;
     }
     else if (str == "&&") {
-      result->aType = TokenType::token_And_And_;
+      result->aType = DBTokenType::token_And_And_;
       okFlag = true;
     }
     else if (str == "||") {
-      result->aType = TokenType::token_Or_Or_;
+      result->aType = DBTokenType::token_Or_Or_;
       okFlag = true;
     }
     else if (str == "<>") {
-      result->aType = TokenType::token_LessThan_GreaterThan_;
+      result->aType = DBTokenType::token_LessThan_GreaterThan_;
       okFlag = true;
     }
     if (okFlag) {
@@ -298,15 +298,15 @@ bool LexicalAnalyzer::GetTwoCharaCalculator(Token *result) {
     bool okFlag = false;
     istr str = this->GetSourceCode().substr(PTRnextLetter, 1);
     if (str == ">") {
-      result->aType = TokenType::token_GreaterThan_;
+      result->aType = DBTokenType::token_GreaterThan_;
       okFlag = true;
     }
     else if (str == "<") {
-      result->aType = TokenType::token_LessThan_;
+      result->aType = DBTokenType::token_LessThan_;
       okFlag = true;
     }
     else if (str == "=") {
-      result->aType = TokenType::token_Equality_;
+      result->aType = DBTokenType::token_Equality_;
       okFlag = true;
     }
     if (okFlag) {
@@ -329,7 +329,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
     istr str = this->GetSourceCode().substr(PTRnextLetter, 8);
     std::transform(str.begin(), str.end(), str.begin(), tolower);
     if (str == "compress") {
-      result->aType = TokenType::token_compress;
+      result->aType = DBTokenType::token_compress;
       if (PTRnextLetter + 8 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 8]) != CharaType::Letter) {
           okFlag = true;
@@ -340,7 +340,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "retrieve") {
-      result->aType = TokenType::token_retrieve;
+      result->aType = DBTokenType::token_retrieve;
       if (PTRnextLetter + 8 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 8]) != CharaType::Letter) {
           okFlag = true;
@@ -364,7 +364,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
     istr str = this->GetSourceCode().substr(PTRnextLetter, 7);
     std::transform(str.begin(), str.end(), str.begin(), tolower);
     if (str == "default") {
-      result->aType = TokenType::token_default;
+      result->aType = DBTokenType::token_default;
       if (PTRnextLetter + 7 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 7]) != CharaType::Letter) {
           okFlag = true;
@@ -375,7 +375,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "primary") {
-      result->aType = TokenType::token_primary;
+      result->aType = DBTokenType::token_primary;
       if (PTRnextLetter + 7 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 7]) != CharaType::Letter) {
           okFlag = true;
@@ -399,7 +399,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
     istr str = this->GetSourceCode().substr(PTRnextLetter, 6);
     std::transform(str.begin(), str.end(), str.begin(), tolower);
     if (str == "create") {
-      result->aType = TokenType::token_create;
+      result->aType = DBTokenType::token_create;
       if (PTRnextLetter + 6 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 6]) != CharaType::Letter) {
           okFlag = true;
@@ -410,7 +410,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "insert") {
-      result->aType = TokenType::token_insert;
+      result->aType = DBTokenType::token_insert;
       if (PTRnextLetter + 6 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 6]) != CharaType::Letter) {
           okFlag = true;
@@ -421,7 +421,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "double") {
-      result->aType = TokenType::token_double;
+      result->aType = DBTokenType::token_double;
       if (PTRnextLetter + 6 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 6]) != CharaType::Letter) {
           okFlag = true;
@@ -432,7 +432,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "values") {
-      result->aType = TokenType::token_values;
+      result->aType = DBTokenType::token_values;
       if (PTRnextLetter + 6 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 6]) != CharaType::Letter) {
           okFlag = true;
@@ -443,7 +443,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "delete") {
-      result->aType = TokenType::token_delete;
+      result->aType = DBTokenType::token_delete;
       if (PTRnextLetter + 6 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 6]) != CharaType::Letter) {
           okFlag = true;
@@ -454,7 +454,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "select") {
-      result->aType = TokenType::token_select;
+      result->aType = DBTokenType::token_select;
       if (PTRnextLetter + 6 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 6]) != CharaType::Letter) {
           okFlag = true;
@@ -478,7 +478,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
     istr str = this->GetSourceCode().substr(PTRnextLetter, 5);
     std::transform(str.begin(), str.end(), str.begin(), tolower);
     if (str == "table") {
-      result->aType = TokenType::token_table;
+      result->aType = DBTokenType::token_table;
       if (PTRnextLetter + 5 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 5]) != CharaType::Letter) {
           okFlag = true;
@@ -489,7 +489,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "where") {
-      result->aType = TokenType::token_where;
+      result->aType = DBTokenType::token_where;
       if (PTRnextLetter + 5 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 5]) != CharaType::Letter) {
           okFlag = true;
@@ -500,7 +500,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "count") {
-      result->aType = TokenType::token_count;
+      result->aType = DBTokenType::token_count;
       if (PTRnextLetter + 5 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 5]) != CharaType::Letter) {
           okFlag = true;
@@ -524,7 +524,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
     istr str = this->GetSourceCode().substr(PTRnextLetter, 4);
     std::transform(str.begin(), str.end(), str.begin(), tolower);
     if (str == "into") {
-      result->aType = TokenType::token_into;
+      result->aType = DBTokenType::token_into;
       if (PTRnextLetter + 4 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 4]) != CharaType::Letter) {
           okFlag = true;
@@ -535,7 +535,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "from") {
-      result->aType = TokenType::token_from;
+      result->aType = DBTokenType::token_from;
       if (PTRnextLetter + 4 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 4]) != CharaType::Letter) {
           okFlag = true;
@@ -546,7 +546,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "load") {
-      result->aType = TokenType::token_load;
+      result->aType = DBTokenType::token_load;
       if (PTRnextLetter + 4 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 4]) != CharaType::Letter) {
           okFlag = true;
@@ -557,7 +557,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "join") {
-      result->aType = TokenType::token_join;
+      result->aType = DBTokenType::token_join;
       if (PTRnextLetter + 4 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 4]) != CharaType::Letter) {
           okFlag = true;
@@ -581,7 +581,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
     istr str = this->GetSourceCode().substr(PTRnextLetter, 3);
     std::transform(str.begin(), str.end(), str.begin(), tolower);
     if (str == "int") {
-      result->aType = TokenType::token_int;
+      result->aType = DBTokenType::token_int;
       if (PTRnextLetter + 3 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 3]) != CharaType::Letter) {
           okFlag = true;
@@ -592,7 +592,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "key") {
-      result->aType = TokenType::token_key;
+      result->aType = DBTokenType::token_key;
       if (PTRnextLetter + 3 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 3]) != CharaType::Letter) {
           okFlag = true;
@@ -603,7 +603,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
       }
     }
     else if (str == "set") {
-      result->aType = TokenType::token_set;
+      result->aType = DBTokenType::token_set;
       if (PTRnextLetter + 3 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 3]) != CharaType::Letter) {
           okFlag = true;
@@ -627,7 +627,7 @@ bool LexicalAnalyzer::GetReservedCalculator(Token *result) {
     istr str = this->GetSourceCode().substr(PTRnextLetter, 2);
     std::transform(str.begin(), str.end(), str.begin(), tolower);
     if (str == "on") {
-      result->aType = TokenType::token_on;
+      result->aType = DBTokenType::token_on;
       if (PTRnextLetter + 2 <= glen) {
         if (this->GetCharType(this->GetSourceCode()[PTRnextLetter + 2]) != CharaType::Letter) {
           okFlag = true;

@@ -160,10 +160,6 @@ bool FileManager::LoadTable(DBTable& tab) {
   // 保存文件并释放资源
   for (int i = 0; i < tab.PiList.size(); i++) {
     std::fclose(fColPtrArr[i]);
-    if (fColPtrArr[i] != NULL) {
-      delete fColPtrArr[i];
-      fColPtrArr[i] = NULL;
-    }
   }
   if (fColPtrArr != NULL) {
     delete fColPtrArr;
@@ -227,7 +223,7 @@ bool FileManager::Retrieve(DBTable& tab, int key, std::string& record) {
   } while (_successFlag != true);
   // 释放资源
   this->allocator->Free(buffername);
-  // 处理结果，返回给Service
+  // 处理结果返回
   if (_failFlag == true) {
     record = "";
     return false;
@@ -238,10 +234,11 @@ bool FileManager::Retrieve(DBTable& tab, int key, std::string& record) {
   }
   // 再检索其他列
   CSCommonUtil::StringBuilder recordSb;
+  recordSb.Append(key).Append("|");
   for (int i = 1; i < tab.PiList.size(); i++) {
     std::string outstr = "";
     this->RetrieveValueByOffset(tab, tab.PiList[i], tab.PiTypeList[i], _pc, _si, outstr);
-    recordSb.Append(outstr);
+    recordSb.Append(outstr).Append("|");
   }
   // 返回她
   record = recordSb.ToString();
@@ -275,23 +272,6 @@ bool FileManager::LoadColumnBatch(DBTable& tab, std::string& colName, std::strin
   std::fclose(fin);
   return true;
 }
-
-//void FileManager::getEXOrdersBuffer(int _times, int &_maxcount) {
-//  FILE* fin = fopen("orders_orderkey.db", "rb");
-//  fseek(fin, (long)(_times * 64 * SIZE_PAGE * sizeof(int)), SEEK_SET);
-//  if (fin == 0) return;
-//  _maxcount = fread(externSortOrdersBufferPool, sizeof(int), 64 * SIZE_PAGE, fin);
-//  fclose(fin);
-//}
-//
-//void FileManager::getEXCustkeyBuffer(int _times, int &_maxcount) {
-//  FILE* fin = fopen("orders_custkey.db", "rb");
-//  fseek(fin, (long)(_times * 64 * SIZE_PAGE * sizeof(int)), SEEK_SET);
-//  if (fin == 0) return;
-//  _maxcount = fread(externSortCustkeyBufferPool, sizeof(int), 64 * SIZE_PAGE, fin);
-//  fclose(fin);
-//}
-
 
 //函数作用： 通过偏移量取出对应位置的值的字符串
 //参数列表：

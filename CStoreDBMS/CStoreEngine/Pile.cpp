@@ -43,11 +43,11 @@ DBCProxy IPile::Semanticer() {
 void IPile::Mise(DBCProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
   switch (mynode->nodeSyntaxType)
   {
-  case SyntaxType::Unknown:
+  case SyntaxType::SyntaxUnknown:
     break;
   case SyntaxType::cstore_load:
     myproxy.opCode = DashType::dash_load;
-    myproxy.loadFile = mynode->nodeValue;
+    myproxy.opTable = mynode->nodeValue;
     break;
   case SyntaxType::cstore_retrieve:
     myproxy.opCode = DashType::dash_retrieve;

@@ -52,7 +52,7 @@ istr TokenStream::ToString() {
   istr builder = "";
   for (TokenList::iterator iter = _tokenContainer.begin();
     iter != _tokenContainer.end(); iter++) {
-    builder += (*iter)->aType != TokenType::token_startEnd ? (*iter)->detail + " " : "";
+    builder += (*iter)->aType != DBTokenType::token_startEnd ? (*iter)->detail + " " : "";
   }
   return builder += NEWLINE;
 }
@@ -76,7 +76,7 @@ TokenList TokenStream::NextSentence() {
     if (_sPointer >= (int)_tokenContainer.size()) {
       break;
     }
-    if (_tokenContainer[_sPointer]->aType == TokenType::token_Semicolon_ || _sPointer == 0) {
+    if (_tokenContainer[_sPointer]->aType == DBTokenType::token_Semicolon_ || _sPointer == 0) {
       break;
     }
     _sPointer++;
@@ -91,7 +91,7 @@ TokenList TokenStream::NextSentence() {
   // ·ñÔòÈ¡¾ä×Ó
   while (_sPointer >= 0 && _sPointer < (int)this->Length()) {
     sentenceBuilder.push_back(_tokenContainer[_sPointer]);
-    if (_tokenContainer[_sPointer++]->aType == TokenType::token_Semicolon_) {
+    if (_tokenContainer[_sPointer++]->aType == DBTokenType::token_Semicolon_) {
       break;
     }
   }

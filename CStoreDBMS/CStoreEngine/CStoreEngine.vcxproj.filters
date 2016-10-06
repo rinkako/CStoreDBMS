@@ -30,9 +30,6 @@
     <ClInclude Include="FileManager.h">
       <Filter>DBEngine</Filter>
     </ClInclude>
-    <ClInclude Include="QueryManager.h">
-      <Filter>DBEngine</Filter>
-    </ClInclude>
     <ClInclude Include="DBController.h">
       <Filter>DBInterface</Filter>
     </ClInclude>
@@ -99,9 +96,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileManager.cpp">
-      <Filter>DBEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="QueryManager.cpp">
       <Filter>DBEngine</Filter>
     </ClCompile>
     <ClCompile Include="DBController.cpp">

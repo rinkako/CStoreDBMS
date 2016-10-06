@@ -63,7 +63,7 @@ void LL1SyntaxParser::Reset() {
     ccToken->length = 1;
     ccToken->detail = '#';
     ccToken->errorCode = 0;
-    ccToken->aType = TokenType::token_startEnd;
+    ccToken->aType = DBTokenType::token_startEnd;
     this->GetTokenStream()->Add(ccToken);
   }
   // 否则在追后追加一个处理结束标记的token
@@ -76,7 +76,7 @@ void LL1SyntaxParser::Reset() {
     ccToken->length = 1;
     ccToken->detail = '#';
     ccToken->errorCode = 0;
-    ccToken->aType = TokenType::token_startEnd;
+    ccToken->aType = DBTokenType::token_startEnd;
     this->GetTokenStream()->Add(ccToken);
   }
 }
@@ -90,12 +90,12 @@ void LL1SyntaxParser::Dash() {
 bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
   curRoot->nodeType = CFunctionType::umi_cstore;
   switch (xtoken->aType) {
-  case TokenType::token_load:
+  case DBTokenType::token_load:
     curRoot->nodeSyntaxType = SyntaxType::cstore_load;
     // require identifier
     if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
       Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-      if (tableNameToken->aType == TokenType::token_iden) {
+      if (tableNameToken->aType == DBTokenType::token_iden) {
         curRoot->nodeValue = tableNameToken->detail;
       }
       else {
@@ -113,12 +113,12 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       return true;
     }
     break;
-  case TokenType::token_retrieve:
+  case DBTokenType::token_retrieve:
     curRoot->nodeSyntaxType = SyntaxType::cstore_retrieve;
     // require identifier
     if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
       Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-      if (tableNameToken->aType == TokenType::token_iden) {
+      if (tableNameToken->aType == DBTokenType::token_iden) {
         curRoot->nodeValue = tableNameToken->detail;
       }
       else {
@@ -128,7 +128,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       }
       if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
         Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-        if (tableNameToken->aType == TokenType::number) {
+        if (tableNameToken->aType == DBTokenType::number) {
           curRoot->nodeValue += "@" + tableNameToken->detail;
         }
         else {
@@ -152,12 +152,12 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       return true;
     }
     break;
-  case TokenType::token_compress:
+  case DBTokenType::token_compress:
     curRoot->nodeSyntaxType = SyntaxType::cstore_compress;
     // require identifier
     if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
       Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-      if (tableNameToken->aType == TokenType::token_iden) {
+      if (tableNameToken->aType == DBTokenType::token_iden) {
         curRoot->nodeValue = tableNameToken->detail;
       }
       else {
@@ -175,12 +175,12 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       return true;
     }
     return true;
-  case TokenType::token_join:
+  case DBTokenType::token_join:
     curRoot->nodeSyntaxType = SyntaxType::cstore_join;
     // require identifier
     if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
       Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-      if (tableNameToken->aType == TokenType::token_iden) {
+      if (tableNameToken->aType == DBTokenType::token_iden) {
         curRoot->nodeValue = tableNameToken->detail;
       }
       else {
@@ -190,7 +190,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       }
       if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
         Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-        if (tableNameToken->aType == TokenType::token_iden) {
+        if (tableNameToken->aType == DBTokenType::token_iden) {
           curRoot->nodeValue += "@" + tableNameToken->detail;
         }
         else {
@@ -214,12 +214,12 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       return true;
     }
     break;
-  case TokenType::token_count:
+  case DBTokenType::token_count:
     curRoot->nodeSyntaxType = SyntaxType::cstore_count;
     // require identifier
     if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
       Token* tableNameToken = this->GetTokenStream()->_tokenContainer[++this->iPTRnextToken];
-      if (tableNameToken->aType == TokenType::token_iden) {
+      if (tableNameToken->aType == DBTokenType::token_iden) {
         curRoot->nodeValue = tableNameToken->detail;
       }
       else {
@@ -265,7 +265,7 @@ SyntaxTreeNode* LL1SyntaxParser::Parse() {
     // 查预测表，获得产生式处理函数
     SyntaxType nodeType = this->iParseStack.top();
     Token* iToken = this->GetTokenStream()->_tokenContainer[iPTRnextToken];
-    TokenType tokenType = iToken->aType;
+    DBTokenType tokenType = iToken->aType;
     CandidateFunction* func = this->iMap->GetCFunction(nodeType, tokenType, Homura);
     // 语法错误时
     if (func->GetType() == CFunctionType::umi_errorEnd) {
@@ -338,7 +338,8 @@ SyntaxTreeNode* LL1SyntaxParser::NextNode(SyntaxTreeNode* _res, LL1SyntaxParser*
 
 // LL1SyntaxParser错误处理
 void LL1SyntaxParser::iException() {
-  TRACE("# Syntax Error: At ("
+  TRACE("# Parser Exception Spotted.");
+  PILEPRINTLN("# Syntax Error: At ("
     << this->GetTokenStream()->_tokenContainer[iPTRnextToken]->aLine << ", "
     << this->GetTokenStream()->_tokenContainer[iPTRnextToken]->aColumn << ")"
     << ", which Token detail: " << this->GetTokenStream()->_tokenContainer[iPTRnextToken]->detail << NEWLINE
@@ -670,42 +671,42 @@ void LL1SyntaxParser::InitMapProperties() {
   iMap->SetRow(68, SyntaxType::tail_startEndLeave);
   iMap->SetRow(69, SyntaxType::tail_doubleLeave);
   // 设置列属性：向前看的一个token
-  iMap->SetCol(0, TokenType::token_create);
-  iMap->SetCol(1, TokenType::token_table);
-  iMap->SetCol(2, TokenType::token_iden);
-  iMap->SetCol(3, TokenType::token_LeftParentheses_);
-  iMap->SetCol(4, TokenType::token_RightParentheses_);
-  iMap->SetCol(5, TokenType::token_Semicolon_);
-  iMap->SetCol(6, TokenType::token_Comma_);
-  iMap->SetCol(7, TokenType::epsilon);
-  iMap->SetCol(8, TokenType::token_int);
-  iMap->SetCol(9, TokenType::token_primary);
-  iMap->SetCol(10, TokenType::token_key);
-  iMap->SetCol(11, TokenType::token_default);
-  iMap->SetCol(12, TokenType::token_Equality_);
-  iMap->SetCol(13, TokenType::token_Plus_);
-  iMap->SetCol(14, TokenType::token_Minus_);
-  iMap->SetCol(15, TokenType::token_Multiply_);
-  iMap->SetCol(16, TokenType::token_Divide_);
-  iMap->SetCol(17, TokenType::number);
-  iMap->SetCol(18, TokenType::token_insert);
-  iMap->SetCol(19, TokenType::token_into);
-  iMap->SetCol(20, TokenType::token_values);
-  iMap->SetCol(21, TokenType::token_delete);
-  iMap->SetCol(22, TokenType::token_from);
-  iMap->SetCol(23, TokenType::token_where);
-  iMap->SetCol(24, TokenType::token_Or_Or_);
-  iMap->SetCol(25, TokenType::token_And_And_);
-  iMap->SetCol(26, TokenType::token_Not_);
-  iMap->SetCol(27, TokenType::token_LessThan_GreaterThan_);
-  iMap->SetCol(28, TokenType::token_Equality_Equality_);
-  iMap->SetCol(29, TokenType::token_GreaterThan_);
-  iMap->SetCol(30, TokenType::token_LessThan_);
-  iMap->SetCol(31, TokenType::token_GreaterThan_Equality_);
-  iMap->SetCol(32, TokenType::token_LessThan_Equality_);
-  iMap->SetCol(33, TokenType::token_select);
-  iMap->SetCol(34, TokenType::token_startEnd);
-  iMap->SetCol(35, TokenType::token_double);
+  iMap->SetCol(0, DBTokenType::token_create);
+  iMap->SetCol(1, DBTokenType::token_table);
+  iMap->SetCol(2, DBTokenType::token_iden);
+  iMap->SetCol(3, DBTokenType::token_LeftParentheses_);
+  iMap->SetCol(4, DBTokenType::token_RightParentheses_);
+  iMap->SetCol(5, DBTokenType::token_Semicolon_);
+  iMap->SetCol(6, DBTokenType::token_Comma_);
+  iMap->SetCol(7, DBTokenType::epsilon);
+  iMap->SetCol(8, DBTokenType::token_int);
+  iMap->SetCol(9, DBTokenType::token_primary);
+  iMap->SetCol(10, DBTokenType::token_key);
+  iMap->SetCol(11, DBTokenType::token_default);
+  iMap->SetCol(12, DBTokenType::token_Equality_);
+  iMap->SetCol(13, DBTokenType::token_Plus_);
+  iMap->SetCol(14, DBTokenType::token_Minus_);
+  iMap->SetCol(15, DBTokenType::token_Multiply_);
+  iMap->SetCol(16, DBTokenType::token_Divide_);
+  iMap->SetCol(17, DBTokenType::number);
+  iMap->SetCol(18, DBTokenType::token_insert);
+  iMap->SetCol(19, DBTokenType::token_into);
+  iMap->SetCol(20, DBTokenType::token_values);
+  iMap->SetCol(21, DBTokenType::token_delete);
+  iMap->SetCol(22, DBTokenType::token_from);
+  iMap->SetCol(23, DBTokenType::token_where);
+  iMap->SetCol(24, DBTokenType::token_Or_Or_);
+  iMap->SetCol(25, DBTokenType::token_And_And_);
+  iMap->SetCol(26, DBTokenType::token_Not_);
+  iMap->SetCol(27, DBTokenType::token_LessThan_GreaterThan_);
+  iMap->SetCol(28, DBTokenType::token_Equality_Equality_);
+  iMap->SetCol(29, DBTokenType::token_GreaterThan_);
+  iMap->SetCol(30, DBTokenType::token_LessThan_);
+  iMap->SetCol(31, DBTokenType::token_GreaterThan_Equality_);
+  iMap->SetCol(32, DBTokenType::token_LessThan_Equality_);
+  iMap->SetCol(33, DBTokenType::token_select);
+  iMap->SetCol(34, DBTokenType::token_startEnd);
+  iMap->SetCol(35, DBTokenType::token_double);
 }
 
 // LL1SyntaxParser初始化文法
@@ -720,695 +721,695 @@ void LL1SyntaxParser::InitCellular() {
   }
   // 流命中： <ssql_stmt> ::= "create"的Token
   // 语句命中： <ssql_stmt> ::= <create_stmt>
-  this->iMap->SetCellular(SyntaxType::case_ssql_stmt, TokenType::token_create,
+  this->iMap->SetCellular(SyntaxType::case_ssql_stmt, DBTokenType::token_create,
     new CandidateFunction(iProco, CFunctionType::deri___ssql_stmt__create_stmt_1));
   // 流命中： <ssql_stmt> ::= "insert"的Token
   // 语句命中： <ssql_stmt> ::= <insert_stmt>
-  this->iMap->SetCellular(SyntaxType::case_ssql_stmt, TokenType::token_insert,
+  this->iMap->SetCellular(SyntaxType::case_ssql_stmt, DBTokenType::token_insert,
     new CandidateFunction(iProco, CFunctionType::deri___ssql_stmt__insert_stmt_2));
   // 流命中： <ssql_stmt> ::= "delete"的Token
   // 语句命中： <ssql_stmt> ::= <delete_stmt>
-  this->iMap->SetCellular(SyntaxType::case_ssql_stmt, TokenType::token_delete,
+  this->iMap->SetCellular(SyntaxType::case_ssql_stmt, DBTokenType::token_delete,
     new CandidateFunction(iProco, CFunctionType::deri___ssql_stmt__delete_stmt_3));
   // 流命中： <ssql_stmt> ::= "select"的Token
   // 语句命中： <ssql_stmt> ::= <query_stmt>
-  this->iMap->SetCellular(SyntaxType::case_ssql_stmt, TokenType::token_select,
+  this->iMap->SetCellular(SyntaxType::case_ssql_stmt, DBTokenType::token_select,
     new CandidateFunction(iProco, CFunctionType::deri___ssql_stmt__query_stmt_4));
   // 流命中： <create_stmt> ::= "create"的Token
   // 语句命中： <create_stmt> ::= "create" "table" iden "(" <decl_list> ")" ";"
-  this->iMap->SetCellular(SyntaxType::case_create_stmt, TokenType::token_create,
+  this->iMap->SetCellular(SyntaxType::case_create_stmt, DBTokenType::token_create,
     new CandidateFunction(iProco, CFunctionType::deri___create_stmt__decl_list_5));
   // 流命中： <decl_list> ::= iden的Token
   // 语句命中： <decl_list> ::= <decl> <decl_listpi>
-  this->iMap->SetCellular(SyntaxType::case_decl_list, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_decl_list, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___decl_list__decl__decl_listpi_6));
   // 流命中： <decl_list> ::= "primary"的Token
   // 语句命中： <decl_list> ::= <decl> <decl_listpi>
-  this->iMap->SetCellular(SyntaxType::case_decl_list, TokenType::token_primary,
+  this->iMap->SetCellular(SyntaxType::case_decl_list, DBTokenType::token_primary,
     new CandidateFunction(iProco, CFunctionType::deri___decl_list__decl__decl_listpi_6));
   // 流命中： <decl_listpi> ::= ")"的Token
   // 语句命中： <decl_listpi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_decl_listpi, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_decl_listpi, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___decl_listpi__epsilon_7));
   // 流命中： <decl_listpi> ::= ","的Token
   // 语句命中： <decl_listpi> ::= "," <decl> <decl_listpi>
-  this->iMap->SetCellular(SyntaxType::case_decl_listpi, TokenType::token_Comma_,
+  this->iMap->SetCellular(SyntaxType::case_decl_listpi, DBTokenType::token_Comma_,
     new CandidateFunction(iProco, CFunctionType::deri___decl_listpi__decl__decl_listpi_67));
   // 流命中： <decl> ::= iden的Token
   // 语句命中： <decl> ::= iden <decltype> <default_spec>
-  this->iMap->SetCellular(SyntaxType::case_decl, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_decl, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___decl__decltype__default_spec_8));
   // 流命中： <decltype> ::= int的Token
   // 语句命中： <decltype> ::= int
-  this->iMap->SetCellular(SyntaxType::case_decltype, TokenType::token_int,
+  this->iMap->SetCellular(SyntaxType::case_decltype, DBTokenType::token_int,
     new CandidateFunction(iProco, CFunctionType::deri___decltype__intleave));
   // 流命中： <decltype> ::= double的Token
   // 语句命中： <decltype> ::= double
-  this->iMap->SetCellular(SyntaxType::case_decltype, TokenType::token_double,
+  this->iMap->SetCellular(SyntaxType::case_decltype, DBTokenType::token_double,
     new CandidateFunction(iProco, CFunctionType::deri___decltype__doubleleave));
   // 流命中： <decl> ::= "primary"的Token
   // 语句命中： <decl> ::= "primary" "key" "(" <column_list> ")"
-  this->iMap->SetCellular(SyntaxType::case_decl, TokenType::token_primary,
+  this->iMap->SetCellular(SyntaxType::case_decl, DBTokenType::token_primary,
     new CandidateFunction(iProco, CFunctionType::deri___decl__column_list_9));
   // 流命中： <default_spec> ::= ")"的Token
   // 语句命中： <default_spec> ::= null
-  this->iMap->SetCellular(SyntaxType::case_default_spec, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_default_spec, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___default_spec__epsilon_11));
   // 流命中： <default_spec> ::= ","的Token
   // 语句命中： <default_spec> ::= null
-  this->iMap->SetCellular(SyntaxType::case_default_spec, TokenType::token_Comma_,
+  this->iMap->SetCellular(SyntaxType::case_default_spec, DBTokenType::token_Comma_,
     new CandidateFunction(iProco, CFunctionType::deri___default_spec__epsilon_11));
   // 流命中： <default_spec> ::= "default"的Token
   // 语句命中： <default_spec> ::= "default" "=" <sexpr>
-  this->iMap->SetCellular(SyntaxType::case_default_spec, TokenType::token_default,
+  this->iMap->SetCellular(SyntaxType::case_default_spec, DBTokenType::token_default,
     new CandidateFunction(iProco, CFunctionType::deri___default_spec__sexpr_10));
   // 流命中： <sexpr> ::= "("的Token
   // 语句命中： <sexpr> ::= <smulti> <splus>
-  this->iMap->SetCellular(SyntaxType::case_sexpr, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_sexpr, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___sexpr__smulti__sexpr_pi_12));
   // 流命中： <sexpr> ::= "+"的Token
   // 语句命中： <sexpr> ::= <smulti> <splus>
-  this->iMap->SetCellular(SyntaxType::case_sexpr, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_sexpr, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___sexpr__smulti__sexpr_pi_12));
   // 流命中： <sexpr> ::= "-"的Token
   // 语句命中： <sexpr> ::= <smulti> <splus>
-  this->iMap->SetCellular(SyntaxType::case_sexpr, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_sexpr, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___sexpr__smulti__sexpr_pi_12));
   // 流命中： <sexpr> ::= number的Token
   // 语句命中： <sexpr> ::= <smulti> <splus>
-  this->iMap->SetCellular(SyntaxType::case_sexpr, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::case_sexpr, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::deri___sexpr__smulti__sexpr_pi_12));
   // 流命中： <sexpr_pi> ::= ")"的Token
   // 语句命中： <sexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_sexpr_pi, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_sexpr_pi, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___sexpr_pi__epsilon_71));
   // 流命中： <sexpr_pi> ::= ","的Token
   // 语句命中： <sexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_sexpr_pi, TokenType::token_Comma_,
+  this->iMap->SetCellular(SyntaxType::case_sexpr_pi, DBTokenType::token_Comma_,
     new CandidateFunction(iProco, CFunctionType::deri___sexpr_pi__epsilon_71));
   // 流命中： <sexpr_pi> ::= "+"的Token
   // 语句命中： <sexpr_pi> ::= <splus> <sexpr_pi>
-  this->iMap->SetCellular(SyntaxType::case_sexpr_pi, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_sexpr_pi, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___sexpr_pi__splus__sexpr_pi_70));
   // 流命中： <sexpr_pi> ::= "-"的Token
   // 语句命中： <sexpr_pi> ::= <splus> <sexpr_pi>
-  this->iMap->SetCellular(SyntaxType::case_sexpr_pi, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_sexpr_pi, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___sexpr_pi__splus__sexpr_pi_70));
   // 流命中： <splus> ::= "+"的Token
   // 语句命中： <splus> ::= "+" <smulti>
-  this->iMap->SetCellular(SyntaxType::case_splus, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_splus, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___splus__plus_smulti_14));
   // 流命中： <splus> ::= "-"的Token
   // 语句命中： <splus> ::= "-" <smulti>
-  this->iMap->SetCellular(SyntaxType::case_splus, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_splus, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___splus__minus_smulti_15));
   // 流命中： <smulti> ::= "("的Token
   // 语句命中： <smulti> ::= <sunit> <smultiOpt>
-  this->iMap->SetCellular(SyntaxType::case_smulti, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_smulti, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___smulti__sunit__smultiOpt_17));
   // 流命中： <smulti> ::= "+"的Token
   // 语句命中： <smulti> ::= <sunit> <smultiOpt>
-  this->iMap->SetCellular(SyntaxType::case_smulti, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_smulti, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___smulti__sunit__smultiOpt_17));
   // 流命中： <smulti> ::= "-"的Token
   // 语句命中： <smulti> ::= <sunit> <smultiOpt>
-  this->iMap->SetCellular(SyntaxType::case_smulti, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_smulti, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___smulti__sunit__smultiOpt_17));
   // 流命中： <smulti> ::= number的Token
   // 语句命中： <smulti> ::= <sunit> <smultiOpt>
-  this->iMap->SetCellular(SyntaxType::case_smulti, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::case_smulti, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::deri___smulti__sunit__smultiOpt_17));
   // 流命中： <smultiOpt> ::= ")"的Token
   // 语句命中： <smultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_smultiOpt, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_smultiOpt, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___smultiOpt__epsilon_20));
   // 流命中： <smultiOpt> ::= ","的Token
   // 语句命中： <smultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_smultiOpt, TokenType::token_Comma_,
+  this->iMap->SetCellular(SyntaxType::case_smultiOpt, DBTokenType::token_Comma_,
     new CandidateFunction(iProco, CFunctionType::deri___smultiOpt__epsilon_20));
   // 流命中： <smultiOpt> ::= "+"的Token
   // 语句命中： <smultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_smultiOpt, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_smultiOpt, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___smultiOpt__epsilon_20));
   // 流命中： <smultiOpt> ::= "-"的Token
   // 语句命中： <smultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_smultiOpt, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_smultiOpt, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___smultiOpt__epsilon_20));
   // 流命中： <smultiOpt> ::= "*"的Token
   // 语句命中： <smultiOpt> ::= "*" <sunit>
-  this->iMap->SetCellular(SyntaxType::case_smultiOpt, TokenType::token_Multiply_,
+  this->iMap->SetCellular(SyntaxType::case_smultiOpt, DBTokenType::token_Multiply_,
     new CandidateFunction(iProco, CFunctionType::deri___smultiOpt__multi_sunit__smultiOpt_18));
   // 流命中： <smultiOpt> ::= "/"的Token
   // 语句命中： <smultiOpt> ::= "/" <sunit>
-  this->iMap->SetCellular(SyntaxType::case_smultiOpt, TokenType::token_Divide_,
+  this->iMap->SetCellular(SyntaxType::case_smultiOpt, DBTokenType::token_Divide_,
     new CandidateFunction(iProco, CFunctionType::deri___smultiOpt__div_sunit__smultiOpt_19));
   // 流命中： <sunit> ::= "("的Token
   // 语句命中： <sunit> ::= "(" <sexpr> ")"
-  this->iMap->SetCellular(SyntaxType::case_sunit, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_sunit, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___sunit__brucket_sexpr_24));
   // 流命中： <sunit> ::= "+"的Token
   // 语句命中： <sunit> ::= "+" <sunit>
-  this->iMap->SetCellular(SyntaxType::case_sunit, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_sunit, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___sunit__plus_sunit_23));
   // 流命中： <sunit> ::= "-"的Token
   // 语句命中： <sunit> ::= "-" <sunit>
-  this->iMap->SetCellular(SyntaxType::case_sunit, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_sunit, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___sunit__minus_sunit_22));
   // 流命中： <sunit> ::= number的Token
   // 语句命中： <sunit> ::= number
-  this->iMap->SetCellular(SyntaxType::case_sunit, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::case_sunit, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::deri___sunit__number_21));
   // 流命中： <insert_stmt> ::= "insert"的Token
   // 语句命中： <insert_stmt> ::= "insert" "into" iden "(" <column_list> ")" "values" "(" <value_list> ")" ";"
-  this->iMap->SetCellular(SyntaxType::case_insert_stmt, TokenType::token_insert,
+  this->iMap->SetCellular(SyntaxType::case_insert_stmt, DBTokenType::token_insert,
     new CandidateFunction(iProco, CFunctionType::deri___insert_stmt__column_list__value_list_28));
   // 流命中： <value_list> ::= iden的Token
   // 语句命中： <value_list> ::= <wexpr> <value_listpi>
-  this->iMap->SetCellular(SyntaxType::case_value_list, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_value_list, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___value_list__sexpr__value_listpi_29));
   // 流命中： <value_list> ::= "("的Token
   // 语句命中： <value_list> ::= <wexpr> <value_listpi>
-  this->iMap->SetCellular(SyntaxType::case_value_list, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_value_list, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___value_list__sexpr__value_listpi_29));
   // 流命中： <value_list> ::= "+"的Token
   // 语句命中： <value_list> ::= <wexpr> <value_listpi>
-  this->iMap->SetCellular(SyntaxType::case_value_list, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_value_list, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___value_list__sexpr__value_listpi_29));
   // 流命中： <value_list> ::= "-"的Token
   // 语句命中： <value_list> ::= <wexpr> <value_listpi>
-  this->iMap->SetCellular(SyntaxType::case_value_list, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_value_list, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___value_list__sexpr__value_listpi_29));
   // 流命中： <value_list> ::= number的Token
   // 语句命中： <value_list> ::= <wexpr> <value_listpi>
-  this->iMap->SetCellular(SyntaxType::case_value_list, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::case_value_list, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::deri___value_list__sexpr__value_listpi_29));
   // 流命中： <value_listpi> ::= ")"的Token
   // 语句命中： <value_listpi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_value_listpi, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_value_listpi, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___value_listpi__epsilon_31));
   // 流命中： <value_listpi> ::= ","的Token
   // 语句命中： <value_listpi> ::= "," <wexpr> <value_listpi>
-  this->iMap->SetCellular(SyntaxType::case_value_listpi, TokenType::token_Comma_,
+  this->iMap->SetCellular(SyntaxType::case_value_listpi, DBTokenType::token_Comma_,
     new CandidateFunction(iProco, CFunctionType::deri___value_listpi__sexpr__value_listpi_30));
   // 流命中： <delete_stmt> ::= "delete"的Token
   // 语句命中： <delete_stmt> ::= "delete" "from" iden <where_clause> ";"
-  this->iMap->SetCellular(SyntaxType::case_delete_stmt, TokenType::token_delete,
+  this->iMap->SetCellular(SyntaxType::case_delete_stmt, DBTokenType::token_delete,
     new CandidateFunction(iProco, CFunctionType::deri___delete_stmt__where_clause_32));
   // 流命中： <where_clause> ::= ";"的Token
   // 语句命中： <where_clause> ::= null
-  this->iMap->SetCellular(SyntaxType::case_where_clause, TokenType::token_Semicolon_,
+  this->iMap->SetCellular(SyntaxType::case_where_clause, DBTokenType::token_Semicolon_,
     new CandidateFunction(iProco, CFunctionType::deri___where_clause__epsilon_34));
   // 流命中： <where_clause> ::= "where"的Token
   // 语句命中： <where_clause> ::= "where" <disjunct>
-  this->iMap->SetCellular(SyntaxType::case_where_clause, TokenType::token_where,
+  this->iMap->SetCellular(SyntaxType::case_where_clause, DBTokenType::token_where,
     new CandidateFunction(iProco, CFunctionType::deri___where_clause__disjunct_33));
   // 流命中： <disjunct> ::= iden的Token
   // 语句命中： <disjunct> ::= <conjunct> <disjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_disjunct, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_disjunct, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___disjunct__conjunct__disjunct_pi_35));
   // 流命中： <disjunct> ::= "("的Token
   // 语句命中： <disjunct> ::= <conjunct> <disjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_disjunct, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_disjunct, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___disjunct__conjunct__disjunct_pi_35));
   // 流命中： <disjunct> ::= "+"的Token
   // 语句命中： <disjunct> ::= <conjunct> <disjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_disjunct, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_disjunct, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___disjunct__conjunct__disjunct_pi_35));
   // 流命中： <disjunct> ::= "-"的Token
   // 语句命中： <disjunct> ::= <conjunct> <disjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_disjunct, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_disjunct, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___disjunct__conjunct__disjunct_pi_35));
   // 流命中： <disjunct> ::= number的Token
   // 语句命中： <disjunct> ::= <conjunct> <disjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_disjunct, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::case_disjunct, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::deri___disjunct__conjunct__disjunct_pi_35));
   // 流命中： <disjunct> ::= "!"的Token
   // 语句命中： <disjunct> ::= <conjunct> <disjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_disjunct, TokenType::token_Not_,
+  this->iMap->SetCellular(SyntaxType::case_disjunct, DBTokenType::token_Not_,
     new CandidateFunction(iProco, CFunctionType::deri___disjunct__conjunct__disjunct_pi_35));
   // 流命中： <disjunct_pi> ::= ")"的Token
   // 语句命中： <disjunct_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_disjunct_pi, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_disjunct_pi, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___disjunct_pi__epsilon_37));
   // 流命中： <disjunct_pi> ::= ";"的Token
   // 语句命中： <disjunct_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_disjunct_pi, TokenType::token_Semicolon_,
+  this->iMap->SetCellular(SyntaxType::case_disjunct_pi, DBTokenType::token_Semicolon_,
     new CandidateFunction(iProco, CFunctionType::deri___disjunct_pi__epsilon_37));
   // 流命中： <disjunct_pi> ::= "||"的Token
   // 语句命中： <disjunct_pi> ::= "||" <conjunct> <disjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_disjunct_pi, TokenType::token_Or_Or_,
+  this->iMap->SetCellular(SyntaxType::case_disjunct_pi, DBTokenType::token_Or_Or_,
     new CandidateFunction(iProco, CFunctionType::deri___disjunct_pi__conjunct__disjunct_pi_36));
   // 流命中： <conjunct> ::= iden的Token
   // 语句命中： <conjunct> ::= <bool> <conjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_conjunct, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_conjunct, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___conjunct__bool__conjunct_pi_38));
   // 流命中： <conjunct> ::= "("的Token
   // 语句命中： <conjunct> ::= <bool> <conjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_conjunct, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_conjunct, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___conjunct__bool__conjunct_pi_38));
   // 流命中： <conjunct> ::= "+"的Token
   // 语句命中： <conjunct> ::= <bool> <conjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_conjunct, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_conjunct, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___conjunct__bool__conjunct_pi_38));
   // 流命中： <conjunct> ::= "-"的Token
   // 语句命中： <conjunct> ::= <bool> <conjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_conjunct, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_conjunct, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___conjunct__bool__conjunct_pi_38));
   // 流命中： <conjunct> ::= number的Token
   // 语句命中： <conjunct> ::= <bool> <conjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_conjunct, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::case_conjunct, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::deri___conjunct__bool__conjunct_pi_38));
   // 流命中： <conjunct> ::= "!"的Token
   // 语句命中： <conjunct> ::= <bool> <conjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_conjunct, TokenType::token_Not_,
+  this->iMap->SetCellular(SyntaxType::case_conjunct, DBTokenType::token_Not_,
     new CandidateFunction(iProco, CFunctionType::deri___conjunct__bool__conjunct_pi_38));
   // 流命中： <conjunct_pi> ::= ")"的Token
   // 语句命中： <conjunct_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_conjunct_pi, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_conjunct_pi, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___conjunct_pi__epsilon_40));
   // 流命中： <conjunct_pi> ::= ";"的Token
   // 语句命中： <conjunct_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_conjunct_pi, TokenType::token_Semicolon_,
+  this->iMap->SetCellular(SyntaxType::case_conjunct_pi, DBTokenType::token_Semicolon_,
     new CandidateFunction(iProco, CFunctionType::deri___conjunct_pi__epsilon_40));
   // 流命中： <conjunct_pi> ::= "||"的Token
   // 语句命中： <conjunct_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_conjunct_pi, TokenType::token_Or_Or_,
+  this->iMap->SetCellular(SyntaxType::case_conjunct_pi, DBTokenType::token_Or_Or_,
     new CandidateFunction(iProco, CFunctionType::deri___conjunct_pi__epsilon_40));
   // 流命中： <conjunct_pi> ::= "&&"的Token
   // 语句命中： <conjunct_pi> ::= "&&" <bool> <conjunct_pi>
-  this->iMap->SetCellular(SyntaxType::case_conjunct_pi, TokenType::token_And_And_,
+  this->iMap->SetCellular(SyntaxType::case_conjunct_pi, DBTokenType::token_And_And_,
     new CandidateFunction(iProco, CFunctionType::deri___conjunct_pi__bool__conjunct_pi_39));
   // 流命中： <bool> ::= iden的Token
   // 语句命中： <bool> ::= <comp>
-  this->iMap->SetCellular(SyntaxType::case_bool, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_bool, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___bool__comp_43));
   // 流命中： <bool> ::= "("的Token
   // 语句命中： <bool> ::= <comp>
-  this->iMap->SetCellular(SyntaxType::case_bool, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_bool, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___bool__comp_43));
   // 流命中： <bool> ::= "+"的Token
   // 语句命中： <bool> ::= <comp>
-  this->iMap->SetCellular(SyntaxType::case_bool, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_bool, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___bool__comp_43));
   // 流命中： <bool> ::= "-"的Token
   // 语句命中： <bool> ::= <comp>
-  this->iMap->SetCellular(SyntaxType::case_bool, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_bool, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___bool__comp_43));
   // 流命中： <bool> ::= number的Token
   // 语句命中： <bool> ::= <comp>
-  this->iMap->SetCellular(SyntaxType::case_bool, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::case_bool, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::deri___bool__comp_43));
   // 流命中： <bool> ::= "!"的Token
   // 语句命中： <bool> ::= "!" <bool>
-  this->iMap->SetCellular(SyntaxType::case_bool, TokenType::token_Not_,
+  this->iMap->SetCellular(SyntaxType::case_bool, DBTokenType::token_Not_,
     new CandidateFunction(iProco, CFunctionType::deri___bool__not_bool_42));
   // 流命中： <comp> ::= iden的Token
   // 语句命中： <comp> ::= <wexpr> <rop> <wexpr>
-  this->iMap->SetCellular(SyntaxType::case_comp, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_comp, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___comp__wexpr__rop__wexpr_44));
   // 流命中： <comp> ::= "("的Token
   // 语句命中： <comp> ::= <wexpr> <rop> <wexpr>
-  this->iMap->SetCellular(SyntaxType::case_comp, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_comp, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___comp__wexpr__rop__wexpr_44));
   // 流命中： <comp> ::= "+"的Token
   // 语句命中： <comp> ::= <wexpr> <rop> <wexpr>
-  this->iMap->SetCellular(SyntaxType::case_comp, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_comp, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___comp__wexpr__rop__wexpr_44));
   // 流命中： <comp> ::= "-"的Token
   // 语句命中： <comp> ::= <wexpr> <rop> <wexpr>
-  this->iMap->SetCellular(SyntaxType::case_comp, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_comp, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___comp__wexpr__rop__wexpr_44));
   // 流命中： <comp> ::= number的Token
   // 语句命中： <comp> ::= <wexpr> <rop> <wexpr>
-  this->iMap->SetCellular(SyntaxType::case_comp, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::case_comp, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::deri___comp__wexpr__rop__wexpr_44));
   // 流命中： <rop> ::= "<>"的Token
   // 语句命中： <rop> ::= "<>"
-  this->iMap->SetCellular(SyntaxType::case_rop, TokenType::token_LessThan_GreaterThan_,
+  this->iMap->SetCellular(SyntaxType::case_rop, DBTokenType::token_LessThan_GreaterThan_,
     new CandidateFunction(iProco, CFunctionType::deri___rop__lessgreater_58));
   // 流命中： <rop> ::= "=="的Token
   // 语句命中： <rop> ::= "=="
-  this->iMap->SetCellular(SyntaxType::case_rop, TokenType::token_Equality_Equality_,
+  this->iMap->SetCellular(SyntaxType::case_rop, DBTokenType::token_Equality_Equality_,
     new CandidateFunction(iProco, CFunctionType::deri___rop__equalequal_59));
   // 流命中： <rop> ::= ">"的Token
   // 语句命中： <rop> ::= ">"
-  this->iMap->SetCellular(SyntaxType::case_rop, TokenType::token_GreaterThan_,
+  this->iMap->SetCellular(SyntaxType::case_rop, DBTokenType::token_GreaterThan_,
     new CandidateFunction(iProco, CFunctionType::deri___rop__greater_60));
   // 流命中： <rop> ::= "<"的Token
   // 语句命中： <rop> ::= "<"
-  this->iMap->SetCellular(SyntaxType::case_rop, TokenType::token_LessThan_,
+  this->iMap->SetCellular(SyntaxType::case_rop, DBTokenType::token_LessThan_,
     new CandidateFunction(iProco, CFunctionType::deri___rop__less_61));
   // 流命中： <rop> ::= ">="的Token
   // 语句命中： <rop> ::= ">="
-  this->iMap->SetCellular(SyntaxType::case_rop, TokenType::token_GreaterThan_Equality_,
+  this->iMap->SetCellular(SyntaxType::case_rop, DBTokenType::token_GreaterThan_Equality_,
     new CandidateFunction(iProco, CFunctionType::deri___rop__greaterequal_62));
   // 流命中： <rop> ::= "<="的Token
   // 语句命中： <rop> ::= "<="
-  this->iMap->SetCellular(SyntaxType::case_rop, TokenType::token_LessThan_Equality_,
+  this->iMap->SetCellular(SyntaxType::case_rop, DBTokenType::token_LessThan_Equality_,
     new CandidateFunction(iProco, CFunctionType::deri___rop__lessequal_63));
   // 流命中： <rop> ::= ";"的Token
   // 语句命中： <rop> ::= epsilon
-  this->iMap->SetCellular(SyntaxType::case_rop, TokenType::token_Semicolon_,
+  this->iMap->SetCellular(SyntaxType::case_rop, DBTokenType::token_Semicolon_,
     new CandidateFunction(iProco, CFunctionType::deri___rop__epsilon_80));
   // 流命中： <rop> ::= "("的Token
   // 语句命中： <rop> ::= epsilon
-  this->iMap->SetCellular(SyntaxType::case_rop, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_rop, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___rop__epsilon_80));
   // 流命中： <wexpr> ::= iden的Token
   // 语句命中： <wexpr> ::= <wmulti> <wexpr_pi>
-  this->iMap->SetCellular(SyntaxType::case_wexpr, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_wexpr, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr__wmulti__wexpr_pi_45));
   // 流命中： <wexpr> ::= ";"的Token
   // 语句命中： <wexpr> ::= epsilon
-  this->iMap->SetCellular(SyntaxType::case_wexpr, TokenType::token_Semicolon_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr, DBTokenType::token_Semicolon_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr__epsilon_81));
   // 流命中： <wexpr> ::= ")"的Token
   // 语句命中： <wexpr> ::= epsilon
-  this->iMap->SetCellular(SyntaxType::case_wexpr, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr__epsilon_81));
   // 流命中： <wexpr> ::= "("的Token
   // 语句命中： <wexpr> ::= <wmulti> <wexpr_pi>
-  this->iMap->SetCellular(SyntaxType::case_wexpr, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr__wmulti__wexpr_pi_45));
   // 流命中： <wexpr> ::= "+"的Token
   // 语句命中： <wexpr> ::= <wmulti> <wexpr_pi>
-  this->iMap->SetCellular(SyntaxType::case_wexpr, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr__wmulti__wexpr_pi_45));
   // 流命中： <wexpr> ::= "-"的Token
   // 语句命中： <wexpr> ::= <wmulti> <wexpr_pi>
-  this->iMap->SetCellular(SyntaxType::case_wexpr, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr__wmulti__wexpr_pi_45));
   // 流命中： <wexpr> ::= number的Token
   // 语句命中： <wexpr> ::= <wmulti> <wexpr_pi>
-  this->iMap->SetCellular(SyntaxType::case_wexpr, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::case_wexpr, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr__wmulti__wexpr_pi_45));
   // 流命中： <wexpr_pi> ::= ")"的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wexpr_pi> ::= ";"的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_Semicolon_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_Semicolon_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wexpr_pi> ::= ","的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_Comma_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_Comma_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wexpr_pi> ::= "+"的Token
   // 语句命中： <wexpr_pi> ::= <wplus> <wexpr_pi>
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__wplus__wexpr_pi_72));
   // 流命中： <wexpr_pi> ::= "-"的Token
   // 语句命中： <wexpr_pi> ::= <wplus> <wexpr_pi>
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__wplus__wexpr_pi_72));
   // 流命中： <wexpr_pi> ::= "||"的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_Or_Or_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_Or_Or_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wexpr_pi> ::= "&&"的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_And_And_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_And_And_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wexpr_pi> ::= "<>"的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_LessThan_GreaterThan_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_LessThan_GreaterThan_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wexpr_pi> ::= "=="的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_Equality_Equality_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_Equality_Equality_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wexpr_pi> ::= ">"的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_GreaterThan_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_GreaterThan_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wexpr_pi> ::= "<"的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_LessThan_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_LessThan_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wexpr_pi> ::= ">="的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_GreaterThan_Equality_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_GreaterThan_Equality_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wexpr_pi> ::= "<="的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_LessThan_Equality_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_LessThan_Equality_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wexpr_pi> ::= ")"的Token
   // 语句命中： <wexpr_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wplus> ::= ";"的Token
   // 语句命中： <wplus> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_Semicolon_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_Semicolon_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wplus> ::= ","的Token
   // 语句命中： <wplus> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, TokenType::token_Comma_,
+  this->iMap->SetCellular(SyntaxType::case_wexpr_pi, DBTokenType::token_Comma_,
     new CandidateFunction(iProco, CFunctionType::deri___wexpr_pi__epsilon_73));
   // 流命中： <wplus> ::= "+"的Token
   // 语句命中： <wplus> ::= "+" <wmulti>
-  this->iMap->SetCellular(SyntaxType::case_wplus, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_wplus, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___wplus__plus_wmulti_46));
   // 流命中： <wplus> ::= "-"的Token
   // 语句命中： <wplus> ::= "-" <wmulti>
-  this->iMap->SetCellular(SyntaxType::case_wplus, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_wplus, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___wplus__minus_wmulti_47));
   // 流命中： <wmulti> ::= iden的Token
   // 语句命中： <wmulti> ::= <wunit> <wmultiOpt>
-  this->iMap->SetCellular(SyntaxType::case_wmulti, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_wmulti, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___wmulti__wunit__wmultiOpt_49));
   // 流命中： <wmulti> ::= "("的Token
   // 语句命中： <wmulti> ::= <wunit> <wmultiOpt>
-  this->iMap->SetCellular(SyntaxType::case_wmulti, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_wmulti, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___wmulti__wunit__wmultiOpt_49));
   // 流命中： <wmulti> ::= "+"的Token
   // 语句命中： <wmulti> ::= <wunit> <wmultiOpt>
-  this->iMap->SetCellular(SyntaxType::case_wmulti, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_wmulti, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___wmulti__wunit__wmultiOpt_49));
   // 流命中： <wmulti> ::= "-"的Token
   // 语句命中： <wmulti> ::= <wunit> <wmultiOpt>
-  this->iMap->SetCellular(SyntaxType::case_wmulti, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_wmulti, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___wmulti__wunit__wmultiOpt_49));
   // 流命中： <wmulti> ::= number的Token
   // 语句命中： <wmulti> ::= <wunit> <wmultiOpt>
-  this->iMap->SetCellular(SyntaxType::case_wmulti, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::case_wmulti, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::deri___wmulti__wunit__wmultiOpt_49));
   // 流命中： <wmultiOpt> ::= ")"的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= ";"的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_Semicolon_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_Semicolon_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= ","的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_Comma_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_Comma_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= "+"的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= "-"的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= "*"的Token
   // 语句命中： <wmultiOpt> ::= "*" <wunit>
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_Multiply_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_Multiply_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__multi_wunit__wmultiOpt_50));
   // 流命中： <wmultiOpt> ::= "/"的Token
   // 语句命中： <wmultiOpt> ::= "/" <wunit>
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_Divide_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_Divide_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__div_wunit__wmultiOpt_51));
   // 流命中： <wmultiOpt> ::= "||"的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_Or_Or_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_Or_Or_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= "&&"的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_And_And_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_And_And_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= "<>"的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_LessThan_GreaterThan_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_LessThan_GreaterThan_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= "=="的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_Equality_Equality_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_Equality_Equality_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= ">"的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_GreaterThan_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_GreaterThan_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= "<"的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_LessThan_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_LessThan_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= ">="的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_GreaterThan_Equality_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_GreaterThan_Equality_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wmultiOpt> ::= "<="的Token
   // 语句命中： <wmultiOpt> ::= null
-  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, TokenType::token_LessThan_Equality_,
+  this->iMap->SetCellular(SyntaxType::case_wmultiOpt, DBTokenType::token_LessThan_Equality_,
     new CandidateFunction(iProco, CFunctionType::deri___wmultiOpt__epsilon_52));
   // 流命中： <wunit> ::= iden的Token
   // 语句命中： <wunit> ::= iden
-  this->iMap->SetCellular(SyntaxType::case_wunit, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_wunit, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___wunit__iden_54));
   // 流命中： <wunit> ::= "("的Token
   // 语句命中： <wunit> ::= "(" <disjunct> ")"
-  this->iMap->SetCellular(SyntaxType::case_wunit, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_wunit, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___wunit__brucket_disjunct_57));
   // 流命中： <wunit> ::= "+"的Token
   // 语句命中： <wunit> ::= "+" <wunit>
-  this->iMap->SetCellular(SyntaxType::case_wunit, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::case_wunit, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::deri___wunit__plus_wunit_56));
   // 流命中： <wunit> ::= "-"的Token
   // 语句命中： <wunit> ::= "-" <wunit>
-  this->iMap->SetCellular(SyntaxType::case_wunit, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::case_wunit, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::deri___wunit__minus_wunit_55));
   // 流命中： <wunit> ::= number的Token
   // 语句命中： <wunit> ::= number
-  this->iMap->SetCellular(SyntaxType::case_wunit, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::case_wunit, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::deri___wunit__number_53));
   // 流命中： <query_stmt> ::= "select"的Token
   // 语句命中： <query_stmt> ::= "select" <select_list> "from" iden <where_clause> ";"
-  this->iMap->SetCellular(SyntaxType::case_query_stmt, TokenType::token_select,
+  this->iMap->SetCellular(SyntaxType::case_query_stmt, DBTokenType::token_select,
     new CandidateFunction(iProco, CFunctionType::deri___query_stmt__select_list__where_clause_64));
   // 流命中： <select_list> ::= iden的Token
   // 语句命中： <select_list> ::= <column_list>
-  this->iMap->SetCellular(SyntaxType::case_select_list, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_select_list, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___select_list__column_list_65));
   // 流命中： <select_list> ::= "*"的Token
   // 语句命中： <select_list> ::= "*"
-  this->iMap->SetCellular(SyntaxType::case_select_list, TokenType::token_Multiply_,
+  this->iMap->SetCellular(SyntaxType::case_select_list, DBTokenType::token_Multiply_,
     new CandidateFunction(iProco, CFunctionType::deri___select_list__star_66));
   // 流命中： <column_list> ::= iden的Token
   // 语句命中： <column_list> ::= iden <column_pi>
-  this->iMap->SetCellular(SyntaxType::case_column_list, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::case_column_list, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::deri___column_list__column_pi_25));
   // 流命中： <column_pi> ::= ")"的Token
   // 语句命中： <column_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_column_pi, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::case_column_pi, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::deri___column_pi__epsilon_27));
   // 流命中： <column_pi> ::= ","的Token
   // 语句命中： <column_pi> ::= "," iden <column_pi>
-  this->iMap->SetCellular(SyntaxType::case_column_pi, TokenType::token_Comma_,
+  this->iMap->SetCellular(SyntaxType::case_column_pi, DBTokenType::token_Comma_,
     new CandidateFunction(iProco, CFunctionType::deri___column_pi__comma_column_pi_26));
   // 流命中： <column_pi> ::= "from"的Token
   // 语句命中： <column_pi> ::= null
-  this->iMap->SetCellular(SyntaxType::case_column_pi, TokenType::token_from,
+  this->iMap->SetCellular(SyntaxType::case_column_pi, DBTokenType::token_from,
     new CandidateFunction(iProco, CFunctionType::deri___column_pi__epsilon_27));
   // 叶命中： "create" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_createLeave, TokenType::token_create,
+  this->iMap->SetCellular(SyntaxType::tail_createLeave, DBTokenType::token_create,
     new CandidateFunction(iProco, CFunctionType::umi_create));
   // 叶命中： "table" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_tableLeave, TokenType::token_table,
+  this->iMap->SetCellular(SyntaxType::tail_tableLeave, DBTokenType::token_table,
     new CandidateFunction(iProco, CFunctionType::umi_table));
   // 叶命中： iden 的Token
-  this->iMap->SetCellular(SyntaxType::tail_idenLeave, TokenType::token_iden,
+  this->iMap->SetCellular(SyntaxType::tail_idenLeave, DBTokenType::token_iden,
     new CandidateFunction(iProco, CFunctionType::umi_iden));
   // 叶命中： "(" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_leftParentheses_Leave, TokenType::token_LeftParentheses_,
+  this->iMap->SetCellular(SyntaxType::tail_leftParentheses_Leave, DBTokenType::token_LeftParentheses_,
     new CandidateFunction(iProco, CFunctionType::umi_leftParentheses_));
   // 叶命中： ")" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_rightParentheses_Leave, TokenType::token_RightParentheses_,
+  this->iMap->SetCellular(SyntaxType::tail_rightParentheses_Leave, DBTokenType::token_RightParentheses_,
     new CandidateFunction(iProco, CFunctionType::umi_rightParentheses_));
   // 叶命中： ";" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_semicolon_Leave, TokenType::token_Semicolon_,
+  this->iMap->SetCellular(SyntaxType::tail_semicolon_Leave, DBTokenType::token_Semicolon_,
     new CandidateFunction(iProco, CFunctionType::umi_semicolon_));
   // 叶命中： "," 的Token
-  this->iMap->SetCellular(SyntaxType::tail_comma_Leave, TokenType::token_Comma_,
+  this->iMap->SetCellular(SyntaxType::tail_comma_Leave, DBTokenType::token_Comma_,
     new CandidateFunction(iProco, CFunctionType::umi_comma_));
   // 叶命中： null 的Token
-  this->iMap->SetCellular(SyntaxType::epsilonLeave, TokenType::epsilon,
+  this->iMap->SetCellular(SyntaxType::epsilonLeave, DBTokenType::epsilon,
     new CandidateFunction(iProco, CFunctionType::umi_epsilon));
   // 叶命中： "int" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_intLeave, TokenType::token_int,
+  this->iMap->SetCellular(SyntaxType::tail_intLeave, DBTokenType::token_int,
     new CandidateFunction(iProco, CFunctionType::umi_int));
   // 叶命中： "double" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_doubleLeave, TokenType::token_double,
+  this->iMap->SetCellular(SyntaxType::tail_doubleLeave, DBTokenType::token_double,
     new CandidateFunction(iProco, CFunctionType::umi_double));
   // 叶命中： "primary" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_primaryLeave, TokenType::token_primary,
+  this->iMap->SetCellular(SyntaxType::tail_primaryLeave, DBTokenType::token_primary,
     new CandidateFunction(iProco, CFunctionType::umi_primary));
   // 叶命中： "key" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_keyLeave, TokenType::token_key,
+  this->iMap->SetCellular(SyntaxType::tail_keyLeave, DBTokenType::token_key,
     new CandidateFunction(iProco, CFunctionType::umi_key));
   // 叶命中： "default" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_defaultLeave, TokenType::token_default,
+  this->iMap->SetCellular(SyntaxType::tail_defaultLeave, DBTokenType::token_default,
     new CandidateFunction(iProco, CFunctionType::umi_default));
   // 叶命中： "=" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_equality_Leave, TokenType::token_Equality_,
+  this->iMap->SetCellular(SyntaxType::tail_equality_Leave, DBTokenType::token_Equality_,
     new CandidateFunction(iProco, CFunctionType::umi_equality_));
   // 叶命中： "+" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_plus_Leave, TokenType::token_Plus_,
+  this->iMap->SetCellular(SyntaxType::tail_plus_Leave, DBTokenType::token_Plus_,
     new CandidateFunction(iProco, CFunctionType::umi_plus_));
   // 叶命中： "-" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_minus_Leave, TokenType::token_Minus_,
+  this->iMap->SetCellular(SyntaxType::tail_minus_Leave, DBTokenType::token_Minus_,
     new CandidateFunction(iProco, CFunctionType::umi_minus_));
   // 叶命中： "*" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_multiply_Leave, TokenType::token_Multiply_,
+  this->iMap->SetCellular(SyntaxType::tail_multiply_Leave, DBTokenType::token_Multiply_,
     new CandidateFunction(iProco, CFunctionType::umi_multiply_));
   // 叶命中： "/" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_divide_Leave, TokenType::token_Divide_,
+  this->iMap->SetCellular(SyntaxType::tail_divide_Leave, DBTokenType::token_Divide_,
     new CandidateFunction(iProco, CFunctionType::umi_divide_));
   // 叶命中： number 的Token
-  this->iMap->SetCellular(SyntaxType::numberLeave, TokenType::number,
+  this->iMap->SetCellular(SyntaxType::numberLeave, DBTokenType::number,
     new CandidateFunction(iProco, CFunctionType::umi_number));
   // 叶命中： "insert" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_insertLeave, TokenType::token_insert,
+  this->iMap->SetCellular(SyntaxType::tail_insertLeave, DBTokenType::token_insert,
     new CandidateFunction(iProco, CFunctionType::umi_insert));
   // 叶命中： "into" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_intoLeave, TokenType::token_into,
+  this->iMap->SetCellular(SyntaxType::tail_intoLeave, DBTokenType::token_into,
     new CandidateFunction(iProco, CFunctionType::umi_into));
   // 叶命中： "values" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_valuesLeave, TokenType::token_values,
+  this->iMap->SetCellular(SyntaxType::tail_valuesLeave, DBTokenType::token_values,
     new CandidateFunction(iProco, CFunctionType::umi_values));
   // 叶命中： "delete" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_deleteLeave, TokenType::token_delete,
+  this->iMap->SetCellular(SyntaxType::tail_deleteLeave, DBTokenType::token_delete,
     new CandidateFunction(iProco, CFunctionType::umi_delete));
   // 叶命中： "from" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_fromLeave, TokenType::token_from,
+  this->iMap->SetCellular(SyntaxType::tail_fromLeave, DBTokenType::token_from,
     new CandidateFunction(iProco, CFunctionType::umi_from));
   // 叶命中： "where" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_whereLeave, TokenType::token_where,
+  this->iMap->SetCellular(SyntaxType::tail_whereLeave, DBTokenType::token_where,
     new CandidateFunction(iProco, CFunctionType::umi_where));
   // 叶命中： "||" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_or_Or_Leave, TokenType::token_Or_Or_,
+  this->iMap->SetCellular(SyntaxType::tail_or_Or_Leave, DBTokenType::token_Or_Or_,
     new CandidateFunction(iProco, CFunctionType::umi_or_Or_));
   // 叶命中： "&&" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_and_And_Leave, TokenType::token_And_And_,
+  this->iMap->SetCellular(SyntaxType::tail_and_And_Leave, DBTokenType::token_And_And_,
     new CandidateFunction(iProco, CFunctionType::umi_and_And_));
   // 叶命中： "!" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_not_Leave, TokenType::token_Not_,
+  this->iMap->SetCellular(SyntaxType::tail_not_Leave, DBTokenType::token_Not_,
     new CandidateFunction(iProco, CFunctionType::umi_not_));
   // 叶命中： "<>" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_lessThan_GreaterThan_Leave, TokenType::token_LessThan_GreaterThan_,
+  this->iMap->SetCellular(SyntaxType::tail_lessThan_GreaterThan_Leave, DBTokenType::token_LessThan_GreaterThan_,
     new CandidateFunction(iProco, CFunctionType::umi_lessThan_GreaterThan_));
   // 叶命中： "==" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_equality_Equality_Leave, TokenType::token_Equality_Equality_,
+  this->iMap->SetCellular(SyntaxType::tail_equality_Equality_Leave, DBTokenType::token_Equality_Equality_,
     new CandidateFunction(iProco, CFunctionType::umi_equality_Equality_));
   // 叶命中： ">" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_greaterThan_Leave, TokenType::token_GreaterThan_,
+  this->iMap->SetCellular(SyntaxType::tail_greaterThan_Leave, DBTokenType::token_GreaterThan_,
     new CandidateFunction(iProco, CFunctionType::umi_greaterThan_));
   // 叶命中： "<" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_lessThan_Leave, TokenType::token_LessThan_,
+  this->iMap->SetCellular(SyntaxType::tail_lessThan_Leave, DBTokenType::token_LessThan_,
     new CandidateFunction(iProco, CFunctionType::umi_lessThan_));
   // 叶命中： ">=" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_greaterThan_Equality_Leave, TokenType::token_GreaterThan_Equality_,
+  this->iMap->SetCellular(SyntaxType::tail_greaterThan_Equality_Leave, DBTokenType::token_GreaterThan_Equality_,
     new CandidateFunction(iProco, CFunctionType::umi_greaterThan_Equality_));
   // 叶命中： "<=" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_lessThan_Equality_Leave, TokenType::token_LessThan_Equality_,
+  this->iMap->SetCellular(SyntaxType::tail_lessThan_Equality_Leave, DBTokenType::token_LessThan_Equality_,
     new CandidateFunction(iProco, CFunctionType::umi_lessThan_Equality_));
   // 叶命中： "select" 的Token
-  this->iMap->SetCellular(SyntaxType::tail_selectLeave, TokenType::token_select,
+  this->iMap->SetCellular(SyntaxType::tail_selectLeave, DBTokenType::token_select,
     new CandidateFunction(iProco, CFunctionType::umi_select));
   // 叶命中： # 的Token
-  this->iMap->SetCellular(SyntaxType::tail_startEndLeave, TokenType::token_startEnd,
+  this->iMap->SetCellular(SyntaxType::tail_startEndLeave, DBTokenType::token_startEnd,
     new CandidateFunction(iProco, CFunctionType::umi_startEnd));
 }
 
