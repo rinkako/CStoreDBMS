@@ -57,7 +57,7 @@ void DBController::StartDash(int argc, char* argv[]) {
 
 // 处理控制台终端输入
 void DBController::Terminal() {
-  PILEPRINTLN(">> Welcome to Simplifie-CStore DBMS <<");
+  PILEPRINTLN(">> Welcome to Simplified-CStore DBMS <<");
   bool rflag = true;
   bool breakFlag = false;
   FOREVER {

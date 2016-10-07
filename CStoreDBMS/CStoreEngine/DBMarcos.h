@@ -4,13 +4,14 @@
 #include <ctime>
 #include <mutex>
 
+// 简单DBObject子类构造函数
+#define CONSTRUCTOR_SIMPLE_DBOBJECT(Type, TypeName) \
+  Type() : DBObject(TypeName, this) { }
+
 // 禁止编译器创造拷贝构造函数和赋值函数
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&) = delete;                \
   TypeName& operator=(const TypeName&) = delete
-
-#define CONSTRUCTOR_SIMPLE_DBOBJECT(Type, TypeName) \
-  Type() : DBObject(TypeName, this) { }
 
 // 为输出提供统一接口
 #define PILEPRINT(strpar) { \

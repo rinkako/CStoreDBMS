@@ -137,9 +137,7 @@ std::string DBConnectionPool::ShowProcessingTransaction() {
   return sb.ToString();
 }
 
-//函数作用： 获取全部的事务说明
-//参数列表： N/A
-//返 回 值： 含有全部事务详细说明的字符串
+// 获取全部的事务说明
 std::string DBConnectionPool::ShowTransaction() {
   CSCommonUtil::StringBuilder sb;
   sb.Append(">Total Thread Num: ").Append((int)this->threadPool.size()).Append(NEWLINE);
@@ -170,9 +168,9 @@ void DBConnectionPool::TransactionHandler(int id) {
     else {
       core->queueMutex.unlock();
 #ifdef _WIN32
-      Sleep(10);
+      Sleep(1);
 #else
-      usleep(10);
+      usleep(1);
 #endif
       continue;
     }

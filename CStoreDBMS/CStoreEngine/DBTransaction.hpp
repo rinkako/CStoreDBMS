@@ -66,31 +66,22 @@ public:
 private:
   // 事务id
   int id;
-
   // 线程id
   int handleId = -1;
-
   // 事物是否已成功完成
   bool successFlag;
-
   // 事务的查询代码
   std::string code;
-
   // 发生的时间戳
   std::string timestamp;
-
   // 完成的时间戳
   std::string finishstamp;
-
   // 发生时间戳对象
   std::clock_t beginStampObj;
-
   // 持续时长
   std::string duration;
-
   // 事务计数器
   static int encounter;
-
   // 阻止拷贝构造
   DISALLOW_COPY_AND_ASSIGN(DBTransaction);
 }; /* DBTransaction */

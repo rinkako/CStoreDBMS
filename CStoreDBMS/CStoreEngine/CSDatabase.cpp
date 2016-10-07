@@ -240,7 +240,6 @@ bool CSDatabase::Count(DBTransaction* trans, istr tname, istr ccol) {
   return true;
 }
 
-
 // CSDatabase“Ï≥£¥¶¿Ì
 bool CSDatabase::iException(istr _info, int _index) {
   TRACE("# Interpreter Exception Spotted.");

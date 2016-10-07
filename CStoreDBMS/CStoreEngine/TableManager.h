@@ -83,13 +83,10 @@ private:
 
   // 表对象容器
   std::vector<DBTable*> tableContainer;
-
   // 锁容器对象
   std::vector<DBLock*> lockContainer;
-
   // 表在容器中的下标索引
   std::map<std::string, int> tableIndexDict;
-
   // 唯一实例
   static TableManager* Instance;
 }; /* TableManager */
