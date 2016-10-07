@@ -126,6 +126,17 @@ std::string DBConnectionPool::ShowFinishedTransaction() {
   return sb.ToString();
 }
 
+// 获取正在进行的事务说明
+std::string DBConnectionPool::ShowProcessingTransaction() {
+  CSCommonUtil::StringBuilder sb;
+  for (int i = 0; i < this->processingTransactionVector.size(); i++) {
+    if (this->processingTransactionVector[i] != NULL) {
+      sb.Append(this->processingTransactionVector[i]->ToString()).Append(NEWLINE);
+    }
+  }
+  return sb.ToString();
+}
+
 //函数作用： 获取全部的事务说明
 //参数列表： N/A
 //返 回 值： 含有全部事务详细说明的字符串
@@ -134,12 +145,7 @@ std::string DBConnectionPool::ShowTransaction() {
   sb.Append(">Total Thread Num: ").Append((int)this->threadPool.size()).Append(NEWLINE);
   sb.Append(">Pending Count: ").Append((int)this->transactionQueue.size()).Append(NEWLINE).Append(NEWLINE);
   sb.Append(">Processing:").Append(NEWLINE);
-  for (int i = 0; i < this->processingTransactionVector.size(); i++) {
-    if (this->processingTransactionVector[i] != NULL) {
-      sb.Append(this->processingTransactionVector[i]->ToString()).Append(NEWLINE);
-    }
-  }
-  sb.Append(NEWLINE);
+  sb.Append(this->ShowProcessingTransaction()).Append(NEWLINE);
   sb.Append(">Finished:").Append(NEWLINE);
   sb.Append(this->ShowFinishedTransaction());
   return sb.ToString();

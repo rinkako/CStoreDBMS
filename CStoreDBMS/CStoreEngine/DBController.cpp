@@ -143,6 +143,10 @@ bool DBController::ReservedRouter(const std::string& query) {
     PILEPRINTLN(this->connector->ShowTransaction());
     return true;
   }
+  else if (query == "show processing;") {
+    PILEPRINTLN(this->connector->ShowProcessingTransaction());
+    return true;
+  }
   else if (query == "show tables;") {
     PILEPRINTLN(TableManager::GetInstance()->ShowTable());
     return true;

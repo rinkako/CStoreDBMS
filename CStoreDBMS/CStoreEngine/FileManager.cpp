@@ -617,8 +617,8 @@ void FileManager::Join(DBTable& tab1, DBTable& tab2) {
           joinOutputPointer++;
           // 如果输出缓冲区满，那么写文件并清缓存区
           if (joinOutputPointer == 32 * SIZE_PAGE) {
-            this->WriteBufferToFile(joinOutputOrderkeyBuffer, joinOutputPointer, "joined_orderkey.db");
-            this->WriteBufferToFile(joinOutputCustkeyBuffer, joinOutputPointer, "joined_custkey.db");
+            this->WriteSyncBufferToFile(joinOutputOrderkeyBuffer, joinOutputCustkeyBuffer, joinOutputPointer,
+              "joined_orderkey.db", "joined_custkey.db");
             joinOutputPointer = 0;
           }
         }
@@ -643,8 +643,8 @@ void FileManager::Join(DBTable& tab1, DBTable& tab2) {
     }
     // 如果有哪个缓冲区到达边界，那么就要重入
     if (joinOutputPointer == 32 * SIZE_PAGE) {
-      this->WriteBufferToFile(joinOutputOrderkeyBuffer, joinOutputPointer, "joined_orderkey.db");
-      this->WriteBufferToFile(joinOutputCustkeyBuffer, joinOutputPointer, "joined_custkey.db");
+      this->WriteSyncBufferToFile(joinOutputOrderkeyBuffer, joinOutputCustkeyBuffer, joinOutputPointer,
+        "joined_orderkey.db", "joined_custkey.db");
       joinOutputPointer = 0;
     }
     if (joinCustkeyBufferPointer == 32 * SIZE_PAGE) {
@@ -667,8 +667,8 @@ void FileManager::Join(DBTable& tab1, DBTable& tab2) {
     }
     // 如果做完了但缓冲区还有东西那就清空，否则退出
     if ((custkeyMaxcount == 0 || customerMaxcount == 0) && (joinOutputPointer > 0)) {
-      this->WriteBufferToFile(joinOutputOrderkeyBuffer, joinOutputPointer, "joined_orderkey.db");
-      this->WriteBufferToFile(joinOutputCustkeyBuffer, joinOutputPointer, "joined_custkey.db");
+      this->WriteSyncBufferToFile(joinOutputOrderkeyBuffer, joinOutputCustkeyBuffer, joinOutputPointer,
+        "joined_orderkey.db", "joined_custkey.db");
       joinOutputPointer = 0;
     }
     else if ((custkeyMaxcount == 0 || customerMaxcount == 0) && (joinOutputPointer == 0)) {
@@ -678,8 +678,8 @@ void FileManager::Join(DBTable& tab1, DBTable& tab2) {
   }
   // 确认安全地退出
   if (joinOutputPointer > 0) {
-    this->WriteBufferToFile(joinOutputOrderkeyBuffer, joinOutputPointer, "joined_orderkey.db");
-    this->WriteBufferToFile(joinOutputCustkeyBuffer, joinOutputPointer, "joined_custkey.db");
+    this->WriteSyncBufferToFile(joinOutputOrderkeyBuffer, joinOutputCustkeyBuffer, joinOutputPointer,
+      "joined_orderkey.db", "joined_custkey.db");
     joinOutputPointer = 0;
   }
   // 保存文件
