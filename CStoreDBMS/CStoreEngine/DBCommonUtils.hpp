@@ -2,6 +2,7 @@
 #define ___CSTORE_DBCOMMONUTILS
 #include <string>
 #include <vector>
+#include <iostream>
 #include "DBObject.h"
 #include "DBMarcos.h"
 

@@ -199,10 +199,11 @@ bool CSDatabase::Join(DBTransaction* trans, istr t1name, istr t2name) {
   this->tableMana->GetTableLock(t1name)->LockRead(trans);
   this->tableMana->GetTableLock(t2name)->LockRead(trans);
   // 调用文件管理器接口
-  this->fileMana->Join();
+  this->fileMana->Join(*tobj1, *tobj2);
   // 解共享锁
   this->tableMana->GetTableLock(t1name)->UnlockRead();
   this->tableMana->GetTableLock(t2name)->UnlockRead();
+  PILEPRINTLN("Successfully join " + t1name + " and " + t2name);
   return true;
 }
 

@@ -48,7 +48,12 @@ public:
   //·µ »Ø Öµ£º N/A
   inline void LockRead(DBTransaction* locker) {
     this->lockMutex.lock();
-    this->synLockObjRead.try_lock();
+    if (this->Type == TableLockType::tblock_mutex) {
+      this->synLockObjRead.lock();
+    }
+    else {
+      this->synLockObjRead.try_lock();
+    }
     this->readHandleNum++;
     this->LockTransaction = locker;
     this->Type = TableLockType::tblock_share;

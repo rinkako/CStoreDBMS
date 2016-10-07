@@ -27,6 +27,17 @@ public:
   //返 回 值： 代表事务编号的整数
   inline int GetId() { return this->id; }
 
+  //函数作用： 设置事务所在线程的编号
+  //参数列表：
+  //       tid 线程id
+  //返 回 值： N/A
+  inline void SetHandleId(int tid) { this->handleId = tid; }
+
+  //函数作用： 获取事务所在线程的编号
+  //参数列表： N/A
+  //返 回 值： 代表事务编号的整数
+  inline int GetHandleId() { return this->handleId; }
+
   //函数作用： 获取事务的查询代码
   //参数列表： N/A
   //返 回 值： 查询语句字符串
@@ -55,6 +66,9 @@ public:
 private:
   // 事务id
   int id;
+
+  // 线程id
+  int handleId = -1;
 
   // 事物是否已成功完成
   bool successFlag;

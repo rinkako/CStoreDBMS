@@ -1,7 +1,9 @@
 #include "DBConnectionPool.h"
 #include "DBBridge.h"
 #ifdef _WIN32
-#include <Windows.h>
+  #include <Windows.h>
+#else
+  #include <system.h>
 #endif
 
 CSTORE_NS_BEGIN
@@ -16,7 +18,6 @@ DBConnectionPool* DBConnectionPool::GetInstance() {
 DBConnectionPool::DBConnectionPool()
   :DBObject("DBConnectionPool", this) {
   this->ProcCounter = 0;
-  this->SetThreadNum(CONNECTORLIMIT);
   this->quitFlag = false;
   this->isDebug = false;
 }
@@ -40,6 +41,14 @@ DBConnectionPool::~DBConnectionPool() {
   this->finishedTransactionVector.clear();
   this->queueMutex.unlock();
   TRACE("DBConnectionPool is already collapsed");
+}
+
+// 开启连接池
+void DBConnectionPool::Init() {
+  TRACE("DBConnectionPool began to accept transaction." << NEWLINE);
+  for (int i = 0; i < CONNECTORLIMIT; i++) {
+    this->threadPool.push_back(std::thread(DBConnectionPool::TransactionHandler, i));
+  }
 }
 
 // 将事务提交给数据库引擎
@@ -66,7 +75,7 @@ void DBConnectionPool::KillAll() {
   // 重新开放连接
   this->quitFlag = false;
   for (int i = 0; i < this->HandleNum; i++) {
-    this->threadPool.push_back(std::thread(DBConnectionPool::TransactionHandler));
+    this->threadPool.push_back(std::thread(DBConnectionPool::TransactionHandler, i));
   }
 }
 
@@ -122,21 +131,22 @@ std::string DBConnectionPool::ShowFinishedTransaction() {
 //返 回 值： 含有全部事务详细说明的字符串
 std::string DBConnectionPool::ShowTransaction() {
   CSCommonUtil::StringBuilder sb;
-  sb.Append("Pending Count: ").Append((int)this->transactionQueue.size()).Append(NEWLINE).Append(NEWLINE);
-  sb.Append("Processing:").Append(NEWLINE);
+  sb.Append(">Total Thread Num: ").Append((int)this->threadPool.size()).Append(NEWLINE);
+  sb.Append(">Pending Count: ").Append((int)this->transactionQueue.size()).Append(NEWLINE).Append(NEWLINE);
+  sb.Append(">Processing:").Append(NEWLINE);
   for (int i = 0; i < this->processingTransactionVector.size(); i++) {
     if (this->processingTransactionVector[i] != NULL) {
       sb.Append(this->processingTransactionVector[i]->ToString()).Append(NEWLINE);
     }
   }
   sb.Append(NEWLINE);
-  sb.Append("Finished:").Append(NEWLINE);
+  sb.Append(">Finished:").Append(NEWLINE);
   sb.Append(this->ShowFinishedTransaction());
   return sb.ToString();
 }
 
 // 事务处理器
-void DBConnectionPool::TransactionHandler() {
+void DBConnectionPool::TransactionHandler(int id) {
   DBConnectionPool* core = DBConnectionPool::GetInstance();
   while (true) {
     // 如果主线程要求退出
@@ -155,6 +165,8 @@ void DBConnectionPool::TransactionHandler() {
       core->queueMutex.unlock();
 #ifdef _WIN32
       Sleep(10);
+#else
+      usleep(10);
 #endif
       continue;
     }
@@ -163,6 +175,7 @@ void DBConnectionPool::TransactionHandler() {
     core->queueMutex.unlock();
     // 处理这个事务
     if (proTrans != NULL) {
+      proTrans->SetHandleId(id);
       DBBridge* IBridge = new DBBridge();
       IBridge->StartTransaction(*proTrans, core->isDebug);
       proTrans->Finish();
@@ -205,8 +218,9 @@ void DBConnectionPool::SetThreadNum(int tnum) {
   this->HandleNum = tnum;
   // 添加的情况
   if (this->threadPool.size() < tnum) {
-    for (int i = 0; i < tnum - threadPool.size(); i++) {
-      this->threadPool.push_back(std::thread(DBConnectionPool::TransactionHandler));
+    int tp = threadPool.size();
+    for (int i = 0; i < tnum - tp; i++) {
+      this->threadPool.push_back(std::thread(DBConnectionPool::TransactionHandler, i));
     }
   }
   // 删除的情况

@@ -30,6 +30,7 @@ bool TableManager::AddTable(const std::string& tabName, const std::string& loadF
 // 删除表
 bool TableManager::DropTable(const std::string& tabName) {
   // 获取表对象
+  bool flag = false;
   DBTable* tabObj = this->GetTable(tabName);
   if (tabObj == NULL) {
     return false;
@@ -39,7 +40,22 @@ bool TableManager::DropTable(const std::string& tabName) {
     if ((*iter) != NULL && (*iter)->LockBinding->ReferenceEquals(tabObj)) {
       delete (*iter);
       this->lockContainer.erase(iter);
-      return true;
+      break;
+    }
+  }
+  // 移除本地文件
+  FileManager* fileMana = FileManager::GetInstance();
+  for (int i = 0; i < tabObj->PiList.size(); i++) {
+    bool dflag = fileMana->DeleteLocalFile(tabObj->PiFileNameList[tabObj->PiList[i]]);
+    if (dflag == false) {
+      TRACE("Exception: cannot remove local file: " + tabObj->PiFileNameList[tabObj->PiList[i]]);
+    }
+  }
+  for (std::map<std::string, std::string>::iterator iter = tabObj->CompressedPiFileNameList.begin();
+    iter != tabObj->CompressedPiFileNameList.end(); iter++) {
+    bool dflag = fileMana->DeleteLocalFile((*iter).second);
+    if (dflag == false) {
+      TRACE("Exception: cannot remove local file: " + (*iter).second);
     }
   }
   // 移除表对象
@@ -47,19 +63,19 @@ bool TableManager::DropTable(const std::string& tabName) {
     if ((*iter) != NULL && (*iter)->TableName == tabName) {
       delete (*iter);
       this->tableContainer.erase(iter);
-      return true;
+      flag = true;
+      break;
     }
   }
   // 更新索引记录
-  if (this->tableIndexDict.find(tabName) != this->tableIndexDict.end()) {
-    this->tableIndexDict.erase(tabName);
-  }
   this->tableIndexDict.clear();
   for (int i = 0; i < this->tableContainer.size(); i++) {
     this->tableIndexDict[this->tableContainer[i]->TableName] = i;
   }
-  TRACE("Expect to delete: " + tabName + ", but table not exist.");
-  return false;
+  if (flag == false) {
+    TRACE("Expect to delete: " + tabName + ", but table not exist.");
+  }
+  return flag;
 }
 
 // 获取表对象
@@ -107,11 +123,6 @@ int TableManager::CountTable() {
 
 // 清空数据库所有表格
 void TableManager::Clear() {
-  for (int i = 0; i < this->tableContainer.size(); i++) {
-    if (this->tableContainer[i] != NULL) {
-      delete this->tableContainer[i];
-    }
-  }
   this->tableIndexDict.clear();
   this->tableContainer.clear();
   this->SaveContext();

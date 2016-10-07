@@ -3,14 +3,8 @@
 #include "DBBase.h"
 #include "DBTable.hpp"
 #include "DBAllocator.h"
+#include "TableManager.h"
 CSTORE_NS_BEGIN
-
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <fstream>
-#include <vector>
 
 #define SIZE_LINE 512
 #define SIZE_PAGE 1024
@@ -25,15 +19,21 @@ public:
   //函数作用： 分批载入表格文件
   //参数列表：
   //     times 当前轮数
-  //      fptr 表源文件指针
+  //      fPtr 表源文件指针
   // colindice 列下标
   //   bufList 输出的缓冲区名向量
   //  typeList 类型向量
   //  totalCol 总列数
   //    offset 表头偏移量
-  // inCounter 读取的数量
+  // inCounter 读取的记录数量
+  //   pagePtr 最后一次遍历缓冲区页的指针
+  //countSplit 最后一次分割时的列游标
+  //   maxChar 最后一次最大读入的字符数
+  //   pageBuf 缓冲区指针
   //返 回 值： 操作成功与否
-  bool LoadTableBatch(int& times, FILE* fptr, std::string tname, std::vector<int>& colindice, std::vector<std::string>& bufList, std::vector<std::string>& typeList, int totalCol, int offset, int& inCounter);
+  bool LoadTableBatch(int& times, FILE* fPtr, std::string tname,std::vector<int>& colindice,
+    std::vector<std::string>& bufList, std::vector<std::string>& typeList, const int totalCol, const int offset,
+    int& inCounter, int& pagePtr, int& countSplit, int& maxChar, char* pageBuf);
 
   //函数作用： 载入表格
   //参数列表：
@@ -82,7 +82,7 @@ public:
   //      tab1 表对象
   //      tab2 表对象
   //返 回 值： N/A
-  void Join();
+  void Join(DBTable& tab1, DBTable& tab2);
 
   //函数作用： 外排序
   //参数列表：
@@ -100,6 +100,16 @@ public:
   //返 回 值： N/A
   void WriteBufferToFile(int* _orgBuffer, int _incounter, std::string fname);
 
+  //函数作用： 将双缓冲区写到文件
+  //参数列表：
+  // orgBuffer 缓冲区指针
+  //syncBuffer 同步缓冲区指针
+  // incounter 缓冲区长度
+  //    fname1 文件名
+  //    fname2 同步文件名
+  //返 回 值： N/A
+  void WriteSyncBufferToFile(int* orgBuffer, int* syncBuffer, int incounter, std::string fname1, std::string fname2);
+
   //函数作用： 压缩表
   //参数列表：
   //       tab 表对象
@@ -108,6 +118,11 @@ public:
   //返 回 值： N/A
   void Compress(DBTable& tab, std::string col, std::string cType);
 
+  //函数作用： 删除本地文件
+  //参数列表：
+  //  fileName 文件名
+  //返 回 值： 操作成功与否
+  bool DeleteLocalFile(std::string fileName);
 
 private:
   //函数作用： 私有的构造器

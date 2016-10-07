@@ -14,6 +14,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <cstring>
+#include <climits>
 #include <memory>
 #include <string>
 #include <vector>

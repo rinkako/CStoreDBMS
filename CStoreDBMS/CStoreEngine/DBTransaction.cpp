@@ -36,6 +36,7 @@ void DBTransaction::Finish() {
 std::string DBTransaction::ToString() {
   CSCommonUtil::StringBuilder sb;
   sb.Append("ID:\t").Append(this->id).Append(NEWLINE);
+  sb.Append("Tid:\t").Append(this->handleId).Append(NEWLINE);
   sb.Append("Fin:\t").Append(this->successFlag ? "True" : "False").Append(NEWLINE);
   sb.Append("Begin:\t").Append(this->timestamp).Append(NEWLINE);
   sb.Append("Over:\t").Append(this->successFlag ? this->finishstamp : "---").Append(NEWLINE);

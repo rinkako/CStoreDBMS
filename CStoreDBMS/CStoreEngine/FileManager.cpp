@@ -1,36 +1,29 @@
 #include "FileManager.h"
-#include "TableManager.h"
-#include <limits.h>
-#include <string.h>
-#include <string>
-#include <stdio.h>
 
 CSTORE_NS_BEGIN
 #define COMPRESS_SIZE (64 * SIZE_PAGE)
 #define EXSORT_SIZE (64 * SIZE_PAGE)
 #define COLUMNBATCHSIZE (64 * SIZE_PAGE)
-using namespace std;
 
-//int externSortOrdersBufferPool[64 * SIZE_PAGE];
-//int externSortCustkeyBufferPool[64 * SIZE_PAGE];
-int compressedCustkeyBufferPool[64 * SIZE_PAGE];
-
-int pagecounter = 0;
-int importcountercustomer = 0;
-
-int page_ptr = 0;
-int count_spilt = 0;
-int maxcount = 0;
-char page_buf[SIZE_PAGE];
 
 //函数作用： 分批载入表格文件
 //参数列表：
 //     times 当前轮数
-//    piList 要载入的列名向量
+//      fPtr 表源文件指针
+// colindice 列下标
 //   bufList 输出的缓冲区名向量
-//返 回 值： N/A
-bool FileManager::LoadTableBatch(int& times, FILE* fptr, std::string tname, std::vector<int>& colindice,
-  std::vector<std::string>& bufList, std::vector<std::string>& typeList, int totalCol, int offset, int& inCounter) {
+//  typeList 类型向量
+//  totalCol 总列数
+//    offset 表头偏移量
+// inCounter 读取的记录数量
+//   pagePtr 最后一次遍历缓冲区页的指针
+//countSplit 最后一次分割时的列游标
+//   maxChar 最后一次最大读入的字符数
+//   pageBuf 缓冲区指针
+//返 回 值： 操作成功与否
+bool FileManager::LoadTableBatch(int& times, FILE* fPtr, std::string tname, std::vector<int>& colindice,
+  std::vector<std::string>& bufList, std::vector<std::string>& typeList, const int totalCol, const int offset,
+  int& inCounter, int& pagePtr, int& countSplit, int& maxChar, char* pageBuf) {
   int count_reco = 0;
   int content_ptr = 0;
   int transId = CStore::TableManager::GetInstance()->GetTableLock(tname)->LockTransaction->GetId();
@@ -38,29 +31,29 @@ bool FileManager::LoadTableBatch(int& times, FILE* fptr, std::string tname, std:
   char* content_buf = (char*)this->allocator->Alloc(bufname, 128 * sizeof(char));
   while (count_reco < SIZE_PAGE) {
     // page_buf被读完
-    if (page_ptr == maxcount) {
-      std::fseek(fptr, (times++ * SIZE_PAGE + offset) * sizeof(char), SEEK_SET);
-      maxcount = std::fread(page_buf, sizeof(char), SIZE_PAGE, fptr);
-      page_ptr = 0;
+    if (pagePtr == maxChar) {
+      std::fseek(fPtr, (times++ * SIZE_PAGE + offset) * sizeof(char), SEEK_SET);
+      maxChar = std::fread(pageBuf, sizeof(char), SIZE_PAGE, fPtr);
+      pagePtr = 0;
     }
     // 已经不能为page_buf读到任何数据
-    if (maxcount == 0) {
+    if (maxChar == 0) {
       break;
     }
     // 分析字符，转换并存入相应缓冲区
-    if (page_buf[page_ptr] != '|' && page_buf[page_ptr] != '\n') {
-      content_buf[content_ptr++] = page_buf[page_ptr];
+    if (pageBuf[pagePtr] != '|' && pageBuf[pagePtr] != '\n') {
+      content_buf[content_ptr++] = pageBuf[pagePtr];
     }
     else {
-      count_spilt++;
+      countSplit++;
       content_buf[content_ptr] = '\0';
-      if (count_spilt == totalCol) {
+      if (countSplit == totalCol) {
         count_reco++;
-        count_spilt = -1;
+        countSplit = -1;
       }
       else {
         for (int ci = 0; ci < colindice.size(); ci++) {
-          if (count_spilt == colindice[ci]) {
+          if (countSplit == colindice[ci]) {
             if (typeList[ci] == "DOUBLE") {
               ((double*)this->allocator->Get(bufList[ci]))[count_reco] = std::atof(content_buf);
               break;
@@ -74,12 +67,12 @@ bool FileManager::LoadTableBatch(int& times, FILE* fptr, std::string tname, std:
       }
       content_ptr = 0;
     }
-    page_ptr++;
+    pagePtr++;
   }
   // 输出读入的记录数目
   inCounter = count_reco;
   this->allocator->Free(bufname);
-  return maxcount == 0;
+  return maxChar == 0;
 }
 
 //函数作用： 载入表格
@@ -143,12 +136,22 @@ bool FileManager::LoadTable(DBTable& tab) {
   }
   // 分页读入
   bool finflag = false;
+  // 第几轮读取
   int pCounter = 0;
+  // 读取到的记录数
   int inCounter = 0;
+  // 遍历缓冲区页的指针
+  int page_ptr = 0;
+  // 列游标指针
+  int count_spilt = 0;
+  // 最大读入字符数
+  int maxcount = 0;
+  // 页面缓冲区
+  char page_buf[SIZE_PAGE];
   do {
     // 不断地读入文件到缓冲区
-    finflag = this->LoadTableBatch(pCounter, fin, tab.TableName, colIndices, bufferNameVec, tab.PiTypeList, hItems.size(), strHeader.size(), inCounter);
-
+    finflag = this->LoadTableBatch(pCounter, fin, tab.TableName, colIndices, bufferNameVec,tab.PiTypeList,
+      hItems.size(), strHeader.size(), inCounter, page_ptr, count_spilt, maxcount, page_buf);
     // 将缓冲区内容写到文件
     for (int i = 0; i < tab.PiFileNameList.size(); i++) {
       if (tab.PiTypeList[i] == "DOUBLE") {
@@ -312,6 +315,7 @@ bool FileManager::RetrieveValueByOffset(DBTable& tab, std::string colName, std::
 //       col 排序的列
 //返 回 值： N/A
 void FileManager::ExternSort(DBTable& tab, std::string col, std::string cType, std::string sync, std::string sType) {
+  int pagecounter = 0;
   int maxcount = 1024;
   int pc = 0;
   // 分配缓冲区
@@ -352,7 +356,7 @@ void FileManager::ExternSort(DBTable& tab, std::string col, std::string cType, s
   int outputPointer = 0;
   int mergeBufferCapacity = (int)((126.0f * SIZE_PAGE / (double)(2.0 * pagecounter)));
   int freadflag = 0;
-  string inFileName;
+  std::string inFileName;
   int* mergePointer = new int[pagecounter];
   int* mergeTimes = new int[pagecounter];
   for (int i = 0; i < pagecounter; i++) {
@@ -444,8 +448,13 @@ void FileManager::ExternSort(DBTable& tab, std::string col, std::string cType, s
 //     cType 列类型
 //返 回 值： N/A
 void FileManager::Compress(DBTable& tab, std::string col, std::string cType) {
-  int compressBuffer[COMPRESS_SIZE];
-  int outputBuffer[COMPRESS_SIZE];
+  // 分配缓冲区
+  int tranId = CStore::TableManager::GetInstance()->GetTableLock(tab.TableName)->LockTransaction->GetId();
+  std::string compressBufferName = CSCommonUtil::StringBuilder(tab.TableName + "@compressBuffer#").Append(tranId).ToString();
+  std::string outputBufferName = CSCommonUtil::StringBuilder(tab.TableName + "@outputBuffer#").Append(tranId).ToString();
+  int* compressBuffer = (int*)this->allocator->Alloc(compressBufferName, COMPRESS_SIZE * sizeof(int));
+  int* outputBuffer = (int*)this->allocator->Alloc(outputBufferName, COMPRESS_SIZE * sizeof(int));
+  // 游标指针们的声明
   int frontPointer = 0;
   int rearPointer = 0;
   int currentValue = 0;
@@ -458,7 +467,7 @@ void FileManager::Compress(DBTable& tab, std::string col, std::string cType) {
   bool finishFlag = false;
   FILE* fin = std::fopen((tab.TableName + "_" + col + "_sorted.db").c_str(), "rb");
   while (true) {
-    std::memset(compressBuffer, 0, sizeof(int)* COMPRESS_SIZE);
+    std::memset(compressBuffer, 0, COMPRESS_SIZE * sizeof(int));
     if (cType == "DOUBLE") {
       maxcount = std::fread(compressBuffer, sizeof(double), COMPRESS_SIZE, fin);
     }
@@ -557,6 +566,9 @@ void FileManager::Compress(DBTable& tab, std::string col, std::string cType) {
   // 修改表的状态
   tab.CompressedPiFileNameList[col] = tab.TableName + "_" + col + "_compressed.db";
   tab.IsSorted = true;
+  // 释放资源
+  this->allocator->Free(compressBufferName);
+  this->allocator->Free(outputBufferName);
 }
 
 //函数作用： 自然连接表
@@ -564,7 +576,7 @@ void FileManager::Compress(DBTable& tab, std::string col, std::string cType) {
 //      tab1 表对象
 //      tab2 表对象
 //返 回 值： N/A
-void FileManager::Join() {
+void FileManager::Join(DBTable& tab1, DBTable& tab2) {
   // 缓冲区
   int joinCustkeyBuffer[32 * SIZE_PAGE];
   int joinCustomerBuffer[32 * SIZE_PAGE];
@@ -575,8 +587,8 @@ void FileManager::Join() {
   int joinCustomerBufferPointer = 0;
   int joinOutputPointer = 0;
   // 文件指针
-  FILE* joinFileOrderkey = fopen("orderkey_sorted.db", "rb");
-  FILE* joinFileCustkey = fopen("custkey_compressed.db", "rb");
+  FILE* joinFileOrderkey = fopen("order_orderkey_sorted.db", "rb");
+  FILE* joinFileCustkey = fopen("order_custkey_compressed.db", "rb");
   FILE* joinFileCustomer = fopen("customer_custkey.db", "rb");
   // 计数变量
   int custkeyMaxcount = 0;
@@ -697,6 +709,7 @@ int FileManager::Count(DBTable& tab, std::string ccol) {
   int buf[SIZE_PAGE];
   int it = 0;
   if (compressedFlag) {
+    PILEPRINTLN(ccol + " is a compressed column, using run-length counting.");
     do {
       memset(buf, 0, sizeof(int) * SIZE_PAGE);
       ctr = fread(buf, sizeof(int), SIZE_PAGE, fin);
@@ -719,6 +732,14 @@ int FileManager::Count(DBTable& tab, std::string ccol) {
   return atr;
 }
 
+//函数作用： 删除本地文件
+//参数列表：
+//  fileName 文件名
+//返 回 值： 操作成功与否
+bool FileManager::DeleteLocalFile(std::string fileName) {
+  return std::remove(fileName.c_str());
+}
+
 //函数作用： 将缓冲区写到文件
 //参数列表：
 // orgBuffer 缓冲区指针
@@ -733,6 +754,30 @@ void FileManager::WriteBufferToFile(int* orgBuffer, int incounter, std::string f
   }
   fwrite(orgBuffer, sizeof(int), incounter, fout);
   fclose(fout);
+}
+
+//函数作用： 将缓冲区写到文件
+//参数列表：
+// orgBuffer 缓冲区指针
+// incounter 缓冲区长度
+//     fname 文件名
+//返 回 值： N/A
+void FileManager::WriteSyncBufferToFile(int* orgBuffer, int* syncBuffer, int incounter, std::string fname1, std::string fname2) {
+  FILE* fout1 = fopen(fname1.c_str(), "ab");
+  FILE* fout2 = fopen(fname2.c_str(), "ab");
+  if (fout1 == NULL || fout2 == NULL) {
+    TRACE("Exception: cannot joined file");
+    return;
+  }
+  fwrite(orgBuffer, sizeof(int), incounter, fout1);
+  fwrite(syncBuffer, sizeof(int), incounter, fout2);
+  fclose(fout1);
+  fclose(fout2);
+  CSCommonUtil::StringBuilder sb;
+  for (int i = 0; i < incounter; i++) {
+    sb.Append(orgBuffer[i]).Append("|").Append(syncBuffer[i]).Append(NEWLINE);
+  }
+  PILEPRINT(sb.ToString());
 }
 
 //函数作用：  内排序

@@ -6,6 +6,7 @@ CSTORE_NS_BEGIN
 DBController::DBController()
   :DBObject("DBController", this) {
   this->connector = DBConnectionPool::GetInstance();
+  this->connector->Init();
 }
 
 // Îö¹¹Æ÷

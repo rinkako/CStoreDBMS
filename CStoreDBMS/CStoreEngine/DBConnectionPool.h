@@ -12,6 +12,11 @@ public:
   //返 回 值： 连接器的唯一实例
   static DBConnectionPool* GetInstance();
 
+  //函数作用： 开启连接池
+  //参数列表： N/A
+  //返 回 值： N/A
+  void Init();
+
   //函数作用： 将事务提交给数据库引擎
   //参数列表：
   //     query 要提交的事务查询语句集合
@@ -72,9 +77,10 @@ private:
   DBConnectionPool();
 
   //函数作用： 事务处理器
-  //参数列表： N/A
+  //参数列表：
+  //        id 线程id
   //返 回 值： N/A
-  static void TransactionHandler();
+  static void TransactionHandler(int id);
 
   // 结束标志
   bool quitFlag;
