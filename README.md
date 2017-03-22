@@ -1,7 +1,9 @@
 # CStoreDB
 本项目旨在复现一个简单的列存储数据库管理系统Simplified C-Store，它将以面向列的数据库存储模式，实现数据库的最基础的功能。
+
 </br>
 </br>
+
 # 已完成的功能
 ①、Simplified SQL Compiler：一个简化版SQL语言的解释器；
 
@@ -22,8 +24,10 @@
 ⑨、内存管理：为整个DBMS提供统一的内存管理服务；
 
 ⑩、多线程连接池：使DBMS能够处理并发的查询。
+
 </br>
 </br>
+
 # 技术原理
 ### SSQL语言及其解释器前端
 SSQL语言，即Simplified-SQL，是对结构化查询语言SQL的一种简化，它只保留了我们实现Simplified C-Store DBMS时所需要的查询语法和关键字，是一种严格的上下文无关文法语言。SSQL解释器作为C-Store DBMS中的核心组件之一，负责将用户输入的SSQL语言编译为数据库引擎可以理解的中间语言。限于正文的篇幅，SSQL语言的具体文法规则将在本文的附件A中做详细说明，因此不在此处赘述。
@@ -164,6 +168,9 @@ C-Store DBMS作为列存储数据库，其优势之一就是优秀的压缩性�
 
 ![Join](https://raw.githubusercontent.com/Rinkako/CStoreDB/master/Pictures/Join.jpg)
 
+</br>
+</br>
+
 # 架构设计
 ### DBInterface包
 该包实现了用户交互接口以及对用户的输入进行事务封装、进程调度的类。它的类包图如图3-1。包里面的核心类有：
@@ -204,5 +211,8 @@ C-Store DBMS作为列存储数据库，其优势之一就是优秀的压缩性�
 所有的类最终都继承自一个公共根类型DBObject，它为子类们提供了大量的可重写的公共辅助函数和接口，例如比较函数、类型名函数、字符串化函数等。这使得各包独立成为模块。
 
 ![Project Architecture](https://raw.githubusercontent.com/Rinkako/CStoreDB/master/Pictures/ProjectArchitecture.png)
+
+</br>
+</br>
 
 #### EOF
