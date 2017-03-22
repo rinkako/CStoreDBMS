@@ -86,7 +86,7 @@ public:
   //      _res 父母节点
   //   _parser 匹配器指针
   //返 回 值： SyntaxTreeNode* 下一个拿去展开的产生式
-  SyntaxTreeNode* NextNode(SyntaxTreeNode*, LL1SyntaxParser*);
+  SyntaxTreeNode* NextNode(SyntaxTreeNode*, LL1SyntaxParser*) const;
 
   // 下一Token指针
   iPtr iPTRnextToken = 0;
@@ -119,12 +119,12 @@ private:
   //函数作用： 初始化分析表行列
   //参数列表： N/A
   //返 回 值： N/A
-  void InitMapProperties();
+  void InitMapProperties() const;
 
   //函数作用： 初始化LL1文法
   //参数列表： N/A
   //返 回 值： N/A
-  void InitCellular();
+  void InitCellular() const;
 
   //函数作用： 错误中断处理函数
   //参数列表： N/A
@@ -136,7 +136,7 @@ private:
   // 匹配栈
   SyntaxStack iParseStack;
   // 预测分析表
-  LL1SyntaxParserMap* iMap = NULL;
+  LL1SyntaxParserMap* iMap = nullptr;
 }; /* LL1SyntaxParser */
 
 CSTORE_NS_END

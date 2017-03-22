@@ -3,7 +3,6 @@
 #include "DBBase.h"
 #include "DBLock.hpp"
 #include "DBTable.hpp"
-#include "FileManager.h"
 
 CSTORE_NS_BEGIN
 

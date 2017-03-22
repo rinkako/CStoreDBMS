@@ -43,7 +43,7 @@ DBObject::DBObject(std::string TyName, void* ObjPtr)
 
 // Îö¹¹Æ÷
 DBObject::~DBObject() {
-  this->allocPointer = NULL;
+  this->allocPointer = nullptr;
 }
 
 CSTORE_NS_END

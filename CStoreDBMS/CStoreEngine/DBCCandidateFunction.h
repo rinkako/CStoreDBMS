@@ -34,12 +34,12 @@ public:
   //函数作用： 获得产生式函数
   //参数列表： N/A
   //返 回 值： iHandle 产生式的处理函数
-  iHandle GetProc();
+  iHandle GetProc() const;
 
   //函数作用： 获得产生式函数
   //参数列表： N/A
   //返 回 值： CFunctionType 产生式类型
-  CFunctionType GetType();
+  CFunctionType GetType() const;
 
   //函数作用： 调用产生式处理函数
   //参数列表：
@@ -48,11 +48,11 @@ public:
   //   _syntax 语法类型
   //   _detail 节点信息
   //返 回 值： iHandle 产生式的处理函数
-  SyntaxTreeNode* Call(SyntaxTreeNode*, void*, SyntaxType, istr);
+  SyntaxTreeNode* Call(SyntaxTreeNode*, void*, SyntaxType, istr) const;
 
 private:
   // 产生式特殊处理指针
-  iHandle candidateProcesser = NULL;
+  iHandle candidateProcesser = nullptr;
   // 产生式类型
   CFunctionType candidateType;
 };

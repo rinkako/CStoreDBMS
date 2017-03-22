@@ -16,7 +16,7 @@ public:
   //函数作用： 列出所有的表
   //参数列表： N/A
   //返 回 值： N/A
-  void ShowTable();
+  void ShowTable() const;
 
   //函数作用： 复位数据库
   //参数列表： N/A
@@ -26,7 +26,7 @@ public:
   //函数作用： 返回表的数量
   //参数列表： N/A
   //返 回 值： int 数据库中表的数量
-  int Size();
+  int Size() const;
 
   //函数作用： 解释执行一条SSQL语句
   //参数列表：
@@ -61,7 +61,7 @@ private:
   //参数列表：
   //      name 表的名字
   //返 回 值： bool 表的存在性
-  bool Exist(istr);
+  bool Exist(istr) const;
 
   //函数作用： 建立一个新表
   //参数列表：
@@ -79,7 +79,7 @@ private:
   //      cond 条件子句树的指针
   //    iproxy 代理指针
   //返 回 值： 操作成功与否
-  bool Delete(istr, StrVec&, SyntaxTreeNode* = NULL, DBCProxy* = NULL);
+  bool Delete(istr, StrVec&, SyntaxTreeNode* = nullptr, DBCProxy* = nullptr);
 
   //函数作用： 向一个表发出查询
   //参数列表：
@@ -98,7 +98,7 @@ private:
   //      cond 条件子句树的指针
   //    iproxy 代理指针
   //返 回 值： 操作成功与否
-  bool Select(istr, StrVec&, bool, StrVec&, SyntaxTreeNode* = NULL, DBCProxy* = NULL);
+  bool Select(istr, StrVec&, bool, StrVec&, SyntaxTreeNode* = nullptr, DBCProxy* = nullptr);
 
   //函数作用： 将输入载入表中
   //参数列表：

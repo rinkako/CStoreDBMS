@@ -100,7 +100,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       }
       else {
         PILEPRINTLN("Load command should follow with a file *.tbl");
-        curRoot = NULL;
+        curRoot = nullptr;
         return true;
       }
       this->iPTRnextToken++;
@@ -109,7 +109,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
     }
     else {
       PILEPRINTLN("Load command should follow with a file *.tbl");
-      curRoot = NULL;
+      curRoot = nullptr;
       return true;
     }
     break;
@@ -123,7 +123,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       }
       else {
         TRACE("Retrieve command should follow with a table name");
-        curRoot = NULL;
+        curRoot = nullptr;
         return true;
       }
       if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
@@ -133,7 +133,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
         }
         else {
           TRACE("Retrieve command should end with a primary key value");
-          curRoot = NULL;
+          curRoot = nullptr;
           return true;
         }
         this->iPTRnextToken++;
@@ -142,13 +142,13 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       }
       else {
         TRACE("Retrieve command should end with a primary key value");
-        curRoot = NULL;
+        curRoot = nullptr;
         return true;
       }
     }
     else {
       TRACE("Retrieve command should follow with a table name");
-      curRoot = NULL;
+      curRoot = nullptr;
       return true;
     }
     break;
@@ -162,7 +162,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       }
       else {
         TRACE("Compress command should follow with tablename");
-        curRoot = NULL;
+        curRoot = nullptr;
         return true;
       }
       if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
@@ -172,7 +172,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
         }
         else {
           TRACE("Compress command should end with a column name");
-          curRoot = NULL;
+          curRoot = nullptr;
           return true;
         }
         this->iPTRnextToken++;
@@ -181,13 +181,13 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       }
       else {
         TRACE("Compress command should end with a column name");
-        curRoot = NULL;
+        curRoot = nullptr;
         return true;
       }
     }
     else {
       TRACE("Compress command should follow with tablename");
-      curRoot = NULL;
+      curRoot = nullptr;
       return true;
     }
     return true;
@@ -201,7 +201,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       }
       else {
         TRACE("Join command should follow with a table name");
-        curRoot = NULL;
+        curRoot = nullptr;
         return true;
       }
       if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
@@ -211,7 +211,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
         }
         else {
           TRACE("Join command should end with a table name");
-          curRoot = NULL;
+          curRoot = nullptr;
           return true;
         }
         this->iPTRnextToken++;
@@ -220,13 +220,13 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       }
       else {
         TRACE("Join command should end with a table name");
-        curRoot = NULL;
+        curRoot = nullptr;
         return true;
       }
     }
     else {
       TRACE("Join command should follow with a table name");
-      curRoot = NULL;
+      curRoot = nullptr;
       return true;
     }
     break;
@@ -240,7 +240,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       }
       else {
         TRACE("Count command should follow with a table name");
-        curRoot = NULL;
+        curRoot = nullptr;
         return true;
       }
       if (this->GetTokenStream()->_tokenContainer.size() > this->iPTRnextToken + 1) {
@@ -250,7 +250,7 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
         }
         else {
           TRACE("Count command should end with a column name");
-          curRoot = NULL;
+          curRoot = nullptr;
           return true;
         }
         this->iPTRnextToken++;
@@ -259,13 +259,13 @@ bool LL1SyntaxParser::CSTOREQL(Token* xtoken, SyntaxTreeNode*& curRoot) {
       }
       else {
         TRACE("Count command should end with a column name");
-        curRoot = NULL;
+        curRoot = nullptr;
         return true;
       }
     }
     else {
       TRACE("Count command should follow with a table name");
-      curRoot = NULL;
+      curRoot = nullptr;
       return true;
     }
     break;
@@ -281,14 +281,14 @@ SyntaxTreeNode* LL1SyntaxParser::Parse() {
   this->Reset();
   // 原始节点
   SyntaxTreeNode* parsePointer = new SyntaxTreeNode();
-  register SyntaxTreeNode* currentPtr = parsePointer;
+  SyntaxTreeNode* currentPtr = parsePointer;
   // 处理CStore特殊保留字
   bool spottedCQL = this->CSTOREQL(this->GetTokenStream()->_tokenContainer[iPTRnextToken], parsePointer);
   // 命中CStore关键字
   if (spottedCQL == true) {
     // 语法错误时
-    if (parsePointer == NULL) {
-      return NULL;
+    if (parsePointer == nullptr) {
+      return nullptr;
     }
     return parsePointer;
   }
@@ -305,15 +305,15 @@ SyntaxTreeNode* LL1SyntaxParser::Parse() {
       this->iException();
       // 跳跃掉这个语句
       this->Dash();
-      return NULL;
+      return nullptr;
     }
     // 如果处于非终结符，就设置她的候选式
-    if (currentPtr != NULL) {
+    if (currentPtr != nullptr) {
       currentPtr->candidateFunction = func;
     }
     // 调用产生式，下降
-    if (func != NULL) {
-      if (currentPtr != NULL) {
+    if (func != nullptr) {
+      if (currentPtr != nullptr) {
         currentPtr = currentPtr->candidateFunction->Call(currentPtr, this, nodeType, iToken->detail);
       }
       else {
@@ -322,7 +322,7 @@ SyntaxTreeNode* LL1SyntaxParser::Parse() {
     }
     // 没有对应的候选式时
     else {
-      if (currentPtr != NULL) {
+      if (currentPtr != nullptr) {
         currentPtr->errorCode = 1;
       }
       break;
@@ -336,36 +336,33 @@ SyntaxTreeNode* LL1SyntaxParser::Parse() {
 }
 
 // LL1SyntaxParser下一节点
-SyntaxTreeNode* LL1SyntaxParser::NextNode(SyntaxTreeNode* _res, LL1SyntaxParser* _parser) {
+SyntaxTreeNode* LL1SyntaxParser::NextNode(SyntaxTreeNode* _res, LL1SyntaxParser* _parser) const {
   // 已经没有需要扩展的节点了就返回空
-  if (_res == NULL) {
-    return NULL;
+  if (_res == nullptr) {
+    return nullptr;
   }
   // 否则取其父节点来取得其兄弟节点
   SyntaxTreeNode* parent = _res->parent;
   // 若无父母节点就已经到递归退回到最上层了
-  if (parent == NULL) {
-    return NULL;
+  if (parent == nullptr) {
+    return nullptr;
   }
   int i = 0;
   // 遍历寻找自己在姐妹中的排位
-  for (; i < (int)parent->children.size(); i++) {
+  for (; i < static_cast<int>(parent->children.size()); i++) {
     if (parent->children[i] == _res) {
       break;
     }
   }
   // 跳过自己，选最大的妹节点作为下一个展开节点
-  if (i + 1 < (int)parent->children.size()) {
+  if (i + 1 >= static_cast<int>(parent->children.size())) {
     return parent->children[i + 1];
   }
   // 已经没有比自己同辈且小的节点，就递归去找父母辈的兄弟姐妹
-  else {
-    if (i + 1 == parent->children.size()) {
-      parent->mappedLength = _parser->iPTRnextToken - parent->mappedBegin;
-    }
-    return NextNode(parent, _parser);
+  if (i + 1 == parent->children.size()) {
+    parent->mappedLength = _parser->iPTRnextToken - parent->mappedBegin;
   }
-  return NULL;
+  return NextNode(parent, _parser);
 }
 
 // LL1SyntaxParser错误处理
@@ -628,7 +625,7 @@ void LL1SyntaxParser::InitLinkerVector() {
 }
 
 // LL1SyntaxParser初始化分析表行列
-void LL1SyntaxParser::InitMapProperties() {
+void LL1SyntaxParser::InitMapProperties() const {
   // 设置行属性：非终结符
   iMap->SetRow(0, SyntaxType::case_ssql_stmt);
   iMap->SetRow(1, SyntaxType::case_create_stmt);
@@ -742,13 +739,13 @@ void LL1SyntaxParser::InitMapProperties() {
 }
 
 // LL1SyntaxParser初始化文法
-void LL1SyntaxParser::InitCellular() {
+void LL1SyntaxParser::InitCellular() const {
   // iProco都指向通用展开式函数Homura
   iHandle iProco = Homura;
   // 错误的情况下，没有考虑短语层次的错误恢复，因此错误处理器都指向NULL
   for (int i = 0; i < LL1PARSERMAPROW; i++) {
     for (int j = 0; j < LL1PARSERMAPCOL; j++) {
-      this->iMap->SetCellular(i, j, new CandidateFunction(NULL, CFunctionType::umi_errorEnd));
+      this->iMap->SetCellular(i, j, new CandidateFunction(nullptr, CFunctionType::umi_errorEnd));
     }
   }
   // 流命中： <ssql_stmt> ::= "create"的Token
@@ -1455,8 +1452,8 @@ void LL1SyntaxParser::InitCellular() {
 //返 回 值： SyntaxTreeNode* 下一个展开节点的指针
 SyntaxTreeNode* Homura(SyntaxTreeNode* _myNode, void* _myParser, CFunctionType _myType, SyntaxType _mySyntax, istr _myValue) {
   // 取得匹配器，更新节点信息
-  LL1SyntaxParser* iParser = (LL1SyntaxParser*)_myParser;
-  if (_myNode != NULL) {
+  LL1SyntaxParser* iParser = static_cast<LL1SyntaxParser*>(_myParser);
+  if (_myNode != nullptr) {
     _myNode->nodeType = _myType;
     _myNode->nodeValue = _myValue;
     _myNode->nodeSyntaxType = _mySyntax;
@@ -1473,14 +1470,14 @@ SyntaxTreeNode* Homura(SyntaxTreeNode* _myNode, void* _myParser, CFunctionType _
   if (_myType < CFunctionType::DERI_UMI_BOUNDARY) {
     // 自右向左压匹配栈
     for (SyntaxVector::reverse_iterator iter = iSvec.rbegin();
-      iter != iSvec.rend(); iter++) {
+      iter != iSvec.rend(); ++iter) {
       iStack->push(*iter);
     }
     // 自左向右建子节点
     bool flag = false;
-    SyntaxTreeNode* successor = NULL;
+    SyntaxTreeNode* successor = nullptr;
     for (SyntaxVector::const_iterator iter = iSvec.begin();
-      iter != iSvec.end(); iter++) {
+      iter != iSvec.end(); ++iter) {
       SyntaxTreeNode* newNode = new SyntaxTreeNode();
       newNode->mappedList = iParser->GetTokenStream();
       newNode->mappedBegin = iParser->iPTRnextToken;
@@ -1497,7 +1494,7 @@ SyntaxTreeNode* Homura(SyntaxTreeNode* _myNode, void* _myParser, CFunctionType _
   // 如果是一个终结符
   else {
     // 更新节点信息
-    if (_myNode != NULL && _myType != CFunctionType::umi_epsilon) {
+    if (_myNode != nullptr && _myType != CFunctionType::umi_epsilon) {
       _myNode->mappedLength = iParser->GetTokenStream()->_tokenContainer[iParser->iPTRnextToken]->detail.size();
     }
     else if (_myType == CFunctionType::umi_epsilon) {

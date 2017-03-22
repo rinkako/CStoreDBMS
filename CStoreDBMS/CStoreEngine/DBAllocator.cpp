@@ -13,7 +13,7 @@ DBAllocator::~DBAllocator() {
 
 // 工厂方法，获得类的唯一实例
 DBAllocator* DBAllocator::GetInstance() {
-  return DBAllocator::Instance == NULL ?
+  return DBAllocator::Instance == nullptr ?
     DBAllocator::Instance = new DBAllocator() : DBAllocator::Instance;
 }
 
@@ -22,7 +22,7 @@ void* DBAllocator::Alloc(std::string _name, size_t _size) {
   // 不可重名
   if (this->allocPool.find(_name) != this->allocPool.end()) {
     TRACE("Expect to alloc buffer" + _name + ", but already exist.");
-    return NULL;
+    return nullptr;
   }
   void* memblock = std::malloc(_size);
   std::memset(memblock, 0, sizeof(memblock));
@@ -36,15 +36,15 @@ void* DBAllocator::Get(std::string _name) {
     return this->allocPool[_name];
   }
   TRACE("Expect to get buffer" + _name + ", but not exist.");
-  return NULL;
+  return nullptr;
 }
 
 // 释放一个缓冲区
 void DBAllocator::Free(std::string _name) {
   if (this->allocPool.find(_name) != this->allocPool.end()) {
-    if (this->allocPool[_name] != NULL) {
+    if (this->allocPool[_name] != nullptr) {
       std::free(this->allocPool[_name]);
-      this->allocPool[_name] = NULL;
+      this->allocPool[_name] = nullptr;
     }
     this->allocPool.erase(_name);
   } else {
@@ -56,9 +56,9 @@ void DBAllocator::Free(std::string _name) {
 void DBAllocator::FreeAll() {
   for (std::map<std::string, void*>::iterator iter = this->allocPool.begin();
     iter != this->allocPool.end(); iter++) {
-    if ((*iter).second != NULL) {
+    if ((*iter).second != nullptr) {
       std::free((*iter).second);
-      (*iter).second = NULL;
+      (*iter).second = nullptr;
     }
   }
   this->allocPool.clear();
@@ -68,7 +68,7 @@ void DBAllocator::FreeAll() {
 void DBAllocator::Collapse() {
   TRACE("DBMS Environment Begin to Collapse");
   // 释放全部缓冲区
-  if (DBAllocator::Instance != NULL) {
+  if (DBAllocator::Instance != nullptr) {
     DBAllocator::Instance->FreeAll();
   }
   // 保存表格
@@ -76,6 +76,6 @@ void DBAllocator::Collapse() {
 }
 
 // 唯一实例
-DBAllocator* DBAllocator::Instance = NULL;
+DBAllocator* DBAllocator::Instance = nullptr;
 
 CSTORE_NS_END

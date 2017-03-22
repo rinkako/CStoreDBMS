@@ -22,10 +22,10 @@ void LexicalAnalyzer::Reset() {
   currentLine = ROWSTARTNUM;
   currentColumn = COLSTARTNUM;
   PTRnextLetter = 0;
-  if (currentList != NULL) {
+  if (currentList != nullptr) {
     currentList->_tokenContainer.clear();
     delete currentList;
-    currentList = NULL;
+    currentList = nullptr;
   }
 }
 
@@ -44,7 +44,7 @@ TokenStream* LexicalAnalyzer::Analyze() {
     int bound = this->GetSourceCode().length();
     while (PTRnextLetter < bound) {
       Token *kotori = this->NextToken();
-      if (kotori != NULL) {
+      if (kotori != nullptr) {
         currentList->Add(kotori);
       }
     }
@@ -80,7 +80,7 @@ Token* LexicalAnalyzer::NextToken() {
     return result;
   }
   // 获取下一字符来判断token
-  bool successFlag = false;
+  bool successFlag;
   CharaType cara = GetCharType(this->GetSourceCode()[PTRnextLetter]);
   switch (cara)
   {
@@ -128,7 +128,7 @@ Token* LexicalAnalyzer::NextToken() {
     return result;
   }
   // 否则返回空
-  return NULL;
+  return nullptr;
 }
 
 // LexicalAnalyzer获取器，得到空白对应的Token

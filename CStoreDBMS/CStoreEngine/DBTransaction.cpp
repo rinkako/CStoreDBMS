@@ -6,7 +6,7 @@ CSTORE_NS_BEGIN
 DBTransaction::DBTransaction(std::string queryCode)
   :DBObject("DBTransaction", this) {
   id = DBTransaction::encounter++;
-  time_t ts = std::time(NULL);
+  time_t ts = std::time(nullptr);
   tm* localt = std::localtime(&ts);
   char timeBuffer[10];
   std::sprintf(timeBuffer, "%02d:%02d:%02d", localt->tm_hour, localt->tm_min, localt->tm_sec);
@@ -22,7 +22,7 @@ DBTransaction::DBTransaction(std::string queryCode)
 //参数列表： N/A
 //返 回 值： N/A
 void DBTransaction::Finish() {
-  time_t ts = std::time(NULL);
+  time_t ts = std::time(nullptr);
   tm* localt = std::localtime(&ts);
   char timeBuffer[16];
   std::sprintf(timeBuffer, "%02d:%02d:%02d", localt->tm_hour, localt->tm_min, localt->tm_sec);

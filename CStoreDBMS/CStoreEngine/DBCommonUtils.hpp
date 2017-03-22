@@ -91,7 +91,7 @@ namespace CSCommonUtil {
     //参数列表：
     //       str 初始化字符串
     //返 回 值： N/A
-    StringBuilder(const std::string& str) : CStore::DBObject("StringBuilder", this) {
+    explicit StringBuilder(const std::string& str) : CStore::DBObject("StringBuilder", this) {
       this->_str = str;
     }
 
@@ -99,14 +99,14 @@ namespace CSCommonUtil {
     //参数列表：
     //       str 初始化字符串
     //返 回 值： N/A
-    StringBuilder(const char* str) : CStore::DBObject("StringBuilder", this) {
+    explicit StringBuilder(const char* str) : CStore::DBObject("StringBuilder", this) {
       this->_str = std::string(str);
     }
 
     //函数作用： 获取当前字符串长度
     //参数列表： N/A
     //返 回 值： 字符串长度整数
-    inline int Length() {
+    inline int Length() const {
       return this->_str.length();
     }
 

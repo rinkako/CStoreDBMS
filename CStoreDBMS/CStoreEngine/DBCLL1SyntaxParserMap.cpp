@@ -51,6 +51,6 @@ CandidateFunction* LL1SyntaxParserMap::GetCFunction(SyntaxType left, DBTokenType
     return new CandidateFunction(nilserver, CFunctionType::umi_epsilon);
   }
   CandidateFunction* candidator = this->GetCFunction(this->iLeftNodes[left], this->iNextLeaves[leave]);
-  return candidator == NULL ? new CandidateFunction(NULL, CFunctionType::umi_errorEnd) : candidator;
+  return candidator == nullptr ? new CandidateFunction(nullptr, CFunctionType::umi_errorEnd) : candidator;
 }
 CSTORE_NS_END

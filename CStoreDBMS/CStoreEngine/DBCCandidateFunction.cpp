@@ -2,7 +2,7 @@
 CSTORE_NS_BEGIN
 // CandidateFunction的构造器
 CandidateFunction::CandidateFunction() : DBObject("CandidateFunction", this) {
-  candidateProcesser = NULL;
+  candidateProcesser = nullptr;
 }
 
 // CandidateFunction的拷贝构造器
@@ -25,18 +25,17 @@ void CandidateFunction::SetProc(iHandle _proc, CFunctionType _pt) {
 }
 
 // CandidateFunction获得产生式向量
-iHandle CandidateFunction::GetProc() {
+iHandle CandidateFunction::GetProc() const {
   return this->candidateProcesser;
 }
 
 // CandidateFunction获得产生式类型
-CFunctionType CandidateFunction::GetType() {
+CFunctionType CandidateFunction::GetType() const {
   return this->candidateType;
 }
 
 // CandidateFunction调用产生式
-SyntaxTreeNode* CandidateFunction::Call(SyntaxTreeNode* _root, void* _parser, SyntaxType _syntax, istr _detail) {
-  //return NULL;
+SyntaxTreeNode* CandidateFunction::Call(SyntaxTreeNode* _root, void* _parser, SyntaxType _syntax, istr _detail) const {
   return this->candidateProcesser(_root, _parser, this->candidateType, _syntax, _detail);
 }
 

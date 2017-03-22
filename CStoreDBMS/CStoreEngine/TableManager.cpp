@@ -1,10 +1,11 @@
 #include "TableManager.h"
+#include "FileManager.h"
 
 CSTORE_NS_BEGIN
 
 // 工厂方法
 TableManager* TableManager::GetInstance() {
-  return TableManager::Instance == NULL ?
+  return TableManager::Instance == nullptr ?
     TableManager::Instance = new TableManager() : TableManager::Instance;
 }
 
@@ -32,12 +33,12 @@ bool TableManager::DropTable(const std::string& tabName) {
   // 获取表对象
   bool flag = false;
   DBTable* tabObj = this->GetTable(tabName);
-  if (tabObj == NULL) {
+  if (tabObj == nullptr) {
     return false;
   }
   // 移除锁对象，此处不管是否上锁都会触发表删除，请在执行器处判断锁的状态
   for (std::vector<DBLock*>::iterator iter = this->lockContainer.begin(); iter != this->lockContainer.end(); iter++) {
-    if ((*iter) != NULL && (*iter)->LockBinding->ReferenceEquals(tabObj)) {
+    if ((*iter) != nullptr && (*iter)->LockBinding->ReferenceEquals(tabObj)) {
       delete (*iter);
       this->lockContainer.erase(iter);
       break;
@@ -60,7 +61,7 @@ bool TableManager::DropTable(const std::string& tabName) {
   }
   // 移除表对象
   for (std::vector<DBTable*>::iterator iter = this->tableContainer.begin(); iter != this->tableContainer.end(); iter++) {
-    if ((*iter) != NULL && (*iter)->TableName == tabName) {
+    if ((*iter) != nullptr && (*iter)->TableName == tabName) {
       delete (*iter);
       this->tableContainer.erase(iter);
       flag = true;
@@ -83,28 +84,28 @@ DBTable* TableManager::GetTable(const std::string& tabName) {
   if (this->tableIndexDict.find(tabName) != this->tableIndexDict.end()) {
     return this->tableContainer[this->tableIndexDict[tabName]];
   }
-  return NULL;
+  return nullptr;
 }
 
 // 判断表的存在
 bool TableManager::ExistTable(const std::string& tabName) {
-  return this->GetTable(tabName) == NULL;
+  return this->GetTable(tabName) == nullptr;
 }
 
 // 获取表的锁对象
 DBLock* TableManager::GetTableLock(const std::string& tabName) {
   // 获取表对象
   DBTable* tabObj = this->GetTable(tabName);
-  if (tabObj == NULL) {
-    return NULL;
+  if (tabObj == nullptr) {
+    return nullptr;
   }
   // 返回锁
   for (std::vector<DBLock*>::iterator iter = this->lockContainer.begin(); iter != this->lockContainer.end(); iter++) {
-    if ((*iter) != NULL && (*iter)->LockBinding->ReferenceEquals(tabObj)) {
+    if ((*iter) != nullptr && (*iter)->LockBinding->ReferenceEquals(tabObj)) {
       return (*iter);
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 // 获取所有表的描述信息
@@ -194,6 +195,6 @@ TableManager::TableManager()
 }
 
 // 唯一实例
-TableManager* TableManager::Instance = NULL;
+TableManager* TableManager::Instance = nullptr;
 
 CSTORE_NS_END

@@ -1,8 +1,6 @@
 #ifndef __CSTORE_DBCONTROLLER
 #define __CSTORE_DBCONTROLLER
 #include "DBBase.h"
-#include "DBBridge.h"
-#include "DBAllocator.h"
 #include "DBConnectionPool.h"
 
 CSTORE_NS_BEGIN
@@ -65,7 +63,7 @@ private:
   // 运行的路径
   std::string runPath = "";
   // 连接器
-  DBConnectionPool* connector = NULL;
+  DBConnectionPool* connector = nullptr;
   // 唯一实例
   static DBController* Instance;
   // 阻止拷贝构造

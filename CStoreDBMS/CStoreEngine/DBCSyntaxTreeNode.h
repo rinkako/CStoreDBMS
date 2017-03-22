@@ -53,12 +53,12 @@ private:
   //函数作用： 树的递归遍历文本化
   //参数列表： N/A
   //返 回 值： istr 树的字符串表示
-  void GetTree(istr&, SyntaxTreeNode*, int&);
+  void GetTree(istr&, SyntaxTreeNode*, int&) const;
 
   //函数作用： 树文本化过程的缩进计算
   //参数列表： N/A
   //返 回 值： istr 树的字符串表示
-  istr DrawTree(SyntaxTreeNode*);
+  istr DrawTree(SyntaxTreeNode*) const;
 }; /* SyntaxTreeNode */
 
 CSTORE_NS_END

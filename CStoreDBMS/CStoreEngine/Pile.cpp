@@ -12,7 +12,7 @@ IPile::IPile()
 void IPile::Reset() {
   proxyID = 0;
   lastPi = "";
-  this->parseTree = NULL;
+  this->parseTree = nullptr;
 }
 
 // IPileÉèÖÃ·ÖÎöÊ÷
@@ -27,11 +27,11 @@ DBCProxy IPile::Semanticer() {
   myProxy.id = this->proxyID++;
   myProxy.encounter = 0;
   myProxy.errorBit = false;
-  myProxy.condPtr = NULL;
+  myProxy.condPtr = nullptr;
   myProxy.opCode = DashType::dash_nop;
   myProxy.isStar = false;
   // ¿ÕÊ÷Ö±½Ó·µ»Ø
-  if (this->parseTree == NULL) {
+  if (this->parseTree == nullptr) {
     return myProxy;
   }
   // ×Ô¶¥ÏòÏÂµİ¹é±éÀúÓï·¨Ê÷
@@ -114,7 +114,7 @@ void IPile::Mise(DBCProxy &myproxy, SyntaxTreeNode* mynode, int flag) {
     }
     break;
   case SyntaxType::case_sexpr:
-    CSDatabase::AST(mynode, NULL, &myproxy);
+    CSDatabase::AST(mynode, nullptr, &myproxy);
     if (flag == 3) {
       myproxy.DefaPi.insert(PilePair(lastPi, (int)mynode->aTag));
     }

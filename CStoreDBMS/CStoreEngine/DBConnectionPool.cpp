@@ -10,7 +10,7 @@ CSTORE_NS_BEGIN
 
 // 工厂方法，获得类的唯一实例
 DBConnectionPool* DBConnectionPool::GetInstance() {
-  return DBConnectionPool::instance == NULL ? 
+  return DBConnectionPool::instance == nullptr ? 
     DBConnectionPool::instance = new DBConnectionPool() : DBConnectionPool::instance;
 }
 
@@ -34,7 +34,7 @@ DBConnectionPool::~DBConnectionPool() {
   this->threadPool.clear();
   this->ClearQueue();
   for (int i = 0; i < this->finishedTransactionVector.size(); i++) {
-    if (this->finishedTransactionVector[i] != NULL) {
+    if (this->finishedTransactionVector[i] != nullptr) {
       delete this->finishedTransactionVector[i];
     }
   }
@@ -85,7 +85,7 @@ void DBConnectionPool::ClearQueue() {
   int dropTransaction = 0;
   while (!this->transactionQueue.empty()) {
     DBTransaction* t = this->transactionQueue.front();
-    if (t != NULL) {
+    if (t != nullptr) {
       delete t;
     }
     this->transactionQueue.pop();
@@ -99,7 +99,7 @@ void DBConnectionPool::ClearQueue() {
 
 // 事务队列中排队的数量
 int DBConnectionPool::CountQueue() {
-  int retNum = 0;
+  int retNum;
   queueMutex.lock();
   retNum = this->transactionQueue.size();
   queueMutex.unlock();
@@ -108,7 +108,7 @@ int DBConnectionPool::CountQueue() {
 
 // 正在进行的事务数量
 int DBConnectionPool::CountProcessing() {
-  int retNum = 0;
+  int retNum;
   queueMutex.lock();
   retNum = this->ProcCounter;
   queueMutex.unlock();
@@ -119,7 +119,7 @@ int DBConnectionPool::CountProcessing() {
 std::string DBConnectionPool::ShowFinishedTransaction() {
   CSCommonUtil::StringBuilder sb;
   for (int i = 0; i < this->finishedTransactionVector.size(); i++) {
-    if (this->finishedTransactionVector[i] != NULL) {
+    if (this->finishedTransactionVector[i] != nullptr) {
       sb.Append(this->finishedTransactionVector[i]->ToString()).Append(NEWLINE);
     }
   }
@@ -130,7 +130,7 @@ std::string DBConnectionPool::ShowFinishedTransaction() {
 std::string DBConnectionPool::ShowProcessingTransaction() {
   CSCommonUtil::StringBuilder sb;
   for (int i = 0; i < this->processingTransactionVector.size(); i++) {
-    if (this->processingTransactionVector[i] != NULL) {
+    if (this->processingTransactionVector[i] != nullptr) {
       sb.Append(this->processingTransactionVector[i]->ToString()).Append(NEWLINE);
     }
   }
@@ -159,7 +159,7 @@ void DBConnectionPool::TransactionHandler(int id) {
       return;
     }
     // 从队列中取未处理的事务
-    DBTransaction* proTrans = NULL;
+    DBTransaction* proTrans = nullptr;
     core->queueMutex.lock();
     if (core->transactionQueue.size() > 0) {
       proTrans = core->transactionQueue.front();
@@ -178,7 +178,7 @@ void DBConnectionPool::TransactionHandler(int id) {
     core->ProcCounter++;
     core->queueMutex.unlock();
     // 处理这个事务
-    if (proTrans != NULL) {
+    if (proTrans != nullptr) {
       proTrans->SetHandleId(id);
       DBBridge* IBridge = new DBBridge();
       IBridge->StartTransaction(*proTrans, core->isDebug);
@@ -240,6 +240,6 @@ void DBConnectionPool::SetDebug(bool state) {
 }
 
 // 唯一实例
-DBConnectionPool* DBConnectionPool::instance = NULL;
+DBConnectionPool* DBConnectionPool::instance = nullptr;
 
 CSTORE_NS_END

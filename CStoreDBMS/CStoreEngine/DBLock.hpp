@@ -27,7 +27,7 @@ public:
       sb.Append("None");
       break;
     }
-    sb.Append(", Binding:" + (this->LockBinding == NULL ? "NULL" : this->LockBinding->ToString()) + "]");
+    sb.Append(", Binding:" + (this->LockBinding == nullptr ? "NULL" : this->LockBinding->ToString()) + "]");
     return sb.ToString();
   }
 
@@ -93,14 +93,14 @@ public:
   //参数列表： N/A
   //返 回 值： N/A
   inline void Reset() {
-    this->LockBinding = NULL;
-    this->LockTransaction = NULL;
+    this->LockBinding = nullptr;
+    this->LockTransaction = nullptr;
   }
 
   // 锁施加对象的指针
-  DBObject* LockBinding = NULL;
+  DBObject* LockBinding = nullptr;
   // 锁分配给的事务
-  DBTransaction* LockTransaction = NULL;
+  DBTransaction* LockTransaction = nullptr;
 
 private:
   // 锁的状态

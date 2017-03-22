@@ -9,7 +9,7 @@ CSDatabase::CSDatabase() {
 }
 
 // CSDatabase列出所有表
-void CSDatabase::ShowTable() {
+void CSDatabase::ShowTable() const {
   istr tableDescription = this->tableMana->ShowTable();
   TRACE("Table in database:");
   PILEPRINTLN(tableDescription);
@@ -22,7 +22,7 @@ void CSDatabase::Reset() {
 }
 
 // CSDatabase表数量
-int CSDatabase::Size() {
+int CSDatabase::Size() const {
   return this->tableMana->CountTable();
 }
 
@@ -32,7 +32,7 @@ int CSDatabase::Reference(istr paraname) {
 }
 
 // CSDatabase表是否存在
-bool CSDatabase::Exist(istr name) {
+bool CSDatabase::Exist(istr name) const {
   return this->tableMana->ExistTable(name);
 }
 
@@ -40,7 +40,7 @@ bool CSDatabase::Exist(istr name) {
 bool CSDatabase::Interpreter(DBCProxy& proxy, DBTransaction& trans) {
   // 取得操作码
   DashType opCode = proxy.opCode;
-  bool res = false;
+  bool res;
   // 清空参数字典
   _param.clear();
   switch (opCode)
@@ -120,7 +120,7 @@ bool CSDatabase::Load(DBTransaction* trans, istr tname) {
   // 取得表对象
   this->dbMutex.lock();
   DBTable* tobj = this->tableMana->GetTable(tname);
-  if (tobj == NULL) {
+  if (tobj == nullptr) {
     this->iException("table not exist: " + tname);
     return false;
   }
@@ -139,7 +139,7 @@ bool CSDatabase::Retrieve(DBTransaction* trans, istr tname, int tkey) {
   // 取得表对象
   this->dbMutex.lock();
   DBTable* tobj = this->tableMana->GetTable(tname);
-  if (tobj == NULL) {
+  if (tobj == nullptr) {
     this->iException("table not exist: " + tname);
     return false;
   }
@@ -165,7 +165,7 @@ bool CSDatabase::Compress(DBTransaction* trans, istr tname, istr pi) {
   // 取得表对象
   this->dbMutex.lock();
   DBTable* tobj = this->tableMana->GetTable(tname);
-  if (tobj == NULL) {
+  if (tobj == nullptr) {
     this->iException("table not exist: " + tname);
     return false;
   }
@@ -186,11 +186,11 @@ bool CSDatabase::Join(DBTransaction* trans, istr t1name, istr t2name) {
   this->dbMutex.lock();
   DBTable* tobj1 = this->tableMana->GetTable(t1name);
   DBTable* tobj2 = this->tableMana->GetTable(t2name);
-  if (tobj1 == NULL) {
+  if (tobj1 == nullptr) {
     this->iException("table not exist: " + t1name);
     return false;
   }
-  if (tobj2 == NULL) {
+  if (tobj2 == nullptr) {
     this->iException("table not exist: " + t2name);
     return false;
   }
@@ -212,7 +212,7 @@ bool CSDatabase::Count(DBTransaction* trans, istr tname, istr ccol) {
   // 取得表对象
   this->dbMutex.lock();
   DBTable* tobj = this->tableMana->GetTable(tname);
-  if (tobj == NULL) {
+  if (tobj == nullptr) {
     this->iException("table not exist: " + tname);
     return false;
   }

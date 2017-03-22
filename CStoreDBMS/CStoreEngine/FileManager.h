@@ -3,7 +3,6 @@
 #include "DBBase.h"
 #include "DBTable.hpp"
 #include "DBAllocator.h"
-#include "TableManager.h"
 CSTORE_NS_BEGIN
 
 #define SIZE_LINE 512

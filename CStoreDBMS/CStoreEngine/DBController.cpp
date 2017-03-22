@@ -1,4 +1,5 @@
 #include "DBController.h"
+#include "TableManager.h"
 
 CSTORE_NS_BEGIN
 
@@ -11,15 +12,15 @@ DBController::DBController()
 
 // 析构器
 DBController::~DBController() {
-  if (this->connector != NULL) {
+  if (this->connector != nullptr) {
     delete this->connector;
   }
-  this->connector = NULL;
+  this->connector = nullptr;
 }
 
 // 工厂方法，获得类的唯一实例
 DBController* DBController::Invoke() {
-  return DBController::Instance == NULL ?
+  return DBController::Instance == nullptr ?
     new DBController() : DBController::Instance;
 }
 
@@ -171,6 +172,6 @@ std::string DBController::GetRunPath() {
 }
 
 // 唯一实例
-DBController* DBController::Instance = NULL;
+DBController* DBController::Instance = nullptr;
 
 CSTORE_NS_END

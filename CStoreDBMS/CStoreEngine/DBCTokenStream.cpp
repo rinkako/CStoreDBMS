@@ -63,7 +63,7 @@ Token* TokenStream::Next() {
     return _tokenContainer[_iPointer++];
   }
   else {
-    return NULL;
+    return nullptr;
   }
 }
 

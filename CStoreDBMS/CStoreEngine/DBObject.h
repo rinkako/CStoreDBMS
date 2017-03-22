@@ -2,7 +2,6 @@
 #define ___CSTORE_DBOBJECT
 #include "DBMarcos.h"
 #include <string>
-#include <typeinfo>
 
 CSTORE_NS_BEGIN
 class DBObject {

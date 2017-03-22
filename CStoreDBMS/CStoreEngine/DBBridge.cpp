@@ -5,11 +5,11 @@ CSTORE_NS_BEGIN
 // IBridge构造函数
 DBBridge::DBBridge()
   :DBObject("DBBridge", this) {
-  sourceCodeTokenStream = NULL;
+  sourceCodeTokenStream = nullptr;
   currentSentence.clear();
   currentSentenceTokenStream.Reset();
   Pile.Reset();
-  currentTree = NULL;
+  currentTree = nullptr;
   istr sourceCode = "";
   istr sourcePath = "";
 }
@@ -37,11 +37,11 @@ void DBBridge::StartTransaction(DBTransaction& trans, bool isDebug) {
     PILEPRINTLN(">>> Parser Output:");
   }
   currentTree = iParser.Parse();
-  if (isDebug && currentTree != NULL) {
+  if (isDebug && currentTree != nullptr) {
     PILEPRINTLN(currentTree->ToString());
   }
   // 语义分析
-  if (currentTree != NULL) {
+  if (currentTree != nullptr) {
     Pile.SetParseTree(currentTree);
     currentProxy = Pile.Semanticer();
     // 解释执行

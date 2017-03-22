@@ -1,7 +1,5 @@
 #ifndef ___CSTORE_DBMARCOS
 #define ___CSTORE_DBMARCOS
-#include <stdio.h>
-#include <ctime>
 #include <mutex>
 
 // 简单DBObject子类构造函数
